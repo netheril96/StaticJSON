@@ -1,0 +1,303 @@
+#include <autojsoncxx/autojsoncxx.hpp>
+
+/* class definition */
+
+namespace autojsoncxx {
+
+template <>
+class SAXEventHandler<TypeName_A27885315D2EA6F8BEB7> {
+private:
+    typedef TypeName_A27885315D2EA6F8BEB7 object_type;
+
+    utility::scoped_ptr<error::ErrorBase> the_error;
+    object_type* obj;
+    int state;
+    int depth;
+
+    /* list of handlers */
+
+    bool check_depth(const char* type)
+    {
+        if (depth <= 0) {
+            the_error.reset(new error::TypeMismatchError("object", type));
+            return false;
+        }
+        return true;
+    }
+
+    const char* current_member_name() const
+    {
+        switch (state) {
+            /* get member name */
+        default:
+            break;
+        }
+        return "<UNKNOWN>";
+    }
+
+    bool checked_event_forwarding(bool success)
+    {
+        if (!success)
+            the_error.reset(new error::ObjectMemberError(current_member_name()));
+        return success;
+    }
+
+public:
+    explicit SAXEventHandler(object_type* obj)
+        : obj(obj)
+        , state(-1)
+        , depth(0)
+    /* init handlers */
+    {
+    }
+
+    bool Null()
+    {
+        if (!check_depth("null"))
+            return false;
+
+        switch (state) {
+
+        /* forward Null() to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool Bool(bool b)
+    {
+        if (!check_depth("bool"))
+            return false;
+
+        switch (state) {
+
+        /* forward Bool(b) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool Int(int i)
+    {
+        if (!check_depth("int"))
+            return false;
+
+        switch (state) {
+
+        /* forward Int(i) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool Uint(unsigned i)
+    {
+        if (!check_depth("unsigned"))
+            return false;
+
+        switch (state) {
+
+        /* forward Uint(i) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool Int64(int64_t i)
+    {
+        if (!check_depth("int64_t"))
+            return false;
+
+        switch (state) {
+
+        /* forward Int64(i) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool Uint64(uint64_t i)
+    {
+        if (!check_depth("uint64_t"))
+            return false;
+
+        switch (state) {
+
+        /* forward Uint64(i) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool Double(double d)
+    {
+        if (!check_depth("double"))
+            return false;
+
+        switch (state) {
+
+        /* forward Double(d) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool String(const char* str, SizeType length, bool copy)
+    {
+        if (!check_depth("string"))
+            return false;
+
+        switch (state) {
+
+        /* forward String(str, length, copy) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool Key(const char* str, SizeType length, bool copy)
+    {
+        if (!check_depth("object"))
+            return false;
+
+        if (depth == 1) {
+            if (0) {
+            }
+            /* change state */
+            else
+                state = -1;
+
+        } else {
+            switch (state) {
+
+            /* forward Key(str, length, copy) to members */
+
+            default:
+                break;
+            }
+        }
+        return true;
+    }
+
+    bool StartArray()
+    {
+        if (!check_depth("array"))
+            return false;
+
+        switch (state) {
+
+        /* forward StartArray() to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool EndArray(SizeType length)
+    {
+        if (!check_depth("array"))
+            return false;
+
+        switch (state) {
+
+        /* forward EndArray(length) to members */
+
+        default:
+            break;
+        }
+        return true;
+    }
+
+    bool StartObject()
+    {
+        ++depth;
+        if (depth > 1) {
+
+            switch (state) {
+
+            /* forward StartObject() to members */
+
+            default:
+                break;
+            }
+        }
+        return true;
+    }
+
+    bool EndObject(SizeType length)
+    {
+        --depth;
+        if (depth > 0) {
+
+            switch (state) {
+
+            /* forward EndObject(length) to members */
+
+            default:
+                break;
+            }
+        }
+        return true;
+    }
+
+    bool HasError() const
+    {
+        return !this->the_error.empty();
+    }
+
+    bool ReapError(error::ErrorStack& errs)
+    {
+        if (this->the_error.empty())
+            return false;
+
+        errs.push(this->the_error.release());
+
+        switch (state) {
+
+        /* reap error */
+
+        default:
+            break;
+        }
+
+        return true;
+    }
+
+    void PrepareForReuse()
+    {
+        depth = 0;
+        state = -1;
+    }
+};
+
+template <class Writer_6FD4E37439E0A95BB8A3>
+struct Serializer<Writer_6FD4E37439E0A95BB8A3, TypeName_A27885315D2EA6F8BEB7> {
+    void operator()(Writer_6FD4E37439E0A95BB8A3& w, const TypeName_A27885315D2EA6F8BEB7& value) const
+    {
+        w.StartObject();
+
+        /* serialize all members */
+
+        w.EndObject();
+    }
+};
+}
+
+
