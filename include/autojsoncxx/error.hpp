@@ -39,12 +39,13 @@ namespace error {
     typedef int error_type;
 
     static const error_type SUCCESS = 0,
-                            ERROR_INTERMEDIATE_OBJECT = 1,
-                            ERROR_INTERMEDIATE_ARRAY = 2,
+                            OBJECT_MEMEMBER = 1,
+                            ARRAY_ELEMENT = 2,
                             MISSING_REQUIRED = 3,
                             TYPE_MISMATCH = 4,
                             NUMBER_OUT_OF_RANGE = 5,
-                            ARRAY_LENGTH_MISMATCH = 6;
+                            ARRAY_LENGTH_MISMATCH = 6,
+                            UNKNOWN_FIELD = 7;
 
     class ErrorStack;
 
@@ -120,11 +121,11 @@ namespace error {
 
         error_type type() const
         {
-            return ERROR_INTERMEDIATE_OBJECT;
+            return OBJECT_MEMEMBER;
         }
     };
 
-    class ArrayElementError : public ErrorBase {
+    class ArrayElementError : public IntermediateError {
     private:
         std::size_t m_index;
 
@@ -148,7 +149,7 @@ namespace error {
 
         error_type type() const
         {
-            return ERROR_INTERMEDIATE_ARRAY;
+            return ARRAY_ELEMENT;
         }
     };
 
@@ -299,6 +300,32 @@ namespace error {
         {
             return ARRAY_LENGTH_MISMATCH;
         }
+
+        class UnknownFieldError : public ErrorBase {
+        private:
+            std::string m_name;
+
+        public:
+            explicit UnknownFieldError(const char* name, std::size_t length)
+                : m_name(name, length)
+            {
+            }
+
+            const std::string& field_name() const
+            {
+                return m_name;
+            }
+
+            error_type type() const
+            {
+                return UNKNOWN_FIELD;
+            }
+
+            std::string description() const
+            {
+                return "Unknown field with name:\n\t" + m_name;
+            }
+        };
     };
 
     namespace internal {
