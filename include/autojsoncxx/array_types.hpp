@@ -177,8 +177,10 @@ public:
 
     bool StartObject()
     {
+        if (!check_depth("object"))
+            return false;
         state.push(internal::OBJECT);
-        return check_depth("object") && checked_event_forwarding(internal_handler.StartObject());
+        return checked_event_forwarding(internal_handler.StartObject());
     }
 
     bool EndObject(SizeType length)
