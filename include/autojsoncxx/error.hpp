@@ -501,6 +501,16 @@ namespace error {
             return result;
         }
 
+        rapidjson::ParseErrorCode error_code() const
+        {
+            return result.Code();
+        }
+
+        std::size_t offset() const
+        {
+            return result.Offset();
+        }
+
         ErrorStack& error_stack()
         {
             return stack;
