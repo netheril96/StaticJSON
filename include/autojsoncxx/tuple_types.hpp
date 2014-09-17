@@ -34,7 +34,7 @@ namespace autojsoncxx {
 
 template <class Writer, class Tuple, std::size_t i>
 struct TupleSerializer {
-    void operator()(Writer& w, const Tuple& t)
+    void operator()(Writer& w, const Tuple& t) const
     {
         TupleSerializer<Writer, Tuple, i - 1>()(w, t);
         Serializer<Writer, typename std::tuple_element<i, Tuple>::type>()(w, std::get<i>(t));
@@ -43,7 +43,7 @@ struct TupleSerializer {
 
 template <class Writer, class Tuple>
 struct TupleSerializer<Writer, Tuple, 0> {
-    void operator()(Writer& w, const Tuple& t)
+    void operator()(Writer& w, const Tuple& t) const
     {
         Serializer<Writer, typename std::tuple_element<0, Tuple>::type>()(w, std::get<0>(t));
     }
