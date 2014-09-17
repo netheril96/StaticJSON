@@ -127,3 +127,73 @@ Trace back (last call first):
 (*) Error at array element with index 0
 (*) Error at object member with name "known_associates"
 ```
+
+## Type support
+These types are supported by this library (you can contain members variables with such types):
+
+* Basic types: `bool`, `int`, `unsigned int`, `long long`, `unsigned long long`, `std::string`
+* Array tyeps: `std::vector<>`, `std::deque<>`, `std::array<>`, `std::tuple<>` (this one needs special care)
+* Nullable types: `std::shared_ptr<>`
+
+If you include `<autojsoncxx/boost_types.hpp>`, you will also get support for
+
+* Array types: `boost::container::vector<>`, `boost::container::deque<>`, `boost::array`
+* Nullable types: `boost::shared_ptr<>`, `boost::optional<>`
+
+**No raw pointer and reference types are supported**. They do not convey any information about ownership, and will make correct memory management (especially by a code generator) much more difficult.
+
+The supported types can be arbitrarily nested, for example
+
+```c++
+#define AUTOJSONCXX_MODERN_COMPILER 1 
+#include <iostream>
+#include "person.hpp"
+
+int main()
+{
+    auto test = std::make_tuple(std::vector<std::string>{"A", "BC", "DEF"},
+                                9.0, true, std::shared_ptr<int>(),
+                                std::make_shared<std::array<Person, 2>>());
+    
+    std::string str;
+    
+    // This requires true variadic template support 
+    // MSVC 2012 has std::tuple<>, but it is faked with macros
+    // Avoid std::tuple<> if your compiler is not strong enough
+    autojsoncxx::to_pretty_json_string(str, test);
+    
+    std::cout << str << '\n';
+    return 0;
+}
+```
+
+Sample output
+
+```js
+[
+    [
+        "A",
+        "BC",
+        "DEF"
+    ],
+    9.0,
+    true,
+    null,
+    [
+        {
+            "ID": 0,
+            "name": "anonymous",
+            "height": 0.0,
+            "weight": 0.0,
+            "known_associates": []
+        },
+        {
+            "ID": 0,
+            "name": "anonymous",
+            "height": 0.0,
+            "weight": 0.0,
+            "known_associates": []
+        }
+    ]
+]
+```
