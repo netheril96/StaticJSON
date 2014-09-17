@@ -27,3 +27,76 @@ The code generator reads a JSON file that defines the class structure. An exampl
 }
 ```
 
+Run the script *autojsoncxx.py* (requires Python 3) on this definition file, and a header file will be generated. It includes a definition for `Person` as well as some helper classes. The `Person` is a `struct` with all members public, meant as a data holder without any additional functionalities.
+
+```bash
+python3 autojsoncxx.py --out=person.hpp def.json
+```
+
+Remember to add the include directory of *autojsoncxx* and *rapidjson* to your project header search path (no linking is required). 
+
+The below examples uses c++11 features, but the library also works with c++03 compilers.
+
+### Serialization
+```c++
+#define AUTOJSONCXX_MODERN_COMPILER 1 
+#include <iostream>
+#include "person.hpp"
+
+int main()
+{
+    Person p;
+    p.name = "Mike";
+    p.ID = 8940220481904ULL;
+    p.weight = 70;
+    p.height = 1.77;
+    p.known_associates = { 149977889346362, 90000134866608, 44412567664 };
+    // Use successive push_back() if your compiler is not C++11 ready
+
+    autojsoncxx::to_pretty_json_file("person.json", p);
+    return 0;
+}
+```
+This will generate a file `person.json` with contents below:
+```javascript
+{
+    "name": "Mike",
+    "ID": 8940220481904,
+    "height": 1.77,
+    "weight": 70.0,
+    "known_associates": [
+        149977889346362,
+        90000134866608,
+        44412567664
+    ]
+}
+```
+
+### Parsing
+Now let's try read that back
+```c++
+#define AUTOJSONCXX_MODERN_COMPILER 1
+#include <iostream>
+#include "person.hpp"
+
+int main()
+{
+    autojsoncxx::ParsingResult result;
+    Person p;
+    if (!autojsoncxx::from_json_file("person.json", p, result)) {
+        std::cerr << result << '\n';
+        return -1;
+    }
+
+    std::cout << "ID: " << p.ID << '\n'
+              << "name:  " << p.name << '\n'
+              << "height: " << p.height << '\n'
+              << "weight: " << p.weight << '\n';
+
+    std::cout << "known associates: ";
+    for (auto&& id : p.known_associates)
+        std::cout << id << '\t';
+    std::cout << '\n';
+    return 0;
+}
+```
