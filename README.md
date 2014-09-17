@@ -204,7 +204,7 @@ You can have multiple definition of classes in the same file, simply by making t
 
 ## To do
 
-* Extensive testing of the library.
+* More extensive testing of the library.
 * Testing it on compilers other than clang.
-* More documentation
-* Map types support (e.g. `std::map<>`, `std::unordered_multimap<>`)
+* More documentation.
+* Map types support (e.g. `std::map<>`, `std::unordered_multimap<>`).
