@@ -141,7 +141,7 @@ Trace back (last call first):
 (*) Error at object member with name "known_associates"
 ```
 
-To programmingly examine the error, iterate over the `autojsoncxx::ParsingResult` class. For example:
+To programmingly examine the error, you need to query the `autojsoncxx::ParsingResult` class. There are two major groups of error: invalid JSON and mismatch between JSON and C++ class specification. Calls `json_parse_result()` to get a RapidJSON error reporting object, and iterate over the `autojsoncxx::ParsingResult` object for any errors resulting from mapping JSON to C++ types.
 
 ```c++
 for (auto&& e : result) {
