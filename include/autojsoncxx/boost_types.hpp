@@ -68,7 +68,7 @@ public:
         return true;
     }
 
-    size_t ExpectedLength()
+    size_t ExpectedLength() const
     {
         return 0;
     }
@@ -122,7 +122,7 @@ public:
         return true;
     }
 
-    size_t ExpectedLength()
+    size_t ExpectedLength() const
     {
         return 0;
     }
@@ -180,12 +180,12 @@ public:
         return length == N;
     }
 
-    size_t ExpectedLength()
+    size_t ExpectedLength() const
     {
         return N;
     }
 
-    size_t GetCurrentSize()
+    size_t GetCurrentSize() const
     {
         return index;
     }
