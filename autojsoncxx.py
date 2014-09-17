@@ -51,12 +51,25 @@ class ClassInfo:
     def member_declarations(self):
         return '\n'.join(m.type_name() + ' ' + m.variable_name() + ';' for m in self.members())
 
-    def initializer_list(self):
-        return ','.join('{}({})'.format(m.variable_name(), m.constructor_args()) for m in self.members())
+    def initializer_list(self, is_default=True):
+        if is_default:
+            return ', '.join('{}({})'.format(m.variable_name(), m.constructor_args()) for m in self.members())
+        else:
+            return ', '.join('{0}({0})'.format(m.variable_name()) for m in self.members())
+
+    def constructor(self, is_default=True):
+        if is_default:
+            args = ''
+        else:
+            args = ', '.join('const {}& {}'.format(m.type_name(), m.variable_name()) for m in self.members())
+        return 'explicit {name}({args}):{init} {{}}\n'.format(name=self.name(), args=args,
+                                                              init=self.initializer_list(is_default))
 
     def class_definition(self):
-        class_def = 'class {name} {{\npublic:\n {declarations}\n explicit {name}():{init}{{}}\n}};' \
-            .format(name=self.name(), declarations=self.member_declarations(), init=self.initializer_list())
+        class_def = 'struct {name} {{\n {declarations}\n\n{constructor1}\n\n{constructor2} \n}};' \
+            .format(name=self.name(), declarations=self.member_declarations(),
+                    constructor1=self.constructor(True), constructor2=self.constructor(False))
+
         if self._namespace is not None:
             return 'namespace {} {{ {} }}\n'.format(self._namespace, class_def)
         return class_def
@@ -90,6 +103,21 @@ class UnsupportedTypeError(Exception):
 
     def __str__(self):
         return "Unsupported C++ type: " + repr(self._type_name)
+
+
+def to_cpp_repr(args):
+    if args is None:
+        return ''
+    elif args is True:
+        return 'true'
+    elif args is False:
+        return 'false'
+    elif isinstance(args, str):
+        return hard_escape(args)
+    elif isinstance(args, int) or isinstance(args, float):
+        return str(args)
+    else:
+        return ', '.join(to_cpp_repr(a) for a in args)
 
 
 class MemberInfo:
@@ -127,26 +155,19 @@ class MemberInfo:
             return None
 
     def constructor_args(self):
-        def to_cpp_repr(args) -> str:
-            if args is None:
-                return ''
-            elif args is True:
-                return 'true'
-            elif args is False:
-                return 'false'
-            elif isinstance(args, str):
-                return hard_escape(args)
-            elif isinstance(args, int) or isinstance(args, float):
-                return str(args)
-            else:
-                return ', '.join(to_cpp_repr(a) for a in args)
-
         return to_cpp_repr(self.default())
+
+    def set_flag_statement(self, flag):
+        if self.is_required():
+            return 'has_{} = {};'.format(self.variable_name(), flag)
+        else:
+            return ''
 
 
 class MainCodeGenerator:
-    def __init__(self, members_info):
-        self.members_info = members_info
+    def __init__(self, class_info):
+        self.members_info = class_info.members()
+        self.class_info = class_info
 
     def handler_declarations(self):
         return '\n'.join('SAXEventHandler< {} > handler_{};'.format(m.type_name(), i)
@@ -156,9 +177,20 @@ class MainCodeGenerator:
         return '\n'.join(', handler_{}(&obj->{})'.format(i, m.variable_name())
                          for i, m in enumerate(self.members_info))
 
+    def flags_declaration(self):
+        return '\n'.join('bool has_{};'.format(m.variable_name()) for m in self.members_info if m.is_required())
+
+    def flags_reset(self):
+        return '\n'.join(m.set_flag_statement("false") for m in self.members_info)
+
+    def post_validation(self):
+        return '\n'.join('if (!has_{0}) set_missing_required("{0}");'
+                             .format(m.variable_name()) for m in self.members_info if m.is_required())
+
     def key_event_handling(self):
-        return '\n'.join('else if (utility::string_equal(str, length, {}))\n    state={};'
-                             .format(hard_escape(m.json_key()), i) for i, m in enumerate(self.members_info))
+        return '\n'.join('else if (utility::string_equal(str, length, {}))\n   {{ state={}; {} }}'
+                             .format(hard_escape(m.json_key()), i, m.set_flag_statement("true"))
+                         for i, m in enumerate(self.members_info))
 
     def event_forwarding(self, call_text):
         return '\n\n'.join('case {i}:\n    return checked_event_forwarding(handler_{i}.{call});'
@@ -169,26 +201,35 @@ class MainCodeGenerator:
                          for i in range(len(self.members_info)))
 
     def data_serialization(self):
-        return '\n'.join('w.Key("{}"); Serializer< Writer_6FD4E37439E0A95BB8A3, {} >()(w, value.{});'
-                             .format(m.json_key(), m.type_name(), m.variable_name())
+        return '\n'.join('w.Key({}); Serializer< Writer_6FD4E37439E0A95BB8A3, {} >()(w, value.{});'
+                             .format(hard_escape(m.json_key()), m.type_name(), m.variable_name())
                          for m in self.members_info)
 
     def current_member_name(self):
         return '\n'.join('case {}:\n    return "{}";'.format(i, m.variable_name())
                          for i, m in enumerate(self.members_info))
 
+    def unknown_key_handling(self):
+        if self.class_info.is_strict():
+            return 'the_error.reset(new error::UnknownFieldError(str, length)); return false;'
+        else:
+            return 'return true;'
+
 
 def build_class(template, class_info):
-    gen = MainCodeGenerator(class_info.members())
+    gen = MainCodeGenerator(class_info)
 
     result = template
     result = re.sub(r'/\*\s*class definition\s*\*/', class_info.class_definition(), result)
-    result = re.sub(r'/\*\s*list of handlers\s*\*/', gen.handler_declarations(), result)
-    result = re.sub(r'/\*\s*init handlers\s*\*/', gen.handler_initializers(), result)
+    result = re.sub(r'/\*\s*list of declarations\s*\*/', gen.handler_declarations() + gen.flags_declaration(), result)
+    result = re.sub(r'/\*\s*init\s*\*/', gen.handler_initializers(), result)
     result = re.sub(r'/\*\s*serialize all members\s*\*/', gen.data_serialization(), result)
     result = re.sub(r'/\*\s*change state\s*\*/', gen.key_event_handling(), result)
     result = re.sub(r'/\*\s*reap error\s*\*/', gen.error_reaping(), result)
     result = re.sub(r'/\*\s*get member name\s*\*/', gen.current_member_name(), result)
+    result = re.sub(r'/\*\s*validation\s*\*/', gen.post_validation(), result)
+    result = re.sub(r'/\*\s*reset flags\s*\*/', gen.flags_reset(), result)
+    result = re.sub(r'/\*\s*handle unknown keys?\s*\*/', gen.unknown_key_handling(), result)
 
     def evaluate(match):
         return gen.event_forwarding(match.group(1))

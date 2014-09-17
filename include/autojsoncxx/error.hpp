@@ -300,32 +300,32 @@ namespace error {
         {
             return ARRAY_LENGTH_MISMATCH;
         }
+    };
 
-        class UnknownFieldError : public ErrorBase {
-        private:
-            std::string m_name;
+    class UnknownFieldError : public ErrorBase {
+    private:
+        std::string m_name;
 
-        public:
-            explicit UnknownFieldError(const char* name, std::size_t length)
-                : m_name(name, length)
-            {
-            }
+    public:
+        explicit UnknownFieldError(const char* name, std::size_t length)
+            : m_name(name, length)
+        {
+        }
 
-            const std::string& field_name() const
-            {
-                return m_name;
-            }
+        const std::string& field_name() const
+        {
+            return m_name;
+        }
 
-            error_type type() const
-            {
-                return UNKNOWN_FIELD;
-            }
+        error_type type() const
+        {
+            return UNKNOWN_FIELD;
+        }
 
-            std::string description() const
-            {
-                return "Unknown field with name:\n\t" + m_name;
-            }
-        };
+        std::string description() const
+        {
+            return "Unknown field with name:\n\t" + m_name;
+        }
     };
 
     namespace internal {
