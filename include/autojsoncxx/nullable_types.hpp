@@ -206,7 +206,7 @@ struct Serializer<Writer, std::shared_ptr<T> > {
         if (!ptr)
             w.Null();
         else
-            Serializer<Writer, T>()(*ptr);
+            Serializer<Writer, T>()(w, *ptr);
     }
 };
 
@@ -258,7 +258,7 @@ struct Serializer<Writer, std::unique_ptr<T, Allocator> > {
         if (!ptr)
             w.Null();
         else
-            Serializer<Writer, T>()(*ptr);
+            Serializer<Writer, T>()(w, *ptr);
     }
 };
 

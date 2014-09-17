@@ -28,6 +28,7 @@
 #include <vector>
 #include <deque>
 #include <stack>
+#include <cassert>
 
 #ifdef AUTOJSONCXX_HAS_MODERN_TYPES
 #include <array>

@@ -238,7 +238,7 @@ struct Serializer<Writer, boost::shared_ptr<T> > {
         if (!ptr)
             w.Null();
         else
-            Serializer<Writer, T>()(*ptr);
+            Serializer<Writer, T>()(w, *ptr);
     }
 };
 

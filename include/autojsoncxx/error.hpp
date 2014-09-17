@@ -25,6 +25,7 @@
 
 #include <autojsoncxx/utility.hpp>
 #include <rapidjson/error/error.h>
+#include <rapidjson/error/en.h>
 #include <cstddef>
 #include <vector>
 #include <iterator>
