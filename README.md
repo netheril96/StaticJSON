@@ -10,8 +10,7 @@ Dependency: RapidJSON (https://github.com/miloyip/rapidjson)
 
 ## First example
 
-The code generator reads a JSON file that defines the class structure. An example definition is like this
-
+The code generator reads a JSON file that defines the class structure. An example definition is like this (remember to fully qualify the type name with its namespace)
 
 ```javascript
 {
@@ -99,4 +98,32 @@ int main()
     std::cout << '\n';
     return 0;
 }
+```
+### Error handling
+If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not layed out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code <sub><sup>this library bypasses the DOM construction in both parsing and serialization by using the Stream API of rapidjson</sup></sub>.
+
+Here is valid JSON file
+
+```js
+{
+    "name": "Mike",
+    "ID": 8940220481904,
+    "height": 1.77,
+    "weight": 70.0,
+    "known_associates": [
+        "Jack", "Mary"
+    ]
+}
+```
+
+Running through the parsing code, and you will get an error output:
+
+```
+Parsing failed at offset 127 with error code 16:
+Terminate parsing due to Handler error.
+
+Trace back (last call first):
+(*) Type mismatch between expected type "uint64_t" and actual type "string"
+(*) Error at array element with index 0
+(*) Error at object member with name "known_associates"
 ```
