@@ -27,6 +27,7 @@
 #include <cstddef>
 #include <utility>
 #include <algorithm>
+#include <cstdio>
 
 #if AUTOJSONCXX_MODERN_COMPILER
 #define AUTOJSONCXX_HAS_MODERN_TYPES 1
@@ -102,6 +103,22 @@ namespace utility {
     }
 
     template <class T>
+    struct default_deleter {
+        void operator()(T* ptr) const
+        {
+            delete ptr;
+        }
+    };
+
+    struct file_closer {
+        void operator()(std::FILE* fp) const
+        {
+            if (fp)
+                std::fclose(fp);
+        }
+    };
+
+    template <class T, class Deleter = default_deleter<T> >
     class scoped_ptr {
     private:
         T* ptr;
@@ -131,7 +148,7 @@ namespace utility {
 
         ~scoped_ptr()
         {
-            delete ptr;
+            Deleter()(ptr);
         }
 
         pointer_type get() const AUTOJSONCXX_NOEXCEPT
@@ -158,7 +175,7 @@ namespace utility {
 
         void reset(pointer_type p)
         {
-            delete ptr;
+            Deleter()(ptr);
             ptr = p;
         }
 

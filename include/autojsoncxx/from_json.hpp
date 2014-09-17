@@ -80,17 +80,14 @@ inline bool from_json_file(std::FILE* file, ValueType& value, ParsingResult& res
 template <class ValueType>
 inline bool from_json_file(const char* file_name, ValueType& value, ParsingResult& result)
 {
-    std::FILE* f = std::fopen(file_name, "r");
-    if (!f)
+    typedef utility::scoped_ptr<std::FILE, utility::file_closer> guard_type;
+
+    guard_type file_guard(std::fopen(file_name, "r"));
+
+    if (file_guard.empty())
         return false;
 
-    bool success = from_json_file(f, value, result);
-
-    // We don't care if the subsequent I/O fails,
-    // as long as we have already extracted what we want
-    static_cast<void>(std::fclose(f));
-
-    return success;
+    return from_json_file(file_guard.get(), value, result);
 }
 
 template <class ValueType>
