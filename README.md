@@ -186,7 +186,7 @@ Notably, the `ParsingResult` class is not copyable. This simplifies the memory h
 ## Type support
 These types are supported by this library:
 
-* Basic types: `bool`, `char`, `int`, `unsigned int`, `long long`, `unsigned long long`, `std::string`
+* Basic types: `std::nullptr_t`, `bool`, `char`, `int`, `unsigned int`, `long long`, `unsigned long long`, `std::string`
 * Array tyeps: `std::vector<>`, `std::deque<>`, `std::array<>`, `std::tuple<>` (this one needs special care)
 * Nullable types: `std::shared_ptr<>`
 * Map types: `std::map<>`, `std::unordered_map<>`, `std::multimap<>`, `std::unordered_multimap<>` (The key must be of string type)
@@ -213,7 +213,7 @@ The supported types can be arbitrarily nested, for example
 
 int main()
 {
-    auto test = std::make_tuple(std::vector<std::string>{ "A", "BC", "DEF" },
+    auto test = std::make_tuple(std::vector<std::string>{ "A", "BC", "DEF" }, nullptr,
                                 3.1415926, -223, std::shared_ptr<int>(),
                                 std::map<std::string, bool>{ { "a", true }, { "Δ", false } },
                                 std::make_shared<std::array<Person, 2>>());
@@ -239,6 +239,7 @@ Sample output
         "BC",
         "DEF"
     ],
+    null,
     3.1415926,
     -223,
     null,
