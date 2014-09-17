@@ -41,12 +41,27 @@ def hard_escape(text):
     return '"' + ''.join(escape(char) for char in text) + '"'
 
 
+class UnrecognizedOption(Exception):
+    def __init__(self, option):
+        self._op = option
+
+    def __str__(self):
+        return "Unrecoginzed option: " + repr(self._op)
+
+
 class ClassInfo:
+    accept_options = {"name", "namespace", "parse_mode", "members"}
+
     def __init__(self, record):
         self._name = record['name']
         self._members = [MemberInfo(r) for r in record['members']]
-        self._strict = record.get('strict', False)
+        self._strict = record.get('parse_mode', '') == 'strict'
         self._namespace = record.get("namespace", None)
+
+        for op in record:
+            if op not in ClassInfo.accept_options:
+                raise UnrecognizedOption(op)
+
 
     def member_declarations(self):
         return '\n'.join(m.type_name() + ' ' + m.variable_name() + ';' for m in self.members())
@@ -85,7 +100,7 @@ class ClassInfo:
     def members(self):
         return self._members
 
-    def is_strict(self):
+    def strict_parsing(self):
         return self._strict
 
 
@@ -121,6 +136,8 @@ def to_cpp_repr(args):
 
 
 class MemberInfo:
+    accept_options = {'default', 'required', 'json_key'}
+
     def __init__(self, record):
         self._record = record
 
@@ -129,6 +146,15 @@ class MemberInfo:
 
         if not re.match(r'[A-Za-z]\w*|_[a-z0-9]\w*', self.variable_name()):
             raise InvalidIdentifier(self.variable_name())
+
+        if len(record) > 3:
+            raise UnrecognizedOption(record[3:])
+
+        if len(record) == 3:
+            for op in record[2]:
+                if op not in MemberInfo.accept_options:
+                    raise UnrecognizedOption(op)
+
 
     def type_name(self):
         return self._record[0]
@@ -210,7 +236,7 @@ class MainCodeGenerator:
                          for i, m in enumerate(self.members_info))
 
     def unknown_key_handling(self):
-        if self.class_info.is_strict():
+        if self.class_info.strict_parsing():
             return 'the_error.reset(new error::UnknownFieldError(str, length)); return false;'
         else:
             return 'return true;'

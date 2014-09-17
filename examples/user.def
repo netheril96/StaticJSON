@@ -1,0 +1,35 @@
+[
+{
+    "name": "Date",
+    "parse_mode": "strict",
+    "members": [
+        ["int", "year", {"required": true}],
+        ["int", "month", {"required": true}],
+        ["int", "day", {"required": true}]
+    ]
+},
+
+{
+    "name": "BlockEvent",
+    "namespace": "config",
+    "members": [
+        ["unsigned long long", "ID", {"required": true}],
+        ["unsigned long long", "admin_ID", {"json_key": "administrator ID", "default": 255}],
+        ["Date", "date", {"default": [1970, 12, 31]}],
+        ["std::string", "description"],
+        ["std::string", "details"]
+    ]
+},
+
+{
+    "name": "User",
+    "namespace": "config",
+    "members": [
+        ["unsigned long long", "ID", {"required": true}],
+        ["std::string", "nickname", {"required": true, "default": "❶❷❸"} ],
+        ["Date", "birthday"],
+        ["std::shared_ptr<config::BlockEvent>", "block_event"],
+        ["std::vector<config::BlockEvent>", "dark_history"]
+    ]
+}
+]

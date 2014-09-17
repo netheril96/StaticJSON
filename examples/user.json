@@ -1,0 +1,45 @@
+[
+    {
+        "ID": 9436007336622,
+        "nickname": "bigger than bigger",
+        "birthday": {
+            "year": 1993,
+            "month": 12,
+            "day": 9
+        },
+        "block_event": null,
+        "dark_history": [
+            {
+                "ID": 9436007336622,
+                "administrator ID": 89999298423,
+                "date": {
+                    "year": 2014,
+                    "month": 9,
+                    "day": 19
+                },
+                "description": "advertisement",
+                "details": "try to sell controlled narcotics to members of ΔΨψζ"
+            }
+        ]
+    },
+    {
+        "ID": 8999799244788993,
+        "nickname": "larger than larger",
+        "birthday": {
+            "year": 1984,
+            "month": 2,
+            "day": 22
+        },
+        "block_event": {
+            "ID": 8999799244788993,
+            "administrator ID": 345664354321119,
+            "date": {
+                "year": 2014,
+                "month": 9,
+                "day": 11
+            },
+            "description": "trolling",
+            "details": ""
+        }
+    }
+]
