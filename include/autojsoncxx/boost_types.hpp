@@ -30,6 +30,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/optional.hpp>
 #include <boost/utility/in_place_factory.hpp>
+#include <boost/unordered_map.hpp>
 
 namespace autojsoncxx {
 template <class T, class Allocator>
@@ -396,6 +397,76 @@ struct Serializer<Writer, boost::optional<T> > {
         else
             Serializer<Writer, T>()(w, *value);
     }
+};
+
+template <class ElementType, class Hash, class Equal, class Allocator>
+class SAXEventHandler<boost::unordered_map<std::string, ElementType, Hash, Equal, Allocator> >
+    : public MapBaseSAXEventHandler<ElementType,
+                                    SAXEventHandler<boost::unordered_map<std::string, ElementType, Hash, Equal, Allocator> > > {
+private:
+    typedef boost::unordered_map<std::string, ElementType, Hash, Equal, Allocator> map_type;
+
+    map_type* m_value;
+
+public:
+    explicit SAXEventHandler(map_type* v)
+        : m_value(v)
+    {
+    }
+
+    bool Emplace(const std::string& key, const ElementType& value)
+    {
+        return m_value->insert(std::make_pair(key, value)).second;
+    }
+
+#if AUTOJSONCXX_HAS_RVALUE
+
+    bool Emplace(const std::string& key, ElementType&& value)
+    {
+        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+    }
+
+#endif
+};
+
+template <class Writer, class ElementType, class Hash, class Equal, class Allocator>
+struct Serializer<Writer, boost::unordered_map<std::string, ElementType, Hash, Equal, Allocator> >
+    : public MapSerializer<Writer, boost::unordered_map<std::string, ElementType, Hash, Equal, Allocator>, ElementType, typename boost::unordered_map<std::string, ElementType, Hash, Equal, Allocator>::const_iterator> {
+};
+
+template <class ElementType, class Hash, class Equal, class Allocator>
+class SAXEventHandler<boost::unordered_multimap<std::string, ElementType, Hash, Equal, Allocator> >
+    : public MapBaseSAXEventHandler<ElementType,
+                                    SAXEventHandler<boost::unordered_multimap<std::string, ElementType, Hash, Equal, Allocator> > > {
+private:
+    typedef boost::unordered_multimap<std::string, ElementType, Hash, Equal, Allocator> map_type;
+
+    map_type* m_value;
+
+public:
+    explicit SAXEventHandler(map_type* v)
+        : m_value(v)
+    {
+    }
+
+    bool Emplace(const std::string& key, const ElementType& value)
+    {
+        return m_value->insert(std::make_pair(key, value)).second;
+    }
+
+#if AUTOJSONCXX_HAS_RVALUE
+
+    bool Emplace(const std::string& key, ElementType&& value)
+    {
+        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+    }
+
+#endif
+};
+
+template <class Writer, class ElementType, class Hash, class Equal, class Allocator>
+struct Serializer<Writer, boost::unordered_multimap<std::string, ElementType, Hash, Equal, Allocator> >
+    : public MapSerializer<Writer, boost::unordered_multimap<std::string, ElementType, Hash, Equal, Allocator>, ElementType, typename boost::unordered_multimap<std::string, ElementType, Hash, Equal, Allocator>::const_iterator> {
 };
 }
 

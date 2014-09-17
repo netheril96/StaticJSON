@@ -29,6 +29,7 @@
 #include <autojsoncxx/array_types.hpp>
 #include <autojsoncxx/nullable_types.hpp>
 #include <autojsoncxx/tuple_types.hpp>
+#include <autojsoncxx/map_types.hpp>
 #include <autojsoncxx/to_json.hpp>
 #include <autojsoncxx/from_json.hpp>
 

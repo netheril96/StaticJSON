@@ -35,10 +35,6 @@
 #endif
 
 namespace autojsoncxx {
-namespace internal {
-    const signed char ARRAY = 0;
-    const signed char OBJECT = -1;
-}
 
 template <class ElementType, class Derived>
 class VectorBaseSAXEventHandler {

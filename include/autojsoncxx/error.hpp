@@ -46,7 +46,8 @@ namespace error {
                             TYPE_MISMATCH = 4,
                             NUMBER_OUT_OF_RANGE = 5,
                             ARRAY_LENGTH_MISMATCH = 6,
-                            UNKNOWN_FIELD = 7;
+                            UNKNOWN_FIELD = 7,
+                            DUPLICATE_KEYS = 8;
 
     class ErrorStack;
 
@@ -102,7 +103,7 @@ namespace error {
 
     class ObjectMemberError : public IntermediateError {
     private:
-        const char* m_member_name; // Must be a string literal
+        std::string m_member_name;
 
     public:
         explicit ObjectMemberError(const char* memberName)
@@ -110,7 +111,12 @@ namespace error {
         {
         }
 
-        const char* member_name() const
+        explicit ObjectMemberError(const std::string& memberName)
+            : m_member_name(memberName)
+        {
+        }
+
+        const std::string& member_name() const
         {
             return m_member_name;
         }
@@ -263,6 +269,40 @@ namespace error {
         error_type type() const
         {
             return NUMBER_OUT_OF_RANGE;
+        }
+    };
+
+    class DuplicateKeyError : public ErrorBase {
+    private:
+        std::string key_name;
+
+    public:
+        explicit DuplicateKeyError(const std::string& name)
+            : key_name(name)
+        {
+        }
+
+#if AUTOJSONCXX_HAS_RVALUE
+
+        explicit DuplicateKeyError(std::string&& name)
+            : key_name(AUTOJSONCXX_MOVE(name))
+        {
+        }
+#endif
+
+        const std::string& key() const
+        {
+            return key_name;
+        }
+
+        error_type type() const
+        {
+            return DUPLICATE_KEYS;
+        }
+
+        std::string description() const
+        {
+            return "Duplicate key: " + key();
         }
     };
 

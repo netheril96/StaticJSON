@@ -195,6 +195,11 @@ namespace utility {
         return len1 == len2 && std::equal(str1, str1 + len1, str2);
     }
 }
+
+namespace internal {
+    const signed char ARRAY = 0;
+    const signed char OBJECT = -1;
+}
 }
 
 #endif
