@@ -141,6 +141,39 @@ Trace back (last call first):
 (*) Error at object member with name "known_associates"
 ```
 
+To programmingly examine the error, iterate over the `autojsoncxx::ParsingResult` class. For example:
+
+```c++
+for (auto&& e : result) {
+    using namespace autojsoncxx::error;
+
+    switch (e.type()) {
+    case UNKNOWN_FIELD: {
+        const UnknownFieldError& err = static_cast<const UnknownFieldError&>(e);
+        if (err.field_name().find("Version") != std::string::npos)
+            std::cerr << "This is a definition of different protocol version\n";
+    } break;
+
+    case NUMBER_OUT_OF_RANGE:
+        std::cerr << "Maybe you should use a 64-bit integer type instead?\n";
+        break;
+
+    case TYPE_MISMATCH: {
+        const TypeMismatchError& err = static_cast<const TypeMismatchError&>(e);
+        std::cout << "don't you dare use a " << err.actual_type()
+                  << " to fool me!\n";
+    } break;
+
+    case OBJECT_MEMEMBER: {
+        const ObjectMemberError& err = static_cast<const ObjectMemberError&>(e);
+        std::cout << "The member " << err.member_name() << " is naughty!\n";
+    } break;
+
+    default:
+        break;
+    }
+}
+```
 ## Type support
 These types are supported by this library (you can contain members variables with such types):
 
