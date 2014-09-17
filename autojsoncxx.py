@@ -32,9 +32,6 @@ import os
 
 
 def hard_escape(text):
-    if isinstance(text, str):
-        text = text.encode('utf-8')
-
     def escape(char):
         return '\\x{:02x}'.format(char)
 
@@ -61,7 +58,6 @@ class ClassInfo:
         for op in record:
             if op not in ClassInfo.accept_options:
                 raise UnrecognizedOption(op)
-
 
     def member_declarations(self):
         return '\n'.join(m.type_name() + ' ' + m.variable_name() + ';' for m in self.members())
@@ -128,7 +124,7 @@ def to_cpp_repr(args):
     elif args is False:
         return 'false'
     elif isinstance(args, str):
-        return hard_escape(args)
+        return hard_escape(args.encode('utf-8'))
     elif isinstance(args, int) or isinstance(args, float):
         return str(args)
     else:
@@ -155,7 +151,6 @@ class MemberInfo:
                 if op not in MemberInfo.accept_options:
                     raise UnrecognizedOption(op)
 
-
     def type_name(self):
         return self._record[0]
 
@@ -164,9 +159,9 @@ class MemberInfo:
 
     def json_key(self):
         try:
-            return self._record[2]['json_key']
+            return self._record[2]['json_key'].encode('utf-8')
         except (IndexError, KeyError):
-            return self.variable_name()
+            return self.variable_name().encode('utf-8')
 
     def is_required(self):
         try:
@@ -214,8 +209,10 @@ class MainCodeGenerator:
                              .format(m.variable_name()) for m in self.members_info if m.is_required())
 
     def key_event_handling(self):
-        return '\n'.join('else if (utility::string_equal(str, length, {}))\n   {{ state={}; {} }}'
-                             .format(hard_escape(m.json_key()), i, m.set_flag_statement("true"))
+        return '\n'.join('else if (utility::string_equal(str, length, {key}, {key_length}))\n\
+                    {{ state={state}; {check} }}'
+                             .format(key=hard_escape(m.json_key()), key_length = len(m.json_key()),
+                                     state=i, check=m.set_flag_statement("true"))
                          for i, m in enumerate(self.members_info))
 
     def event_forwarding(self, call_text):

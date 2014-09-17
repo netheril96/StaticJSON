@@ -24,7 +24,6 @@
 #define AUTOJSONCXX_UTILITY_HPP_29A4C106C1B1
 
 #include <string>
-#include <cstring>
 #include <cstddef>
 #include <utility>
 #include <algorithm>
@@ -174,10 +173,9 @@ namespace utility {
         }
     };
 
-    inline bool string_equal(const char* str1, size_t len1, const char* str2)
+    inline bool string_equal(const char* str1, std::size_t len1, const char* str2, std::size_t len2)
     {
-        size_t len = std::strlen(str2);
-        return len == len1 && memcmp(str1, str2, len) == 0;
+        return len1 == len2 && std::equal(str1, str1 + len1, str2);
     }
 }
 }
