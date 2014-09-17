@@ -34,11 +34,11 @@ python3 autojsoncxx.py --out=person.hpp def.json
 
 Remember to add the include directory of *autojsoncxx* and *rapidjson* to your project header search path (no linking is required). 
 
-The below examples uses c++11 features, but the library also works with c++03 compilers.
+The below examples uses c++11 features, but the library should also work with c++03 compilers.
 
 ### Serialization
 ```c++
-#define AUTOJSONCXX_MODERN_COMPILER 1 
+#define AUTOJSONCXX_MODERN_COMPILER 1 // Turn on all the c++11 features of the library
 #include <iostream>
 #include "person.hpp"
 
@@ -50,7 +50,7 @@ int main()
     p.weight = 70;
     p.height = 1.77;
     p.known_associates = { 149977889346362, 90000134866608, 44412567664 };
-    // Use successive push_back() if your compiler is not C++11 ready
+    // Use successive push_back() if your compiler is not c++11 ready
 
     autojsoncxx::to_pretty_json_file("person.json", p);
     return 0;
@@ -100,7 +100,7 @@ int main()
 }
 ```
 ### Error handling
-If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not layed out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code <sub><sup>this library bypasses the DOM construction in both parsing and serialization by using the Stream API of rapidjson</sup></sub>.
+If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not layed out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code. <sub><sup>This library bypasses the DOM construction in both parsing and serialization by using the Stream API of rapidjson</sup></sub>
 
 Here is valid JSON file
 
@@ -197,3 +197,14 @@ Sample output
     ]
 ]
 ```
+
+## Other
+
+You can have multiple definition of classes in the same file, simply by making the root an array of definitions.
+
+## To do
+
+* Extensive testing of the library.
+* Testing it on compilers other than clang.
+* More documentation
+* Map types support (e.g. `std::map<>`, `std::unordered_multimap<>`)
