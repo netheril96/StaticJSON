@@ -188,6 +188,8 @@ If you include `<autojsoncxx/boost_types.hpp>`, you will also get support for
 
 **No raw pointer and reference types are supported**. They do not convey any information about ownership, and will make correct memory management (especially by a code generator) much more difficult.
 
+### Complex types
+
 The supported types can be arbitrarily nested, for example
 
 ```c++
@@ -243,6 +245,174 @@ Sample output
     ]
 ]
 ```
+### Self defined type
+
+The core of the library is two template class, `SAXEventHandler` and `Serializer`. The base templates are defined as:
+
+```c++
+namespace autojsoncxx {
+
+// The core handlers for parsing
+template <class T>
+class SAXEventHandler;
+
+// Only the second parameter should be specialized
+template <class Writer, class T>
+struct Serializer;
+
+}
+```
+
+Each of the full or partial specialization of these templates will add new capability to the library. 
+
+Writing the handler is somewhat difficult, so there is some base classes (with no virtual functions) provided. Here is two code snippet about the definition of `std::vector<>` and `std::shared_ptr<>`. You could add your own linear container and nullable wrapper types analogously.
+
+```c++
+#if AUTOJSONCXX_HAS_MODERN_TYPES
+
+template <class T>
+class SAXEventHandler<std::shared_ptr<T> >
+    : public NullableBaseSAXEventHandler<T, SAXEventHandler<std::shared_ptr<T> > > {
+
+public:
+    typedef std::shared_ptr<T> smart_pointer_type;
+
+private:
+    smart_pointer_type* m_value;
+
+public:
+    explicit SAXEventHandler(smart_pointer_type* v)
+        : m_value(v)
+    {
+    }
+
+    bool IsNull() const
+    {
+        return m_value->get() == 0;
+    }
+
+    T* Initialize()
+    {
+        std::make_shared<T>().swap(*m_value);
+        return m_value->get();
+    }
+
+    void SetNull()
+    {
+        m_value->reset();
+    }
+};
+
+template <class Writer, class T>
+struct Serializer<Writer, std::shared_ptr<T> > {
+    void operator()(Writer& w, const std::shared_ptr<T>& ptr) const
+    {
+        if (!ptr)
+            w.Null();
+        else
+            Serializer<Writer, T>()(w, *ptr);
+    }
+};
+
+namespace utility {
+    namespace traits {
+    
+        // Register with the traits class
+        // It is not currently used
+        // But essential when I implement support for variant types
+        template <class T>
+        struct is_simple_type<std::shared_ptr<T> > : public is_simple_type<T> {
+        };
+    }
+}
+#endif
+```
+
+```c++
+namespace autojsoncxx {
+
+// Note the use of *Curiously Recurring Template Pattern*
+
+template <class T, class Allocator>
+class SAXEventHandler<std::vector<T, Allocator> >
+    : public VectorBaseSAXEventHandler<T, SAXEventHandler<std::vector<T, Allocator> > > {
+
+public:
+    typedef std::vector<T, Allocator> vector_type;
+    typedef VectorBaseSAXEventHandler<T, SAXEventHandler<std::vector<T, Allocator> > > base_type;
+
+private:
+    vector_type* m_value;
+
+public:
+    explicit SAXEventHandler(vector_type* v)
+        : m_value(v)
+    {
+    }
+
+    void Push(const T& c)
+    {
+        m_value->push_back(c);
+    }
+
+#if AUTOJSONCXX_HAS_RVALUE
+
+    void Push(T&& c)
+    {
+        m_value->push_back(AUTOJSONCXX_MOVE(c));
+    }
+
+#endif
+
+    bool CheckLength(SizeType)
+    {
+        // returns false when the container is fixed lengthed
+        // and the argument does not match
+        return true;
+    }
+
+    size_t ExpectedLength() const
+    {
+        return 0;
+    }
+
+    size_t GetCurrentSize() const
+    {
+        return m_value->size();
+    }
+};
+
+template <class Writer, class Container, class ValueType, class ConstIteratorType>
+struct ContainerSerializer {
+    void operator()(Writer& w, const Container& con) const
+    {
+        w.StartArray();
+        for (ConstIteratorType it = con.begin(), end = con.end(); it != end; ++it)
+            Serializer<Writer, ValueType>()(w, *it);
+        w.EndArray();
+    }
+};
+
+// Serializers are easy to write, so you can dispense with base classes if you want
+template <class Writer, class T, class Allocator>
+struct Serializer<Writer, std::vector<T, Allocator> >
+    : public ContainerSerializer<Writer, std::vector<T, Allocator>,
+                                 typename std::vector<T, Allocator>::value_type,
+                                 typename std::vector<T, Allocator>::const_iterator> {
+};
+
+}
+```
+
+### Tuple types
+
+There are only one tuple type supported `std::tuple` (`boost::tuple` is not supported). Implementing it requires true variadic templates, so for most compilers it is not accessible.
+
+If you want to use it, you need to define both `AUTOJSONCXX_HAS_MODERN_TYPES` and `AUTOJSONCXX_HAS_VARIADIC_TEMPLATE` to be nonzero. The macro `AUTOJSONCXX_MODERN_COMPILER` automatically turns on both two.
+
+The tuple type is mapped to a JSON array of heterogenous types. So `std::tuple<int, std::string, double>` maps to a JSON array of three element of type `Number`, `String`, and `Number` respectively.
+
+During parsing, only the prefix is matched. That is, if the JSON array is longer than the tuple size, the extraneous part will be silently dropped; if the JSON array is shorter than the tuple size, the not-mapped element simply remains untouched. This design is based on the assumption that when you need a heterogeneous array, you probably priotize flexibility over strict conformance.
 
 ## Other
 
