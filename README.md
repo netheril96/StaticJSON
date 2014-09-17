@@ -4,9 +4,22 @@ A header-only library and a code generator to **automagically** translate betwee
 
 ## Overview
 
-JSON is an excellent format for data serialization due to its simplicity, flexibility, portability and human-readable nature. Writing code to parse and generate JSON, however, is not an easy task in a statically typed language even with the help of libraries, especially when you want to retain the advantage of such language, that is, the type checking. *autojsoncxx* is an attempt to automate such process. It is still currently in development, so expect things to change in the future, or it breaks down when your class structure is deeply nested.
+JSON is an excellent format for data serialization due to its simplicity, flexibility, portability and human-readable nature. Writing code to parse and generate JSON, however, is not an easy task in a statically typed language. Even with the help of JSON libraries, you need to write a lot of boilerplate code, and convoluted ones if you need to enforce the static typing of C++.
+
+More importantly, maually writing the code means duplication of effort, and duplication is bad for programmers. When your client or PM request a change in feature, many classes (like the class responsible for configuration) will likely change, and you will have to rewrite the code. During the rewrite, time is wasted, people become impatient, and bugs may be introduced when the class definition, parsing and serialization code become out of sync.
+
+*autojsoncxx* is an attempt to solve this problem by automating such process. It is currently still in alpha stage, so expect things to change in the future, or to break down when your class structure is too convoluted.
 
 Dependency: RapidJSON (https://github.com/miloyip/rapidjson)
+
+## Features
+
+* The parsing/serializing code are *automagically* generated. You don't even need to understand what is proper JSON to use it, although it may help you diagnose problems.
+* *Detailed error message*. Not only do you get informed if the JSON is not valid, but you will have a verbose trace back pointing to the location of the problem as well, if the JSON value does not fit your class structure.
+* *Ease of use*. Many convience functions are added so that a single function call is enough for most use cases. The library as well as its dependency are header only, so no complicated setup for your build system is needed.
+* *Fast*. The underlying JSON engine (RapidJSON) has been benchmarked to be about an order of magnitude faster than other popular JSON libraries. Besides, this library uses its SAX API, obviating the need of constructing a Document Object Model as the intermediate representation. Lastly, the library utilizes C++ templates to generate the algorithm at compile time, so no overhead of runtime indirection (except when error occurs).
+* *Flexible framework*. You can add more type support to the library by specializing certain template classes. In addition, whenever a class is generated, you can also parse/serialize an array of such class, a nullable wrapper of such class, another class that contains it, etc.
+* *Liberal licence*. Both the library and its dependency are licenced liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
 
 ## First example
 
@@ -100,7 +113,7 @@ int main()
 }
 ```
 ### Error handling
-If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not layed out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code. <sub><sup>This library bypasses the DOM construction in both parsing and serialization by using the Stream API of rapidjson</sup></sub>
+If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not layed out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code.
 
 Here is valid JSON file
 
@@ -206,5 +219,5 @@ You can have multiple definition of classes in the same file, simply by making t
 
 * More extensive testing of the library.
 * Testing it on compilers other than clang.
-* More documentation.
+* More documentation and comments.
 * Map types support (e.g. `std::map<>`, `std::unordered_multimap<>`).
