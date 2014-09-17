@@ -30,7 +30,7 @@
 #include <stack>
 #include <cassert>
 
-#ifdef AUTOJSONCXX_HAS_MODERN_TYPES
+#if AUTOJSONCXX_HAS_MODERN_TYPES
 #include <array>
 #endif
 
@@ -235,7 +235,7 @@ public:
         m_value->push_back(c);
     }
 
-#ifdef AUTOJSONCXX_HAS_RVALUE
+#if AUTOJSONCXX_HAS_RVALUE
 
     void Push(T&& c)
     {
@@ -282,7 +282,7 @@ public:
         m_value->push_back(c);
     }
 
-#ifdef AUTOJSONCXX_HAS_RVALUE
+#if AUTOJSONCXX_HAS_RVALUE
 
     void Push(T&& c)
     {
@@ -332,7 +332,7 @@ struct Serializer<Writer, std::deque<T, Allocator> >
                                  typename std::deque<T, Allocator>::const_iterator> {
 };
 
-#ifdef AUTOJSONCXX_HAS_MODERN_TYPES
+#if AUTOJSONCXX_HAS_MODERN_TYPES
 template <class T, size_t N>
 class SAXEventHandler<std::array<T, N> >
     : public VectorBaseSAXEventHandler<T, SAXEventHandler<std::array<T, N> > > {
@@ -358,7 +358,7 @@ public:
         index = (index + 1) % N;
     }
 
-#ifdef AUTOJSONCXX_HAS_RVALUE
+#if AUTOJSONCXX_HAS_RVALUE
 
     void Push(T&& c)
     {
