@@ -146,6 +146,29 @@ public:
     }
 };
 
+#if AUTOJSONCXX_HAS_MODERN_TYPES
+
+template <>
+class SAXEventHandler<std::nullptr_t> : public BaseSAXEventHandler<SAXEventHandler<std::nullptr_t> > {
+private:
+public:
+    static const char* type_name()
+    {
+        return "null";
+    }
+
+    explicit SAXEventHandler(std::nullptr_t* v)
+    {
+    }
+
+    bool Null()
+    {
+        return true;
+    }
+};
+
+#endif
+
 template <>
 class SAXEventHandler<bool> : public BaseSAXEventHandler<SAXEventHandler<bool> > {
 private:
@@ -466,6 +489,18 @@ struct Serializer<Writer, int> {
         w.Int(i);
     }
 };
+
+#if AUTOJSONCXX_HAS_MODERN_TYPES
+
+template <class Writer>
+struct Serializer<Writer, std::nullptr_t> {
+    void operator()(Writer& w, std::nullptr_t) const
+    {
+        w.Null();
+    }
+};
+
+#endif
 
 template <class Writer>
 struct Serializer<Writer, bool> {
