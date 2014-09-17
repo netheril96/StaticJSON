@@ -145,8 +145,10 @@ public:
 
     bool StartArray()
     {
+        if (!check_depth("array"))
+            return false;
         state.push(internal::ARRAY);
-        return check_depth("array") && checked_event_forwarding(internal_handler.StartArray());
+        return checked_event_forwarding(internal_handler.StartArray());
     }
 
     bool EndArray(SizeType length)
