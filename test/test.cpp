@@ -31,6 +31,9 @@
 
 #include "userdef.hpp"
 
+#include <cstring>
+#include <fstream>
+
 using namespace autojsoncxx;
 using namespace config;
 using namespace config::event;
@@ -45,47 +48,101 @@ inline bool operator!=(Date d1, Date d2)
     return !(d1 == d2);
 }
 
+inline std::string read_all(const char* file_name)
+{
+    std::ifstream input(file_name);
+    input.seekg(0, std::ifstream::end);
+    auto size = input.tellg();
+    std::string result('\0', size);
+    input.seekg(0);
+    input.read(&result[0], size);
+    return result;
+}
+
 TEST_CASE("Test for correct parsing", "[parsing]")
 {
-    std::vector<User> users;
-    ParsingResult err;
-
-    bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/user.json", users, err);
+    SECTION("Test for an array of user", "[parsing]")
     {
+        std::vector<User> users;
+        ParsingResult err;
 
-        REQUIRE(success);
+        bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/user_array.json", users, err);
+        {
+            CAPTURE(err.description());
+            REQUIRE(success);
+        }
+        REQUIRE(users.size() == 2);
+
+        {
+            const User& u = users.front();
+            REQUIRE(u.ID == 7947402710862746952ULL);
+            REQUIRE(u.nickname == "bigger than bigger");
+            REQUIRE(u.birthday == Date(1984, 9, 2));
+
+            REQUIRE(u.block_event.get() != 0);
+            const BlockEvent& e = *u.block_event;
+
+            REQUIRE(e.admin_ID > 0);
+            REQUIRE(e.date == Date(1970, 12, 31));
+            REQUIRE(e.description == "advertisement");
+            REQUIRE(e.details.size() > 0);
+
+            REQUIRE(u.dark_history.empty());
+            REQUIRE(u.optional_attributes.empty());
+        }
+
+        {
+            const User& u = users.back();
+            REQUIRE(u.ID == 13478355757133566847ULL);
+            REQUIRE(u.nickname.size() == 15);
+            REQUIRE(u.block_event.get() == 0);
+            REQUIRE(u.optional_attributes.size() == 3);
+            REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
+        }
     }
-    REQUIRE(users.size() == 2);
 
+    SECTION("Test for a map of user", "[parsing]")
     {
-        const User& u = users.front();
-        REQUIRE(u.ID == 7947402710862746952ULL);
-        REQUIRE(u.nickname == "bigger than bigger");
-        REQUIRE(u.birthday == Date(1984, 9, 2));
+        std::unordered_map<std::string, User> users;
+        ParsingResult err;
 
-        REQUIRE(u.block_event.get() != 0);
-        const BlockEvent& e = *u.block_event;
+        bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/user_map.json", users, err);
+        {
+            CAPTURE(err.description());
+            REQUIRE(success);
+        }
+        REQUIRE(users.size() == 2);
 
-        REQUIRE(e.admin_ID > 0);
-        REQUIRE(e.date == Date(1970, 12, 31));
-        REQUIRE(e.description == "advertisement");
-        REQUIRE(e.details.size() > 0);
+        {
+            const User& u = users["First"];
+            REQUIRE(u.ID == 7947402710862746952ULL);
+            REQUIRE(u.nickname == "bigger than bigger");
+            REQUIRE(u.birthday == Date(1984, 9, 2));
 
-        REQUIRE(u.dark_history.empty());
-        REQUIRE(u.optional_attributes.empty());
-    }
+            REQUIRE(u.block_event.get() != 0);
+            const BlockEvent& e = *u.block_event;
 
-    {
-        const User& u = users.back();
-        REQUIRE(u.ID == 13478355757133566847ULL);
-        REQUIRE(u.nickname.size() == 15);
-        REQUIRE(u.block_event.get() == 0);
-        REQUIRE(u.optional_attributes.size() == 3);
-        REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
+            REQUIRE(e.admin_ID > 0);
+            REQUIRE(e.date == Date(1970, 12, 31));
+            REQUIRE(e.description == "advertisement");
+            REQUIRE(e.details.size() > 0);
+
+            REQUIRE(u.dark_history.empty());
+            REQUIRE(u.optional_attributes.empty());
+        }
+
+        {
+            const User& u = users["Second"];
+            REQUIRE(u.ID == 13478355757133566847ULL);
+            REQUIRE(u.nickname.size() == 15);
+            REQUIRE(u.block_event.get() == 0);
+            REQUIRE(u.optional_attributes.size() == 3);
+            REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
+        }
     }
 }
 
-TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
+TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User>", "[parsing], [error]")
 {
     std::vector<User> users;
     ParsingResult err;
@@ -177,5 +234,43 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
         REQUIRE(!err.error_stack().empty());
 
         REQUIRE(err.begin()->type() == error::UNKNOWN_FIELD);
+    }
+}
+
+TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, config::User>", "[parsing], [error]")
+{
+    std::map<std::string, config::User> users;
+    ParsingResult err;
+
+    SECTION("Mismatch between object and array", "[parsing], [error], [type mismatch]")
+    {
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/user_array.json", users, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
+        REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
+
+        auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
+        REQUIRE(std::strcmp(e.expected_type(), "object") == 0);
+        REQUIRE(std::strcmp(e.actual_type(), "array") == 0);
+    }
+
+    SECTION("Mismatch in mapped element", "[parsing], [error], [type mismatch]")
+    {
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/map_element_mismatch.json", users, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+        {
+            REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
+
+            auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
+        }
+        {
+            auto it = ++err.begin();
+            REQUIRE(it != err.end());
+            REQUIRE(it->type() == error::OBJECT_MEMBER);
+            auto&& e = static_cast<const error::ObjectMemberError&>(*it);
+            REQUIRE(e.member_name() == "Third");
+        }
     }
 }
