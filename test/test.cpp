@@ -25,6 +25,9 @@
 #define AUTOJSONCXX_HAS_MODERN_TYPES 1
 #define AUTOJSONCXX_HAS_RVALUE 1
 
+// Uncomment the next line if you are adventurous
+// #define AUTOJSONCXX_HAS_VARIADIC_TEMPLATE 1
+
 #ifndef AUTOJSONCXX_ROOT_DIRECTORY
 #define AUTOJSONCXX_ROOT_DIRECTORY "."
 #endif
@@ -232,6 +235,16 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
         REQUIRE(err.begin()->type() == error::UNKNOWN_FIELD);
     }
+
+    SECTION("Array length not match the fixed C++ type", "[parsing], [error], [length mismatch]")
+    {
+        std::array<User, 3> trinity;
+
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array.json", trinity, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+        REQUIRE(err.begin()->type() == error::ARRAY_LENGTH_MISMATCH);
+    }
 }
 
 TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, config::User>", "[parsing], [error]")
@@ -289,3 +302,34 @@ TEST_CASE("Test for writing JSON", "[serialization]")
 
     REQUIRE(output == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
 }
+
+#if AUTOJSONCXX_HAS_VARIADIC_TEMPLATE
+
+TEST_CASE("Test for parsing tuple type", "[parsing], [tuple]")
+{
+    typedef std::tuple<BlockEvent, int, std::nullptr_t, double, std::unordered_map<std::string, std::shared_ptr<User> >, bool> hard_type;
+    hard_type hetero_array;
+    ParsingResult err;
+
+    SECTION("Test for valid tuple", "[parsing], [tuple]")
+    {
+        bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/hard.json", hetero_array, err);
+        {
+            CAPTURE(err.description());
+            REQUIRE(success);
+        }
+        REQUIRE(std::get<1>(hetero_array) == -65535);
+        REQUIRE(std::get<std::tuple_size<hard_type>::value - 1>(hetero_array) == false);
+    }
+
+    SECTION("Test for invalid tuple", "[parsing], [tuple], [error]")
+    {
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/hard.json", hetero_array, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+        REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
+        REQUIRE(static_cast<const error::TypeMismatchError&>(*err.begin()).actual_type() == "null");
+    }
+}
+
+#endif
