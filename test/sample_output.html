@@ -1,0 +1,826 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This file was created with the aha Ansi HTML Adapter. http://ziz.delphigl.com/tool_aha.php -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8" />
+<title>Test output of autojsoncxx</title>
+</head>
+<body>
+<pre>
+Script started on Fri Sep 19 03:18:14 2014
+bash-4.3$ ./autojsoncxx_test -s
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<span style="color:gray;">autojsoncxx_test is a Catch v1.0 b53 host application.
+Run with -? for options
+
+</span>-------------------------------------------------------------------------------
+Test for correct parsing
+  Test for an array of user
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:66
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:76: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( success )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := 
+
+<span style="color:gray;">test/test.cpp:78: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( users.size() == 2 )
+</span>with expansion:
+<span style="color:olive;">  2 == 2
+</span>
+<span style="color:gray;">test/test.cpp:82: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.ID == 7947402710862746952ULL )
+</span>with expansion:
+<span style="color:olive;">  7947402710862746952 == 7947402710862746952
+</span>
+<span style="color:gray;">test/test.cpp:83: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.nickname == &quot;bigger than bigger&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;bigger than bigger&quot;
+  ==
+  &quot;bigger than bigger&quot;
+</span>
+<span style="color:gray;">test/test.cpp:84: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.birthday == Date(1984, 9, 2) )
+</span>with expansion:
+<span style="color:olive;">  {?} == {?}
+</span>
+<span style="color:gray;">test/test.cpp:86: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
+</span>with expansion:
+<span style="color:olive;">  0x00007fd730c06088 != 0
+</span>
+<span style="color:gray;">test/test.cpp:89: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.admin_ID &gt; 0ULL )
+</span>with expansion:
+<span style="color:olive;">  10720293540521355122 &gt; 0
+</span>
+<span style="color:gray;">test/test.cpp:90: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.date == Date(1970, 12, 31) )
+</span>with expansion:
+<span style="color:olive;">  {?} == {?}
+</span>
+<span style="color:gray;">test/test.cpp:91: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.description == &quot;advertisement&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;advertisement&quot; == &quot;advertisement&quot;
+</span>
+<span style="color:gray;">test/test.cpp:92: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.details.size() &gt; 0ULL )
+</span>with expansion:
+<span style="color:olive;">  19 &gt; 0
+</span>
+<span style="color:gray;">test/test.cpp:94: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.dark_history.empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:95: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.optional_attributes.empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:100: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.ID == 13478355757133566847ULL )
+</span>with expansion:
+<span style="color:olive;">  13478355757133566847
+  ==
+  13478355757133566847
+</span>
+<span style="color:gray;">test/test.cpp:101: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.nickname.size() == 15 )
+</span>with expansion:
+<span style="color:olive;">  15 == 15
+</span>
+<span style="color:gray;">test/test.cpp:102: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.block_event.get() == 0 )
+</span>with expansion:
+<span style="color:olive;">  __null == 0
+</span>
+<span style="color:gray;">test/test.cpp:103: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.optional_attributes.size() == 3 )
+</span>with expansion:
+<span style="color:olive;">  3 == 3
+</span>
+<span style="color:gray;">test/test.cpp:104: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.optional_attributes.find(&quot;Self description&quot;) != u.optional_attributes.end() )
+</span>with expansion:
+<span style="color:olive;">  {?} != {?}
+</span>
+-------------------------------------------------------------------------------
+Test for correct parsing
+  Test for a map of user
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:66
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:116: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( success )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := 
+
+<span style="color:gray;">test/test.cpp:118: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( users.size() == 2 )
+</span>with expansion:
+<span style="color:olive;">  2 == 2
+</span>
+<span style="color:gray;">test/test.cpp:122: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.ID == 7947402710862746952ULL )
+</span>with expansion:
+<span style="color:olive;">  7947402710862746952 == 7947402710862746952
+</span>
+<span style="color:gray;">test/test.cpp:123: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.nickname == &quot;bigger than bigger&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;bigger than bigger&quot;
+  ==
+  &quot;bigger than bigger&quot;
+</span>
+<span style="color:gray;">test/test.cpp:124: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.birthday == Date(1984, 9, 2) )
+</span>with expansion:
+<span style="color:olive;">  {?} == {?}
+</span>
+<span style="color:gray;">test/test.cpp:126: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
+</span>with expansion:
+<span style="color:olive;">  0x00007fd730c05ce8 != 0
+</span>
+<span style="color:gray;">test/test.cpp:129: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.admin_ID &gt; 0ULL )
+</span>with expansion:
+<span style="color:olive;">  10720293540521355122 &gt; 0
+</span>
+<span style="color:gray;">test/test.cpp:130: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.date == Date(1970, 12, 31) )
+</span>with expansion:
+<span style="color:olive;">  {?} == {?}
+</span>
+<span style="color:gray;">test/test.cpp:131: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.description == &quot;advertisement&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;advertisement&quot; == &quot;advertisement&quot;
+</span>
+<span style="color:gray;">test/test.cpp:132: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.details.size() &gt; 0ULL )
+</span>with expansion:
+<span style="color:olive;">  19 &gt; 0
+</span>
+<span style="color:gray;">test/test.cpp:134: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.dark_history.empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:135: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.optional_attributes.empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:140: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.ID == 13478355757133566847ULL )
+</span>with expansion:
+<span style="color:olive;">  13478355757133566847
+  ==
+  13478355757133566847
+</span>
+<span style="color:gray;">test/test.cpp:141: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.nickname.size() == 15 )
+</span>with expansion:
+<span style="color:olive;">  15 == 15
+</span>
+<span style="color:gray;">test/test.cpp:142: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.block_event.get() == 0 )
+</span>with expansion:
+<span style="color:olive;">  __null == 0
+</span>
+<span style="color:gray;">test/test.cpp:143: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.optional_attributes.size() == 3 )
+</span>with expansion:
+<span style="color:olive;">  3 == 3
+</span>
+<span style="color:gray;">test/test.cpp:144: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( u.optional_attributes.find(&quot;Self description&quot;) != u.optional_attributes.end() )
+</span>with expansion:
+<span style="color:olive;">  {?} != {?}
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Mismatch between array and object
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:156: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/single_object.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:158: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 6 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Type mismatch between expected type &quot;array&quot; and actual type &quot;object&quot;
+  
+
+<span style="color:gray;">test/test.cpp:160: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::TYPE_MISMATCH )
+</span>with expansion:
+<span style="color:olive;">  4 == 4
+</span>
+<span style="color:gray;">test/test.cpp:161: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( std::distance(err.begin(), err.end()) == 1 )
+</span>with expansion:
+<span style="color:olive;">  1 == 1
+</span>
+<span style="color:gray;">test/test.cpp:165: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.expected_type() == &quot;array&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;array&quot; == &quot;array&quot;
+</span>
+<span style="color:gray;">test/test.cpp:167: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.actual_type() == &quot;object&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;object&quot; == &quot;object&quot;
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Required field not present; test the path as well
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:172: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/missing_required.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:174: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 1021 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Missing required field(s): &quot;day&quot; 
+  (*) Error at object member with name &quot;date&quot;
+  (*) Error at array element with index 0
+  (*) Error at object member with name &quot;dark_history&quot;
+  (*) Error at array element with index 1
+  
+
+<span style="color:gray;">test/test.cpp:176: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( std::distance(err.begin(), err.end()) == 5 )
+</span>with expansion:
+<span style="color:olive;">  5 == 5
+</span>
+<span style="color:gray;">test/test.cpp:179: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( it-&gt;type() == error::MISSING_REQUIRED )
+</span>with expansion:
+<span style="color:olive;">  3 == 3
+</span>
+<span style="color:gray;">test/test.cpp:182: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( it-&gt;type() == error::OBJECT_MEMBER )
+</span>with expansion:
+<span style="color:olive;">  1 == 1
+</span>
+<span style="color:gray;">test/test.cpp:183: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( static_cast&lt;const error::ObjectMemberError&amp;&gt;(*it).member_name() == &quot;date&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;date&quot; == &quot;date&quot;
+</span>
+<span style="color:gray;">test/test.cpp:186: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( it-&gt;type() == error::ARRAY_ELEMENT )
+</span>with expansion:
+<span style="color:olive;">  2 == 2
+</span>
+<span style="color:gray;">test/test.cpp:187: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( static_cast&lt;const error::ArrayElementError&amp;&gt;(*it).index() == 0 )
+</span>with expansion:
+<span style="color:olive;">  0 == 0
+</span>
+<span style="color:gray;">test/test.cpp:190: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( it-&gt;type() == error::OBJECT_MEMBER )
+</span>with expansion:
+<span style="color:olive;">  1 == 1
+</span>
+<span style="color:gray;">test/test.cpp:191: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( static_cast&lt;const error::ObjectMemberError&amp;&gt;(*it).member_name() == &quot;dark_history&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;dark_history&quot; == &quot;dark_history&quot;
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Unknown field in strict parsed class Date
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:196: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/unknown_field.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:198: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 448 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Unknown field with name:
+  hour
+  (*) Error at object member with name &quot;date&quot;
+  (*) Error at object member with name &quot;block_event&quot;
+  (*) Error at array element with index 0
+  
+
+<span style="color:gray;">test/test.cpp:200: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::UNKNOWN_FIELD )
+</span>with expansion:
+<span style="color:olive;">  7 == 7
+</span>
+<span style="color:gray;">test/test.cpp:202: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( static_cast&lt;const error::UnknownFieldError&amp;&gt;(*err.begin()).field_name() == &quot;hour&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;hour&quot; == &quot;hour&quot;
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Duplicate key
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:207: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/duplicate_key.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:209: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 1664 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Duplicate key: Auth-Token
+  (*) Error at object member with name &quot;optional_attributes&quot;
+  (*) Error at array element with index 1
+  
+
+<span style="color:gray;">test/test.cpp:211: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::DUPLICATE_KEYS )
+</span>with expansion:
+<span style="color:olive;">  8 == 8
+</span>
+<span style="color:gray;">test/test.cpp:213: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( static_cast&lt;const error::DuplicateKeyError&amp;&gt;(*err.begin()).key() == &quot;Auth-Token&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;Auth-Token&quot; == &quot;Auth-Token&quot;
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Out of range
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:218: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/out_of_range.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:220: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 440 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Number out of range: expected type is &quot;int&quot; but the type needed to
+  represent the number is &quot;uint64_t&quot;
+  (*) Error at object member with name &quot;day&quot;
+  (*) Error at object member with name &quot;date&quot;
+  (*) Error at object member with name &quot;block_event&quot;
+  (*) Error at array element with index 0
+  
+
+<span style="color:gray;">test/test.cpp:222: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::NUMBER_OUT_OF_RANGE )
+</span>with expansion:
+<span style="color:olive;">  5 == 5
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Mismatch between integer and string
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:227: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/integer_string.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:229: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 1000 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Type mismatch between expected type &quot;uint64_t&quot; and actual type &quot;string&quot;
+  (*) Error at object member with name &quot;serial_number&quot;
+  (*) Error at array element with index 0
+  (*) Error at object member with name &quot;dark_history&quot;
+  (*) Error at array element with index 1
+  
+
+<span style="color:gray;">test/test.cpp:231: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::TYPE_MISMATCH )
+</span>with expansion:
+<span style="color:olive;">  4 == 4
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Null character in key
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:236: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/null_in_key.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:238: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 410 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Unknown field with name:
+  year  I am invisible because I am behind a null
+  (*) Error at object member with name &quot;date&quot;
+  (*) Error at object member with name &quot;block_event&quot;
+  (*) Error at array element with index 0
+  
+
+<span style="color:gray;">test/test.cpp:240: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::UNKNOWN_FIELD )
+</span>with expansion:
+<span style="color:olive;">  7 == 7
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
+  Array length not match the fixed C++ type
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:149
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:247: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/success/user_array.json&quot;, trinity, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:249: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 1616 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Array length mismatch between expected length 3 and actual length 2
+  
+
+<span style="color:gray;">test/test.cpp:250: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::ARRAY_LENGTH_MISMATCH )
+</span>with expansion:
+<span style="color:olive;">  6 == 6
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::map&lt;std::string,
+config::User&gt;
+  Mismatch between object and array
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:254
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:261: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/success/user_array.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:263: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 1 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Type mismatch between expected type &quot;object&quot; and actual type &quot;array&quot;
+  
+
+<span style="color:gray;">test/test.cpp:265: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::TYPE_MISMATCH )
+</span>with expansion:
+<span style="color:olive;">  4 == 4
+</span>
+<span style="color:gray;">test/test.cpp:268: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.expected_type() == &quot;object&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;object&quot; == &quot;object&quot;
+</span>
+<span style="color:gray;">test/test.cpp:269: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.actual_type() == &quot;array&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;array&quot; == &quot;array&quot;
+</span>
+-------------------------------------------------------------------------------
+Test for mismatch between JSON and C++ class std::map&lt;std::string,
+config::User&gt;
+  Mismatch in mapped element
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:254
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:274: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/map_element_mismatch.json&quot;, users, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:276: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 1644 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Type mismatch between expected type &quot;object&quot; and actual type &quot;bool&quot;
+  (*) Error at object member with name &quot;Third&quot;
+  
+
+<span style="color:gray;">test/test.cpp:278: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::TYPE_MISMATCH )
+</span>with expansion:
+<span style="color:olive;">  4 == 4
+</span>
+<span style="color:gray;">test/test.cpp:284: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( it != err.end() )
+</span>with expansion:
+<span style="color:olive;">  {?} != {?}
+</span>
+<span style="color:gray;">test/test.cpp:285: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( it-&gt;type() == error::OBJECT_MEMBER )
+</span>with expansion:
+<span style="color:olive;">  1 == 1
+</span>
+<span style="color:gray;">test/test.cpp:287: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( e.member_name() == &quot;Third&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;Third&quot; == &quot;Third&quot;
+</span>
+-------------------------------------------------------------------------------
+Test for writing JSON
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:292
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:300: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( success )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := 
+
+<span style="color:gray;">test/test.cpp:302: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( users.size() == 2 )
+</span>with expansion:
+<span style="color:olive;">  2 == 2
+</span>
+<span style="color:gray;">test/test.cpp:307: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( output == read_all(&quot;.&quot; &quot;/examples/success/user_array_compact.json&quot;) )
+</span>with expansion:
+<span style="color:olive;">  &quot;[{&quot;ID&quot;:7947402710862746952,&quot;nickname&quot;:&quot;bigger than bigger&quot;,&quot;birthday&quot;:
+  {&quot;year&quot;:1984,&quot;month&quot;:9,&quot;day&quot;:2},&quot;block_event&quot;:
+  {&quot;serial_number&quot;:9097588792683265916,&quot;administrator ID&quot;:10720293540521355122
+  ,&quot;date&quot;:{&quot;year&quot;:1970,&quot;month&quot;:12,&quot;day&quot;:31},&quot;description&quot;:&quot;advertisement&quot;
+  ,&quot;details&quot;:&quot;most likely a troll&quot;},&quot;dark_history&quot;:[],&quot;optional_attributes&quot;:{}}
+  ,{&quot;ID&quot;:13478355757133566847,&quot;nickname&quot;:&quot;→☛∅∆ℵ&quot;,&quot;birthday&quot;:
+  {&quot;year&quot;:2001,&quot;month&quot;:1,&quot;day&quot;:23},&quot;block_event&quot;:null,&quot;dark_history&quot;:[
+  {&quot;serial_number&quot;:11932018656737597978,&quot;administrator ID&quot;:8027685536805674999
+  ,&quot;date&quot;:{&quot;year&quot;:2013,&quot;month&quot;:3,&quot;day&quot;:8},&quot;description&quot;:&quot;copyright
+  infringement&quot;,&quot;details&quot;:&quot;&quot;}],&quot;optional_attributes&quot;:{&quot;Auth-Token&quot;:&quot;45F13704
+  -A60D-4D44-B161-89BAB88E528C&quot;,&quot;Open ID&quot;:&quot;something@somewhere.com&quot;,&quot;Self
+  description&quot;:&quot;Can you handle characters above Basic Multilingual
+  Plane?😄🎅 🎁🐱✈️🐘🔢𠁆𠝻𡎦𡌠&quot;}}]&quot;
+  ==
+  &quot;[{&quot;ID&quot;:7947402710862746952,&quot;nickname&quot;:&quot;bigger than bigger&quot;,&quot;birthday&quot;:
+  {&quot;year&quot;:1984,&quot;month&quot;:9,&quot;day&quot;:2},&quot;block_event&quot;:
+  {&quot;serial_number&quot;:9097588792683265916,&quot;administrator ID&quot;:10720293540521355122
+  ,&quot;date&quot;:{&quot;year&quot;:1970,&quot;month&quot;:12,&quot;day&quot;:31},&quot;description&quot;:&quot;advertisement&quot;
+  ,&quot;details&quot;:&quot;most likely a troll&quot;},&quot;dark_history&quot;:[],&quot;optional_attributes&quot;:{}}
+  ,{&quot;ID&quot;:13478355757133566847,&quot;nickname&quot;:&quot;→☛∅∆ℵ&quot;,&quot;birthday&quot;:
+  {&quot;year&quot;:2001,&quot;month&quot;:1,&quot;day&quot;:23},&quot;block_event&quot;:null,&quot;dark_history&quot;:[
+  {&quot;serial_number&quot;:11932018656737597978,&quot;administrator ID&quot;:8027685536805674999
+  ,&quot;date&quot;:{&quot;year&quot;:2013,&quot;month&quot;:3,&quot;day&quot;:8},&quot;description&quot;:&quot;copyright
+  infringement&quot;,&quot;details&quot;:&quot;&quot;}],&quot;optional_attributes&quot;:{&quot;Auth-Token&quot;:&quot;45F13704
+  -A60D-4D44-B161-89BAB88E528C&quot;,&quot;Open ID&quot;:&quot;something@somewhere.com&quot;,&quot;Self
+  description&quot;:&quot;Can you handle characters above Basic Multilingual
+  Plane?😄🎅 🎁🐱✈️🐘🔢𠁆𠝻𡎦𡌠&quot;}}]&quot;
+</span>
+-------------------------------------------------------------------------------
+Test for parsing tuple type
+  Test for valid tuple
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:312
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:323: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( success )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := 
+
+<span style="color:gray;">test/test.cpp:325: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( std::get&lt;1&gt;(hetero_array) == -65535 )
+</span>with expansion:
+<span style="color:olive;">  -65535 == -65535
+</span>
+<span style="color:gray;">test/test.cpp:326: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( std::get&lt;std::tuple_size&lt;hard_type&gt;::value - 1&gt;(hetero_array) == false )
+</span>with expansion:
+<span style="color:olive;">  false == false
+</span>
+-------------------------------------------------------------------------------
+Test for parsing tuple type
+  Test for invalid tuple
+-------------------------------------------------------------------------------
+<span style="color:gray;">test/test.cpp:312
+</span>...............................................................................
+
+<span style="color:gray;">test/test.cpp:331: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !from_json_file(&quot;.&quot; &quot;/examples/failure/hard.json&quot;, hetero_array, err) )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>
+<span style="color:gray;">test/test.cpp:333: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( !err.error_stack().empty() )
+</span>with expansion:
+<span style="color:olive;">  true
+</span>with message:
+  err.description() := Parsing failed at offset 616 with error code 16:
+  Terminate parsing due to Handler error.
+  
+  Trace back (last call first):
+  (*) Type mismatch between expected type &quot;string&quot; and actual type &quot;null&quot;
+  (*) Error at object member with name &quot;details&quot;
+  (*) Error at array element with index 0
+  (*) Error at object member with name &quot;dark_history&quot;
+  (*) Error at object member with name &quot;Second&quot;
+  (*) Error at array element with index 4
+  
+
+<span style="color:gray;">test/test.cpp:334: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( err.begin()-&gt;type() == error::TYPE_MISMATCH )
+</span>with expansion:
+<span style="color:olive;">  4 == 4
+</span>
+<span style="color:gray;">test/test.cpp:335: </span>
+<span style="color:green;">PASSED:
+</span><span style="color:teal;">  REQUIRE( static_cast&lt;const error::TypeMismatchError&amp;&gt;(*err.begin()).actual_type() == &quot;null&quot; )
+</span>with expansion:
+<span style="color:olive;">  &quot;null&quot; == &quot;null&quot;
+</span>
+<span style="color:red;font-weight:bold;"></span><span style="color:olive;"></span><span style="color:green;font-weight:bold;">===============================================================================</span>
+<span style="color:green;font-weight:bold;">All tests passed</span> (91 assertions in 5 test cases)
+
+bash-4.3$ exit
+
+Script done on Fri Sep 19 03:18:25 2014
+</pre>
+</body>
+</html>
