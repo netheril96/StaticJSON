@@ -8,8 +8,9 @@
 </head>
 <body>
 <pre>
-Script started on Fri Sep 19 03:18:14 2014
-bash-4.3$ ./autojsoncxx_test -s
+Script started on Fri Sep 19 03:38:19 2014
+bash-4.3$ clang++ -Os -DAUTOJSONCXX_HAS_VARIADIC_TEMPLATE=1 -std=c++11 -I./include -I./rapidjson/include -I./catch/single_include test/main.cpp test/test.cpp -o autojsoncxx_test
+bash-4.3$ ./autojsoncxx_test -s-scuuccess
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <span style="color:gray;">autojsoncxx_test is a Catch v1.0 b53 host application.
@@ -60,7 +61,7 @@ Test for correct parsing
 <span style="color:green;">PASSED:
 </span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
 </span>with expansion:
-<span style="color:olive;">  0x00007fd730c06088 != 0
+<span style="color:olive;">  0x00007fad51403a38 != 0
 </span>
 <span style="color:gray;">test/test.cpp:89: </span>
 <span style="color:green;">PASSED:
@@ -175,7 +176,7 @@ Test for correct parsing
 <span style="color:green;">PASSED:
 </span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
 </span>with expansion:
-<span style="color:olive;">  0x00007fd730c05ce8 != 0
+<span style="color:olive;">  0x00007fad514040c8 != 0
 </span>
 <span style="color:gray;">test/test.cpp:129: </span>
 <span style="color:green;">PASSED:
@@ -820,7 +821,7 @@ Test for parsing tuple type
 
 bash-4.3$ exit
 
-Script done on Fri Sep 19 03:18:25 2014
+Script done on Fri Sep 19 03:38:38 2014
 </pre>
 </body>
 </html>
