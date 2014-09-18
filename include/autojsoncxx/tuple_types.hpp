@@ -214,11 +214,8 @@ public:
 template <class Tuple, std::size_t TupleSize>
 class TupleSAXEventHandler<Tuple, TupleSize, TupleSize> {
 protected:
-    Tuple* m_value;
-
 public:
-    explicit TupleSAXEventHandler(Tuple* t)
-        : m_value(t)
+    explicit TupleSAXEventHandler(Tuple*)
     {
     }
 
@@ -227,42 +224,42 @@ public:
         return true;
     }
 
-    bool Bool(bool b)
+    bool Bool(bool)
     {
         return true;
     }
 
-    bool Int(int i)
+    bool Int(int)
     {
         return true;
     }
 
-    bool Uint(unsigned i)
+    bool Uint(unsigned)
     {
         return true;
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(utility::int64_t)
     {
         return true;
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(utility::uint64_t)
     {
         return true;
     }
 
-    bool Double(double d)
+    bool Double(double)
     {
         return true;
     }
 
-    bool String(const char* str, SizeType len, bool copy)
+    bool String(const char*, SizeType, bool)
     {
         return true;
     }
 
-    bool Key(const char* str, SizeType len, bool copy)
+    bool Key(const char*, SizeType, bool)
     {
         return true;
     }
@@ -277,12 +274,12 @@ public:
         return true;
     }
 
-    bool EndObject(SizeType len)
+    bool EndObject(SizeType)
     {
         return true;
     }
 
-    bool EndArray(SizeType len)
+    bool EndArray(SizeType)
     {
         return true;
     }
@@ -292,7 +289,7 @@ public:
         return false;
     }
 
-    bool ReapError(error::ErrorStack& errs)
+    bool ReapError(error::ErrorStack&)
     {
         return false;
     }
