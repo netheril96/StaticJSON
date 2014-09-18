@@ -28,6 +28,9 @@
 #include <autojsoncxx/error.hpp>
 
 #include <map>
+#include <stack>
+#include <cassert>
+#include <string>
 
 #if AUTOJSONCXX_HAS_MODERN_TYPES
 #include <unordered_map>

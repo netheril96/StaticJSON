@@ -25,6 +25,7 @@
 
 #include <autojsoncxx/base.hpp>
 #include <autojsoncxx/error.hpp>
+
 #include <vector>
 #include <deque>
 #include <stack>

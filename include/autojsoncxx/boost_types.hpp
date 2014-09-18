@@ -24,6 +24,7 @@
 #define AUTOJSONCXX_BOOST_TYPES_HPP_29A4C106C1B1
 
 #include <autojsoncxx/autojsoncxx.hpp>
+
 #include <boost/container/vector.hpp>
 #include <boost/container/deque.hpp>
 #include <boost/array.hpp>

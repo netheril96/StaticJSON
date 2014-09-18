@@ -25,6 +25,7 @@
 
 #include <autojsoncxx/utility.hpp>
 #include <autojsoncxx/error.hpp>
+
 #include <string>
 #include <cstring>
 
