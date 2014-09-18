@@ -32,7 +32,6 @@ private:
     typedef TypeName_A27885315D2EA6F8BEB7 object_type;
 
     utility::scoped_ptr<error::ErrorBase> the_error;
-    object_type* obj;
     int state;
     int depth;
 
@@ -82,8 +81,7 @@ private:
 
 public:
     explicit SAXEventHandler(object_type* obj)
-        : obj(obj)
-        , state(-1)
+        : state(-1)
         , depth(0)
         /* init */
     {

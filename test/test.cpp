@@ -82,10 +82,10 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             REQUIRE(u.block_event.get() != 0);
             const BlockEvent& e = *u.block_event;
 
-            REQUIRE(e.admin_ID > 0);
+            REQUIRE(e.admin_ID > 0ULL);
             REQUIRE(e.date == Date(1970, 12, 31));
             REQUIRE(e.description == "advertisement");
-            REQUIRE(e.details.size() > 0);
+            REQUIRE(e.details.size() > 0ULL);
 
             REQUIRE(u.dark_history.empty());
             REQUIRE(u.optional_attributes.empty());
@@ -122,10 +122,10 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             REQUIRE(u.block_event.get() != 0);
             const BlockEvent& e = *u.block_event;
 
-            REQUIRE(e.admin_ID > 0);
+            REQUIRE(e.admin_ID > 0ULL);
             REQUIRE(e.date == Date(1970, 12, 31));
             REQUIRE(e.description == "advertisement");
-            REQUIRE(e.details.size() > 0);
+            REQUIRE(e.details.size() > 0ULL);
 
             REQUIRE(u.dark_history.empty());
             REQUIRE(u.optional_attributes.empty());

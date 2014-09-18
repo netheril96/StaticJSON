@@ -67,37 +67,37 @@ public:
         return set_type_mismatch("null");
     }
 
-    bool Bool(bool b)
+    bool Bool(bool)
     {
         return set_type_mismatch("bool");
     }
 
-    bool Int(int i)
+    bool Int(int)
     {
         return set_type_mismatch("int");
     }
 
-    bool Uint(unsigned i)
+    bool Uint(unsigned)
     {
         return set_type_mismatch("unsigned");
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(utility::int64_t)
     {
         return set_type_mismatch("int64_t");
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(utility::uint64_t)
     {
         return set_type_mismatch("uint64_t");
     }
 
-    bool Double(double d)
+    bool Double(double)
     {
         return set_type_mismatch("double");
     }
 
-    bool String(const Ch* str, SizeType length, bool copy)
+    bool String(const Ch*, SizeType, bool)
     {
         return set_type_mismatch("string");
     }
@@ -107,12 +107,12 @@ public:
         return set_type_mismatch("object");
     }
 
-    bool Key(const Ch* str, SizeType length, bool copy)
+    bool Key(const Ch*, SizeType, bool)
     {
         return set_type_mismatch("object");
     }
 
-    bool EndObject(SizeType memberCount)
+    bool EndObject(SizeType)
     {
         return set_type_mismatch("object");
     }
@@ -122,7 +122,7 @@ public:
         return set_type_mismatch("array");
     }
 
-    bool EndArray(SizeType elementCount)
+    bool EndArray(SizeType)
     {
         return set_type_mismatch("array");
     }
@@ -156,7 +156,7 @@ public:
         return "null";
     }
 
-    explicit SAXEventHandler(std::nullptr_t* v)
+    explicit SAXEventHandler(std::nullptr_t*)
     {
     }
 
@@ -466,7 +466,7 @@ public:
     {
     }
 
-    bool String(const char* str, SizeType length, bool copy)
+    bool String(const char* str, SizeType length, bool)
     {
         m_value->assign(str, length);
         return true;
