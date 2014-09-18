@@ -292,7 +292,7 @@ def build_class(template, class_info):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("definition", help='definition file for classes')
-    parser.add_argument('-o', '--out', help='output file name (defaults to stdout)', default=None)
+    parser.add_argument('-o', '--out', help='output file name', default=None)
     parser.add_argument('--template', help='location of the template file', default=None)
     args = parser.parse_args()
 
@@ -315,10 +315,11 @@ def main():
             output.write(build_class(template, ClassInfo(raw_record)))
 
     if args.out is None:
-        process_file(sys.stdout)
-    else:
-        with open(args.out, 'w') as f:
-            process_file(f)
+        args.out = os.path.basename(args.definition)
+        args.out = os.path.splitext(args.out)[0] + '.hpp'
+
+    with open(args.out, 'w') as f:
+        process_file(f)
 
 
 if __name__ == '__main__':
