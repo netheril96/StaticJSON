@@ -53,7 +53,7 @@ inline std::string read_all(const char* file_name)
     std::ifstream input(file_name);
     input.seekg(0, std::ifstream::end);
     auto size = input.tellg();
-    std::string result('\0', size);
+    std::string result(static_cast<std::string::size_type>(size), static_cast<char>(0));
     input.seekg(0);
     input.read(&result[0], size);
     return result;
