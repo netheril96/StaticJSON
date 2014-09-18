@@ -318,15 +318,24 @@ The 64-bit integer type `long long` and `unsigned long long` is always required.
 
 The default encoding is `UTF-8`. If you need to read/write JSON in `UTF-16` or `UTF-32`, instantiate the class `SAXEventHandler` and/or `Serializer`, and use it in combination with RapidJSON's transcoding capability.
 
+## Testing
+
+To build the test, UNIX-like operating system users can simply call the script `./do_test.sh` from the root of the repository.
+
+Windows users need to manually generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Then open the solution file `test/mscv10_test/mscv_test.sln` to build and run the test.
+
+If all the tests fail, make sure your work directory points to the root of this repo.
+
 ## Other
 
 You can have multiple definition of classes in the same file, simply by making the root an array of definitions.
 
 ## To do
 
-- [ ] Automatic unit testing of the library.
+- [x] Automatic <s>unit</s> functional testing of the library
 - [ ] Test on C++03 compilers
-- [ ] Automatic detection of compiler support for c++11 features.
+- [x] Test on Microsoft's C++ compiler
+- [ ] Automatic detection of compiler support for c++11 features
 - [ ] Full documentation about the API
 - [x] Map types support
 - [ ] Variant types support
