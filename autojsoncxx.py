@@ -31,6 +31,42 @@ import json
 import os
 
 
+class InvalidDefinitionError(Exception):
+    pass
+
+
+class InvalidIdentifier(InvalidDefinitionError):
+    def __init__(self, identifier):
+        self.identifier = identifier
+
+    def __str__(self):
+        return "Invalid string for C++ identifier: " + repr(self.identifier)
+
+
+class InvalidNamespace(InvalidDefinitionError):
+    def __init__(self, namespace):
+        self.namespace = namespace
+
+    def __str__(self):
+        return "Invalid namespace: " + repr(self.namespace)
+
+
+class UnrecognizedOption(InvalidDefinitionError):
+    def __init__(self, option):
+        self.option = option
+
+    def __str__(self):
+        return "Unrecognized option: " + repr(self.option)
+
+
+class UnsupportedTypeError(InvalidDefinitionError):
+    def __init__(self, type_name):
+        self.type_name = type_name
+
+    def __str__(self):
+        return "Unsupported C++ type: " + repr(self.type_name)
+
+
 def hard_escape(text):
     def escape(char):
         return '\\x{:02x}'.format(char)
@@ -38,12 +74,9 @@ def hard_escape(text):
     return '"' + ''.join(escape(char) for char in text) + '"'
 
 
-class UnrecognizedOption(Exception):
-    def __init__(self, option):
-        self._op = option
-
-    def __str__(self):
-        return "Unrecoginzed option: " + repr(self._op)
+def check_identifier(identifier):
+    if not re.match(r'^[A-Za-z_]\w*$', identifier):
+        raise InvalidIdentifier(identifier)
 
 
 class ClassInfo:
@@ -54,6 +87,11 @@ class ClassInfo:
         self._members = [MemberInfo(r) for r in record['members']]
         self._strict = record.get('parse_mode', '') == 'strict'
         self._namespace = record.get("namespace", None)
+
+        check_identifier(self._name)
+
+        if self._namespace is not None and not re.match(r'^[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*$', self._namespace):
+            raise InvalidNamespace(self._namespace)
 
         for op in record:
             if op not in ClassInfo.accept_options:
@@ -82,7 +120,9 @@ class ClassInfo:
                     constructor1=self.constructor(True), constructor2=self.constructor(False))
 
         if self._namespace is not None:
-            return 'namespace {} {{ {} }}\n'.format(self._namespace, class_def)
+            for space in reversed(self._namespace.split('::')):
+                if space:
+                    class_def = 'namespace {} {{ {} }}\n'.format(space, class_def)
         return class_def
 
     def name(self):
@@ -99,21 +139,8 @@ class ClassInfo:
     def strict_parsing(self):
         return self._strict
 
-
-class InvalidIdentifier(Exception):
-    def __init__(self, identifier):
-        self._identifier = identifier
-
-    def __str__(self):
-        return "Invalid string for C++ identifier: " + repr(self._identifier)
-
-
-class UnsupportedTypeError(Exception):
-    def __init__(self, type_name):
-        self._type_name = type_name
-
-    def __str__(self):
-        return "Unsupported C++ type: " + repr(self._type_name)
+    def namespace(self):
+        return self._namespace
 
 
 def to_cpp_repr(args):
@@ -140,8 +167,7 @@ class MemberInfo:
         if '*' in self.type_name() or '&' in self.type_name():
             raise UnsupportedTypeError(self.type_name())
 
-        if not re.match(r'[A-Za-z]\w*|_[a-z0-9]\w*', self.variable_name()):
-            raise InvalidIdentifier(self.variable_name())
+        check_identifier(self.variable_name())
 
         if len(record) > 3:
             raise UnrecognizedOption(record[3:])
@@ -211,7 +237,7 @@ class MainCodeGenerator:
     def key_event_handling(self):
         return '\n'.join('else if (utility::string_equal(str, length, {key}, {key_length}))\n\
                     {{ state={state}; {check} }}'
-                             .format(key=hard_escape(m.json_key()), key_length = len(m.json_key()),
+                             .format(key=hard_escape(m.json_key()), key_length=len(m.json_key()),
                                      state=i, check=m.set_flag_statement("true"))
                          for i, m in enumerate(self.members_info))
 

@@ -11,7 +11,7 @@
 
 {
     "name": "BlockEvent",
-    "namespace": "config",
+    "namespace": "config::event",
     "members": [
         ["unsigned long long", "serial_number", {"required": true}],
         ["unsigned long long", "admin_ID", {"json_key": "administrator ID", "default": 255}],
@@ -28,8 +28,8 @@
         ["unsigned long long", "ID", {"required": true}],
         ["std::string", "nickname", {"required": true, "default": "❶❷❸"} ],
         ["Date", "birthday"],
-        ["std::shared_ptr<config::BlockEvent>", "block_event"],
-        ["std::vector<config::BlockEvent>", "dark_history"],
+        ["std::shared_ptr<config::event::BlockEvent>", "block_event"],
+        ["std::vector<config::event::BlockEvent>", "dark_history"],
         ["std::unordered_map<std::string, std::string>", "optional_attributes"]
     ]
 }
