@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include <catch.hpp>
 #define AUTOJSONCXX_MODERN_COMPILER 1
 #include "userdef.hpp"
 
