@@ -12,6 +12,7 @@ More importantly, maually writing the code means duplication of effort, and dupl
 
 Dependency: 
 * RapidJSON (https://github.com/miloyip/rapidjson) 
+* (optional for building the test, header only) Catch (https://github.com/philsquared/Catch)
 * (optional, only the headers) Boost (http://www.boost.org)
 
 ## Features
