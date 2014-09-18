@@ -166,7 +166,7 @@ for (auto&& e : result) {
                   << " to fool me!\n";
     } break;
 
-    case OBJECT_MEMEMBER: {
+    case OBJECT_MEMBER: {
         const ObjectMemberError& err = static_cast<const ObjectMemberError&>(e);
         std::cout << "The member " << err.member_name() << " is naughty!\n";
     } break;

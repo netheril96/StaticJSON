@@ -30,7 +30,7 @@
         ["Date", "birthday"],
         ["std::shared_ptr<config::event::BlockEvent>", "block_event"],
         ["std::vector<config::event::BlockEvent>", "dark_history"],
-        ["std::unordered_map<std::string, std::string>", "optional_attributes"]
+        ["std::map<std::string, std::string>", "optional_attributes"]
     ]
 }
 ]

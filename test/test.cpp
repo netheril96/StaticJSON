@@ -21,7 +21,10 @@
 // SOFTWARE.
 
 #include <catch.hpp>
-#define AUTOJSONCXX_MODERN_COMPILER 1
+
+#define AUTOJSONCXX_HAS_MODERN_TYPES 1
+#define AUTOJSONCXX_HAS_RVALUE 1
+
 #include "userdef.hpp"
 
 using namespace autojsoncxx;
@@ -43,7 +46,11 @@ TEST_CASE("Test for correct parsing", "[parsing]")
     std::vector<User> users;
     ParsingResult err;
 
-    REQUIRE(from_json_file("./examples/user.json", users, err));
+    bool success = from_json_file("./examples/user.json", users, err);
+    {
+
+        REQUIRE(success);
+    }
     REQUIRE(users.size() == 2);
 
     {
@@ -82,35 +89,49 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
     SECTION("Mismatch between array and object", "[parsing], [error], [type mismatch]")
     {
         REQUIRE(!from_json_file("./examples/error/single_object.json", users, err));
-        REQUIRE(err.has_error());
-
         CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
         REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
         REQUIRE(std::distance(err.begin(), err.end()) == 1);
 
         auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
 
         REQUIRE(std::strcmp(e.expected_type(), "array") == 0);
+
         REQUIRE(std::strcmp(e.actual_type(), "object") == 0);
     }
 
-    SECTION("Required field not present", "[parsing], [error], [missing required]")
+    SECTION("Required field not present; test the path as well", "[parsing], [error], [missing required]")
     {
         REQUIRE(!from_json_file("./examples/error/missing_required.json", users, err));
-        REQUIRE(err.has_error());
-
         CAPTURE(err.description());
-        REQUIRE(err.begin()->type() == error::MISSING_REQUIRED);
+        REQUIRE(!err.error_stack().empty());
 
         REQUIRE(std::distance(err.begin(), err.end()) == 5);
+
+        auto it = err.begin();
+        REQUIRE(it->type() == error::MISSING_REQUIRED);
+
+        ++it;
+        REQUIRE(it->type() == error::OBJECT_MEMBER);
+        REQUIRE(static_cast<const error::ObjectMemberError&>(*it).member_name() == "date");
+
+        ++it;
+        REQUIRE(it->type() == error::ARRAY_ELEMENT);
+        REQUIRE(static_cast<const error::ArrayElementError&>(*it).index() == 0);
+
+        ++it;
+        REQUIRE(it->type() == error::OBJECT_MEMBER);
+        REQUIRE(static_cast<const error::ObjectMemberError&>(*it).member_name() == "dark_history");
     }
 
     SECTION("Unknown field in strict parsed class Date", "[parsing], [error], [unknown field]")
     {
         REQUIRE(!from_json_file("./examples/error/unknown_field.json", users, err));
-        REQUIRE(err.has_error());
-
         CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
         REQUIRE(err.begin()->type() == error::UNKNOWN_FIELD);
 
         REQUIRE(static_cast<const error::UnknownFieldError&>(*err.begin()).field_name() == "hour");
@@ -119,11 +140,38 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
     SECTION("Duplicate key", "[parsing], [error], [duplicate key]")
     {
         REQUIRE(!from_json_file("./examples/error/duplicate_key.json", users, err));
-        REQUIRE(err.has_error());
-
         CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
         REQUIRE(err.begin()->type() == error::DUPLICATE_KEYS);
 
         REQUIRE(static_cast<const error::DuplicateKeyError&>(*err.begin()).key() == "Auth-Token");
+    }
+
+    SECTION("Out of range", "[parsing], [error], [out of range]")
+    {
+        REQUIRE(!from_json_file("./examples/error/out_of_range.json", users, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
+        REQUIRE(err.begin()->type() == error::NUMBER_OUT_OF_RANGE);
+    }
+
+    SECTION("Mismatch between integer and string", "[parsing], [error], [type mismatch]")
+    {
+        REQUIRE(!from_json_file("./examples/error/integer_string.json", users, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
+        REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
+    }
+
+    SECTION("Null character in key", "[parsing], [error], [null character]")
+    {
+        REQUIRE(!from_json_file("./examples/error/null_in_key.json", users, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
+        REQUIRE(err.begin()->type() == error::UNKNOWN_FIELD);
     }
 }

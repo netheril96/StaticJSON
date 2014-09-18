@@ -41,7 +41,7 @@ namespace error {
     typedef int error_type;
 
     static const error_type SUCCESS = 0,
-                            OBJECT_MEMEMBER = 1,
+                            OBJECT_MEMBER = 1,
                             ARRAY_ELEMENT = 2,
                             MISSING_REQUIRED = 3,
                             TYPE_MISMATCH = 4,
@@ -129,7 +129,7 @@ namespace error {
 
         error_type type() const
         {
-            return OBJECT_MEMEMBER;
+            return OBJECT_MEMBER;
         }
     };
 
