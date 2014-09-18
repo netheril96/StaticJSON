@@ -117,12 +117,12 @@ public:
         return check_depth("unsigned") && checked_event_forwarding(internal_handler.Uint(i));
     }
 
-    bool Int64(int64_t i)
+    bool Int64(utility::int64_t i)
     {
         return check_depth("int64_t") && checked_event_forwarding(internal_handler.Int64(i));
     }
 
-    bool Uint64(uint64_t i)
+    bool Uint64(utility::uint64_t i)
     {
         return check_depth("uint64_t") && checked_event_forwarding(internal_handler.Uint64(i));
     }

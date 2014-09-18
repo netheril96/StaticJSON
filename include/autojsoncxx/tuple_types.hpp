@@ -115,14 +115,14 @@ public:
         return finish_when_depth_is_right(internal_handler.Uint(i));
     }
 
-    bool Int64(int64_t i)
+    bool Int64(utility::int64_t i)
     {
         if (finished)
             return static_cast<base_type*>(this)->Int64(i);
         return finish_when_depth_is_right(internal_handler.Int64(i));
     }
 
-    bool Uint64(uint64_t i)
+    bool Uint64(utility::uint64_t i)
     {
         if (finished)
             return static_cast<base_type*>(this)->Uint64(i);
@@ -242,12 +242,12 @@ public:
         return true;
     }
 
-    bool Int64(int64_t i)
+    bool Int64(utility::int64_t i)
     {
         return true;
     }
 
-    bool Uint64(uint64_t i)
+    bool Uint64(utility::uint64_t i)
     {
         return true;
     }

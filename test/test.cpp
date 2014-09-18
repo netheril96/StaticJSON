@@ -25,6 +25,10 @@
 #define AUTOJSONCXX_HAS_MODERN_TYPES 1
 #define AUTOJSONCXX_HAS_RVALUE 1
 
+#ifndef AUTOJSONCXX_ROOT_DIRECTORY
+#define AUTOJSONCXX_ROOT_DIRECTORY "."
+#endif
+
 #include "userdef.hpp"
 
 using namespace autojsoncxx;
@@ -46,7 +50,7 @@ TEST_CASE("Test for correct parsing", "[parsing]")
     std::vector<User> users;
     ParsingResult err;
 
-    bool success = from_json_file("./examples/user.json", users, err);
+    bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/user.json", users, err);
     {
 
         REQUIRE(success);
@@ -88,7 +92,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
 
     SECTION("Mismatch between array and object", "[parsing], [error], [type mismatch]")
     {
-        REQUIRE(!from_json_file("./examples/error/single_object.json", users, err));
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/single_object.json", users, err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -104,7 +108,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
 
     SECTION("Required field not present; test the path as well", "[parsing], [error], [missing required]")
     {
-        REQUIRE(!from_json_file("./examples/error/missing_required.json", users, err));
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/missing_required.json", users, err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -128,7 +132,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
 
     SECTION("Unknown field in strict parsed class Date", "[parsing], [error], [unknown field]")
     {
-        REQUIRE(!from_json_file("./examples/error/unknown_field.json", users, err));
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/unknown_field.json", users, err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -139,7 +143,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
 
     SECTION("Duplicate key", "[parsing], [error], [duplicate key]")
     {
-        REQUIRE(!from_json_file("./examples/error/duplicate_key.json", users, err));
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/duplicate_key.json", users, err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -150,7 +154,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
 
     SECTION("Out of range", "[parsing], [error], [out of range]")
     {
-        REQUIRE(!from_json_file("./examples/error/out_of_range.json", users, err));
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/out_of_range.json", users, err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -159,7 +163,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
 
     SECTION("Mismatch between integer and string", "[parsing], [error], [type mismatch]")
     {
-        REQUIRE(!from_json_file("./examples/error/integer_string.json", users, err));
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/integer_string.json", users, err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -168,7 +172,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
 
     SECTION("Null character in key", "[parsing], [error], [null character]")
     {
-        REQUIRE(!from_json_file("./examples/error/null_in_key.json", users, err));
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/error/null_in_key.json", users, err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 

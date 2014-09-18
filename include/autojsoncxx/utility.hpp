@@ -90,11 +90,11 @@ namespace utility {
         };
 
         template <>
-        struct is_simple_type<int64_t> : public true_type {
+        struct is_simple_type<utility::int64_t> : public true_type {
         };
 
         template <>
-        struct is_simple_type<uint64_t> : public true_type {
+        struct is_simple_type<utility::uint64_t> : public true_type {
         };
 
         template <>
