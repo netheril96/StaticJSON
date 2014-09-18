@@ -31,7 +31,6 @@
 
 #include "userdef.hpp"
 
-#include <cstring>
 #include <fstream>
 
 using namespace autojsoncxx;
@@ -158,9 +157,9 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
         auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
 
-        REQUIRE(std::strcmp(e.expected_type(), "array") == 0);
+        REQUIRE(e.expected_type() == "array");
 
-        REQUIRE(std::strcmp(e.actual_type(), "object") == 0);
+        REQUIRE(e.actual_type() == "object");
     }
 
     SECTION("Required field not present; test the path as well", "[parsing], [error], [missing required]")
@@ -251,8 +250,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
         REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
 
         auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
-        REQUIRE(std::strcmp(e.expected_type(), "object") == 0);
-        REQUIRE(std::strcmp(e.actual_type(), "array") == 0);
+        REQUIRE(e.expected_type() == "object");
+        REQUIRE(e.actual_type() == "array");
     }
 
     SECTION("Mismatch in mapped element", "[parsing], [error], [type mismatch]")

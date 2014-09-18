@@ -107,14 +107,9 @@ namespace error {
         std::string m_member_name;
 
     public:
-        explicit ObjectMemberError(const char* memberName)
-            : m_member_name(memberName)
+        explicit ObjectMemberError(std::string memberName)
         {
-        }
-
-        explicit ObjectMemberError(const std::string& memberName)
-            : m_member_name(memberName)
-        {
+            m_member_name.swap(memberName);
         }
 
         const std::string& member_name() const
@@ -163,19 +158,19 @@ namespace error {
 
     class RequiredFieldMissingError : public ErrorBase {
     private:
-        std::vector<const char*> m_missing_members;
+        std::vector<std::string> m_missing_members;
 
     public:
         explicit RequiredFieldMissingError()
         {
         }
 
-        std::vector<const char*>& missing_members()
+        std::vector<std::string>& missing_members()
         {
             return m_missing_members;
         };
 
-        const std::vector<const char*>& missing_members() const
+        const std::vector<std::string>& missing_members() const
         {
             return m_missing_members;
         }
@@ -185,7 +180,7 @@ namespace error {
             std::ostringstream ss;
             ss << "Missing required field(s): ";
 
-            typedef std::vector<const char*>::const_iterator iter;
+            typedef std::vector<std::string>::const_iterator iter;
             for (iter it = m_missing_members.begin(), end = m_missing_members.end();
                  it != end; ++it) {
                 ss << '\"' << *it << '\"' << ' ';
@@ -201,22 +196,22 @@ namespace error {
 
     class TypeMismatchError : public ErrorBase {
     private:
-        const char* m_expected_type;
-        const char* m_actual_type;
+        std::string m_expected_type;
+        std::string m_actual_type;
 
     public:
-        explicit TypeMismatchError(const char* expectedType, const char* actualType)
-            : m_expected_type(expectedType)
-            , m_actual_type(actualType)
+        explicit TypeMismatchError(std::string expectedType, std::string actualType)
         {
+            m_expected_type.swap(expectedType);
+            m_actual_type.swap(actualType);
         }
 
-        const char* expected_type() const
+        const std::string& expected_type() const
         {
             return m_expected_type;
         }
 
-        const char* actual_type() const
+        const std::string& actual_type() const
         {
             return m_actual_type;
         }
@@ -237,22 +232,22 @@ namespace error {
     };
 
     class NumberOutOfRangeError : public ErrorBase {
-        const char* m_expected_type;
-        const char* m_actual_type;
+        std::string m_expected_type;
+        std::string m_actual_type;
 
     public:
-        explicit NumberOutOfRangeError(const char* expectedType, const char* actualType)
-            : m_expected_type(expectedType)
-            , m_actual_type(actualType)
+        explicit NumberOutOfRangeError(std::string expectedType, std::string actualType)
         {
+            m_expected_type.swap(expectedType);
+            m_actual_type.swap(actualType);
         }
 
-        const char* expected_type() const
+        const std::string& expected_type() const
         {
             return m_expected_type;
         }
 
-        const char* actual_type() const
+        const std::string& actual_type() const
         {
             return m_actual_type;
         }

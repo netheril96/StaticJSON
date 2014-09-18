@@ -68,7 +68,7 @@ private:
         if (the_error.empty() || the_error->type() != error::MISSING_REQUIRED)
             the_error.reset(new error::RequiredFieldMissingError());
 
-        std::vector<const char*>& missing =
+        std::vector<std::string>& missing =
             static_cast<error::RequiredFieldMissingError*>(the_error.get())->missing_members();
 
         missing.push_back(name);
