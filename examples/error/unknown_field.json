@@ -13,12 +13,14 @@
             "date": {
                 "year": 1970,
                 "month": 12,
-                "day": 31
+                "day": 31,
+                "hour": 21,
+                "minute": 33,
+                "second": 02
             },
             "description": "advertisement",
             "details": "most likely a troll"
-        },
-        "comment": "This field is not specified by our class; but it is silently skipped because the parse_mode of class `User` is not `strict`"
+        }
     },
     {
         "ID": 13478355757133566847,

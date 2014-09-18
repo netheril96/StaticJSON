@@ -51,3 +51,57 @@ TEST_CASE("Test for correct parsing", "[parsing]")
         REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
     }
 }
+
+TEST_CASE("Test for mismatch between JSON and C++ class", "[parsing], [error]")
+{
+    std::vector<User> users;
+    ParsingResult err;
+
+    SECTION("Mismatch between array and object", "[parsing], [error], [type mismatch]")
+    {
+        REQUIRE(!from_json_file("./examples/error/single_object.json", users, err));
+        REQUIRE(err.has_error());
+
+        CAPTURE(err.description());
+        REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
+        REQUIRE(std::distance(err.begin(), err.end()) == 1);
+
+        auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
+
+        REQUIRE(std::strcmp(e.expected_type(), "array") == 0);
+        REQUIRE(std::strcmp(e.actual_type(), "object") == 0);
+    }
+
+    SECTION("Required field not present", "[parsing], [error], [missing required]")
+    {
+        REQUIRE(!from_json_file("./examples/error/missing_required.json", users, err));
+        REQUIRE(err.has_error());
+
+        CAPTURE(err.description());
+        REQUIRE(err.begin()->type() == error::MISSING_REQUIRED);
+
+        REQUIRE(std::distance(err.begin(), err.end()) == 5);
+    }
+
+    SECTION("Unknown field in strict parsed class Date", "[parsing], [error], [unknown field]")
+    {
+        REQUIRE(!from_json_file("./examples/error/unknown_field.json", users, err));
+        REQUIRE(err.has_error());
+
+        CAPTURE(err.description());
+        REQUIRE(err.begin()->type() == error::UNKNOWN_FIELD);
+
+        REQUIRE(static_cast<const error::UnknownFieldError&>(*err.begin()).field_name() == "hour");
+    }
+
+    SECTION("Duplicate key", "[parsing], [error], [duplicate key]")
+    {
+        REQUIRE(!from_json_file("./examples/error/duplicate_key.json", users, err));
+        REQUIRE(err.has_error());
+
+        CAPTURE(err.description());
+        REQUIRE(err.begin()->type() == error::DUPLICATE_KEYS);
+
+        REQUIRE(static_cast<const error::DuplicateKeyError&>(*err.begin()).key() == "Auth-Token");
+    }
+}

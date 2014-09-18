@@ -17,8 +17,7 @@
             },
             "description": "advertisement",
             "details": "most likely a troll"
-        },
-        "comment": "This field is not specified by our class; but it is silently skipped because the parse_mode of class `User` is not `strict`"
+        }
     },
     {
         "ID": 13478355757133566847,
@@ -35,8 +34,7 @@
                 "administrator ID": 8027685536805674999,
                 "date": {
                     "year": 2013,
-                    "month": 3,
-                    "day": 8
+                    "month": 3
                 },
                 "description": "copyright infringement",
                 "details": ""

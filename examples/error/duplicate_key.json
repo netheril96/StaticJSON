@@ -45,7 +45,9 @@
         "optional_attributes": {
             "Self description": "Can you handle characters above Basic Multilingual Plane?😄🎅 🎁🐱✈️🐘🔢𠁆𠝻𡎦𡌠",
             "Open ID": "something@somewhere.com",
-            "Auth-Token": "45F13704-A60D-4D44-B161-89BAB88E528C"
+            "Auth-Token": "45F13704-A60D-4D44-B161-89BAB88E528C",
+            "Auth-Token": "45F13704-A60D-4D44-B161-89BAB88E528C",
+            "note": "the duplicate key error only occurs if your map types does not support duplicate key, e.g. `std::map`"
         }
     }
 ]
