@@ -59,6 +59,10 @@ inline std::string read_all(const char* file_name)
     return buffer.str();
 }
 
+// If all of the cases fail, you probably set the work directory wrong.
+// Point the work directory to the root of autojsoncxx, where `autojsoncxx.py` resides
+// or redefine the macro AUTOJSONCXX_ROOT_DIRECTORY.
+
 TEST_CASE("Test for correct parsing", "[parsing]")
 {
     SECTION("Test for an array of user", "[parsing]")
