@@ -15,10 +15,11 @@
     "members": [
         ["unsigned long long", "serial_number", {"required": true}],
         ["unsigned long long", "admin_ID", {"json_key": "administrator ID", "default": 255}],
-        ["Date", "date", {"default": [1970, 12, 31]}],
+        ["Date", "date"],
         ["std::string", "description"],
         ["std::string", "details"]
-    ]
+    ],
+    "constructor_code": "date.year = 1970; date.month = 1; date.day = 1; /* Assign date to the UNIX epoch */"
 },
 
 {

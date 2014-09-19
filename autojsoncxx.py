@@ -79,13 +79,14 @@ def check_identifier(identifier):
 
 
 class ClassInfo:
-    accept_options = {"name", "namespace", "parse_mode", "members"}
+    accept_options = {"name", "namespace", "parse_mode", "members", "constructor_code", "comment"}
 
     def __init__(self, record):
         self._name = record['name']
         self._members = [MemberInfo(r) for r in record['members']]
         self._strict = record.get('parse_mode', '') == 'strict'
         self._namespace = record.get("namespace", None)
+        self._constructor_code = record.get("constructor_code", "")
 
         check_identifier(self._name)
 
@@ -99,24 +100,17 @@ class ClassInfo:
     def member_declarations(self):
         return '\n'.join(m.type_name() + ' ' + m.variable_name() + ';' for m in self.members())
 
-    def initializer_list(self, is_default=True):
-        if is_default:
-            return ', '.join('{}({})'.format(m.variable_name(), m.constructor_args()) for m in self.members())
-        else:
-            return ', '.join('{0}({0})'.format(m.variable_name()) for m in self.members())
+    def initializer_list(self):
+        return ', '.join('{0}()'.format(m.variable_name()) for m in self.members())
 
-    def constructor(self, is_default=True):
-        if is_default:
-            args = ''
-        else:
-            args = ', '.join('const {}& {}'.format(m.type_name(), m.variable_name()) for m in self.members())
-        return 'explicit {name}({args}):{init} {{}}\n'.format(name=self.name(), args=args,
-                                                              init=self.initializer_list(is_default))
+    def constructor(self):
+        return 'explicit {name}():{init} {{ {code} }}\n'.format(name=self.name(), init=self.initializer_list(),
+                                                                code=self._constructor_code)
 
     def class_definition(self):
-        class_def = 'struct {name} {{\n {declarations}\n\n{constructor1}\n\n{constructor2} \n}};' \
+        class_def = 'struct {name} {{\n {declarations}\n\n{constructor}\n\n \n}};' \
             .format(name=self.name(), declarations=self.member_declarations(),
-                    constructor1=self.constructor(True), constructor2=self.constructor(False))
+                    constructor=self.constructor())
 
         if self._namespace is not None:
             for space in reversed(self._namespace.split('::')):
@@ -154,11 +148,11 @@ def to_cpp_repr(args):
     elif isinstance(args, int) or isinstance(args, float):
         return str(args)
     else:
-        return ', '.join(to_cpp_repr(a) for a in args)
+        raise UnrecognizedOption("default=" + repr(args))
 
 
 class MemberInfo:
-    accept_options = {'default', 'required', 'json_key'}
+    accept_options = {'default', 'required', 'json_key', 'comment'}
 
     def __init__(self, record):
         self._record = record

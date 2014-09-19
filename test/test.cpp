@@ -59,6 +59,15 @@ inline std::string read_all(const char* file_name)
     return buffer.str();
 }
 
+inline Date create_date(int year, int month, int day)
+{
+    Date d;
+    d.year = year;
+    d.month = month;
+    d.day = day;
+    return d;
+}
+
 // If all of the cases fail, you probably set the work directory wrong.
 // Point the work directory to the root of autojsoncxx, where `autojsoncxx.py` resides
 // or redefine the macro AUTOJSONCXX_ROOT_DIRECTORY.
@@ -81,13 +90,13 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             const User& u = users.front();
             REQUIRE(u.ID == 7947402710862746952ULL);
             REQUIRE(u.nickname == "bigger than bigger");
-            REQUIRE(u.birthday == Date(1984, 9, 2));
+            REQUIRE(u.birthday == create_date(1984, 9, 2));
 
             REQUIRE(u.block_event.get() != 0);
             const BlockEvent& e = *u.block_event;
 
             REQUIRE(e.admin_ID > 0ULL);
-            REQUIRE(e.date == Date(1970, 12, 31));
+            REQUIRE(e.date == create_date(1970, 12, 31));
             REQUIRE(e.description == "advertisement");
             REQUIRE(e.details.size() > 0ULL);
 
@@ -121,13 +130,13 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             const User& u = users["First"];
             REQUIRE(u.ID == 7947402710862746952ULL);
             REQUIRE(u.nickname == "bigger than bigger");
-            REQUIRE(u.birthday == Date(1984, 9, 2));
+            REQUIRE(u.birthday == create_date(1984, 9, 2));
 
             REQUIRE(u.block_event.get() != 0);
             const BlockEvent& e = *u.block_event;
 
             REQUIRE(e.admin_ID > 0ULL);
-            REQUIRE(e.date == Date(1970, 12, 31));
+            REQUIRE(e.date == create_date(1970, 12, 31));
             REQUIRE(e.description == "advertisement");
             REQUIRE(e.details.size() > 0ULL);
 
