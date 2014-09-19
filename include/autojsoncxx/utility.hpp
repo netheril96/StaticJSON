@@ -203,7 +203,11 @@ namespace utility {
         typedef std::string::const_iterator iterator;
 
         for (iterator it = str.begin(), end = str.end(); it != end; ++it) {
-            if (std::isprint(static_cast<unsigned char>(*it))) {
+            if (*it == '\\')
+                result += "\\\\";
+            else if (*it == '\"')
+                result += "\\\"";
+            else if (std::isprint(static_cast<unsigned char>(*it))) {
                 result += *it;
             } else {
                 char buffer[16];
