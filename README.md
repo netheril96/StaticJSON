@@ -37,11 +37,18 @@ git submodule init
 git submodule update
 ```
 
-UNIX-like operating system users can simply call the script `./do_test.sh` from the root of the repository.
+*UNIX/Linux/Mac users*:
 
-Windows users: Generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Then open the solution file under `test/mscvXX_test/` to build and run the test.
+```bash
+make
+make test
+```
 
-If too many tests fail, make sure your work directory points to the root of this repo.
+*Windows users*: 
+
+Generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Then open the solution file under `test/mscvXX_test/` to build and run the test.
+
+If too many tests fail, make sure your work directory points to the `test` directory.
 
 ### Currently tested compilers
 

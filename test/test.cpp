@@ -29,7 +29,7 @@
 // #define AUTOJSONCXX_HAS_VARIADIC_TEMPLATE 1
 
 #ifndef AUTOJSONCXX_ROOT_DIRECTORY
-#define AUTOJSONCXX_ROOT_DIRECTORY "."
+#define AUTOJSONCXX_ROOT_DIRECTORY ".."
 #endif
 
 #include "userdef.hpp"
