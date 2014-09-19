@@ -195,7 +195,6 @@ public:
 
     void PrepareForReuse()
     {
-        std::stack<signed char>().swap(state);
     }
 };
 

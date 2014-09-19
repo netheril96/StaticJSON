@@ -65,7 +65,7 @@ public:
 
 #endif
 
-    bool CheckLength(SizeType)
+    bool CheckLength(SizeType) const
     {
         return true;
     }
@@ -119,7 +119,7 @@ public:
 
 #endif
 
-    bool CheckLength(SizeType)
+    bool CheckLength(SizeType) const
     {
         return true;
     }
@@ -177,7 +177,7 @@ public:
 
 #endif
 
-    bool CheckLength(SizeType length)
+    bool CheckLength(SizeType length) const
     {
         return length == N;
     }

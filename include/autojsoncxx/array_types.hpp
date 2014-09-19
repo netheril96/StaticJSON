@@ -208,7 +208,6 @@ public:
 
     void PrepareForReuse()
     {
-        std::stack<signed char>().swap(state);
     }
 };
 
@@ -248,7 +247,7 @@ public:
         return true;
     }
 
-    size_t ExpectedLength()
+    size_t ExpectedLength() const
     {
         return 0;
     }
@@ -295,7 +294,7 @@ public:
         return true;
     }
 
-    size_t ExpectedLength()
+    size_t ExpectedLength() const
     {
         return 0;
     }
@@ -367,7 +366,7 @@ public:
 
 #endif
 
-    bool CheckLength(SizeType length)
+    bool CheckLength(SizeType length) const
     {
         return length == N;
     }
@@ -377,7 +376,7 @@ public:
         return N;
     }
 
-    size_t GetCurrentSize()
+    size_t GetCurrentSize() const
     {
         return index;
     }
