@@ -27,6 +27,8 @@ More importantly, maually writing the code means duplication of effort, and dupl
 
 ## Testing
 
+[![Build Status](https://travis-ci.org/netheril96/autojsoncxx.svg?branch=master)](https://travis-ci.org/netheril96/autojsoncxx)
+
 To build the test, you need a sufficiently new compiler because the goal is to test all the type support, including many ones only introduced in c++11.
 
 First clone the repository, and pull the dependency
@@ -54,7 +56,7 @@ If too many tests fail, make sure your work directory points to the `test` direc
 
 * Clang 3.4 on Mac OS X (11.9)
 * GCC 4.9 (Homebrew) on Mac OS X (11.9)
-* Clang 3.0 on Ubuntu 12.04 (x64) <small>g++-4.6 compilation fails with "internal bug at cp/pt.c" </small>
+* Clang 3.0 on Ubuntu 12.04 (x64)
 * GCC 4.8 on Ubuntu 14.04.1 (x86/x64)
 * MSVC 10 (x86) on Windows 7
 * MSVC 11/12 (x86/x64) on Windows 7
