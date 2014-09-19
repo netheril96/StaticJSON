@@ -298,7 +298,7 @@ namespace error {
 
         std::string description() const
         {
-            return "Duplicate key: " + key();
+            return "Duplicate key in uniquely keyed mapp type: " + utility::escape_unprintable(key());
         }
     };
 
@@ -361,7 +361,7 @@ namespace error {
 
         std::string description() const
         {
-            return "Unknown field with name:\n\t" + m_name;
+            return "Unknown field with name: " + utility::escape_unprintable(field_name());
         }
     };
 

@@ -24,10 +24,12 @@
 #define AUTOJSONCXX_UTILITY_HPP_29A4C106C1B1
 
 #include <string>
+#include <cstring>
 #include <cstddef>
 #include <utility>
 #include <algorithm>
 #include <cstdio>
+#include <cctype>
 
 #if AUTOJSONCXX_MODERN_COMPILER
 #define AUTOJSONCXX_HAS_MODERN_TYPES 1
@@ -193,6 +195,25 @@ namespace utility {
     inline bool string_equal(const char* str1, std::size_t len1, const char* str2, std::size_t len2)
     {
         return len1 == len2 && std::equal(str1, str1 + len1, str2);
+    }
+
+    inline std::string escape_unprintable(const std::string& str)
+    {
+        std::string result = "\"";
+        typedef std::string::const_iterator iterator;
+
+        for (iterator it = str.begin(), end = str.end(); it != end; ++it) {
+            if (std::isprint(static_cast<unsigned char>(*it))) {
+                result += *it;
+            } else {
+                char buffer[16];
+                std::sprintf(buffer, "\\x%02x", static_cast<unsigned int>(static_cast<unsigned char>(*it)));
+                result.append(buffer);
+            }
+        }
+
+        result += '\"';
+        return result;
     }
 }
 
