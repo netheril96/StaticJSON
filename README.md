@@ -144,13 +144,25 @@ Trace back (last call first):
 (*) Error at object member with name "known_associates"
 ```
 
-To programmingly examine the error, you need to query the `autojsoncxx::ParsingResult` class. There are two major groups of error: invalid JSON and mismatch between JSON and C++ class specification. Calls `json_parse_result()` to get a RapidJSON error reporting object, and iterate over the `autojsoncxx::ParsingResult` object for any errors resulting from mapping JSON to C++ types.
+To programmingly examine the error, you need to query the `autojsoncxx::ParsingResult` class. Call `error_code()` and `offset()` to examine it. When `error_code() == rapidjson::kParseErrorTermination`, you can also iterate over the `autojsoncxx::ParsingResult` object for any errors resulting from mapping JSON to C++ types; otherwise the error is a result of malformed JSON, such as missing coma, invalid escape sequence, etc.
 
 ```c++
+if (!result.has_error())
+    return;
+
+// equivalent: if (result.error_stack().empty())
+if (result.error_code() != rapidjson::kParseErrorTermination)
+{
+    std::cerr << "Malformed JSON: " << result.short_description() << '\n';
+    return;
+}
+
+// equivalent: for (auto&& e: result.error_stack())
 for (auto&& e : result) {
     using namespace autojsoncxx::error;
 
     switch (e.type()) {
+    
     case UNKNOWN_FIELD: {
         const UnknownFieldError& err = static_cast<const UnknownFieldError&>(e);
         if (err.field_name().find("Version") != std::string::npos)
@@ -172,6 +184,8 @@ for (auto&& e : result) {
         std::cout << "The member " << err.member_name() << " is naughty!\n";
     } break;
 
+    // Many more types of error has been defined, but not shown here for simplicity
+    
     default:
         break;
     }
