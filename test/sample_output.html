@@ -4,13 +4,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8" />
-<title>Test output of autojsoncxx</title>
+<title>Sample output for testing autojsoncxx</title>
 </head>
 <body>
 <pre>
-Script started on Fri Sep 19 03:38:19 2014
+Script started on Fri Sep 19 09:44:11 2014
 bash-4.3$ clang++ -Os -DAUTOJSONCXX_HAS_VARIADIC_TEMPLATE=1 -std=c++11 -I./include -I./rapidjson/include -I./catch/single_include test/main.cpp test/test.cpp -o autojsoncxx_test
-bash-4.3$ ./autojsoncxx_test -s
+bash-4.3$ ./autojsoncxx_test --success
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <span style="color:gray;">autojsoncxx_test is a Catch v1.0 b53 host application.
@@ -61,7 +61,7 @@ Test for correct parsing
 <span style="color:green;">PASSED:
 </span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
 </span>with expansion:
-<span style="color:olive;">  0x00007fad51403a38 != 0
+<span style="color:olive;">  0x00007fd202c06088 != 0
 </span>
 <span style="color:gray;">test/test.cpp:89: </span>
 <span style="color:green;">PASSED:
@@ -176,7 +176,7 @@ Test for correct parsing
 <span style="color:green;">PASSED:
 </span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
 </span>with expansion:
-<span style="color:olive;">  0x00007fad514040c8 != 0
+<span style="color:olive;">  0x00007fd202c05ce8 != 0
 </span>
 <span style="color:gray;">test/test.cpp:129: </span>
 <span style="color:green;">PASSED:
@@ -397,8 +397,7 @@ Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
   Terminate parsing due to Handler error.
   
   Trace back (last call first):
-  (*) Unknown field with name:
-  hour
+  (*) Unknown field with name: &quot;hour&quot;
   (*) Error at object member with name &quot;date&quot;
   (*) Error at object member with name &quot;block_event&quot;
   (*) Error at array element with index 0
@@ -439,7 +438,7 @@ Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
   Terminate parsing due to Handler error.
   
   Trace back (last call first):
-  (*) Duplicate key: Auth-Token
+  (*) Duplicate key in uniquely keyed mapp type: &quot;Auth-Token&quot;
   (*) Error at object member with name &quot;optional_attributes&quot;
   (*) Error at array element with index 1
   
@@ -552,8 +551,8 @@ Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
   Terminate parsing due to Handler error.
   
   Trace back (last call first):
-  (*) Unknown field with name:
-  year  I am invisible because I am behind a null
+  (*) Unknown field with name: &quot;year\x00 I am invisible because I am behind a
+  null&quot;
   (*) Error at object member with name &quot;date&quot;
   (*) Error at object member with name &quot;block_event&quot;
   (*) Error at array element with index 0
@@ -821,7 +820,7 @@ Test for parsing tuple type
 
 bash-4.3$ exit
 
-Script done on Fri Sep 19 03:38:38 2014
+Script done on Fri Sep 19 09:44:32 2014
 </pre>
 </body>
 </html>
