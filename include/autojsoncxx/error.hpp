@@ -119,7 +119,7 @@ namespace error {
 
         std::string description() const
         {
-            return std::string("Error at object member with name \"") + m_member_name + "\"";
+            return std::string("Error at object member with name ") + utility::quote(member_name());
         }
 
         error_type type() const
@@ -177,15 +177,15 @@ namespace error {
 
         std::string description() const
         {
-            std::ostringstream ss;
-            ss << "Missing required field(s): ";
+            std::string result = "Missing required field(s): ";
 
             typedef std::vector<std::string>::const_iterator iter;
             for (iter it = m_missing_members.begin(), end = m_missing_members.end();
                  it != end; ++it) {
-                ss << '\"' << *it << '\"' << ' ';
+                result += utility::quote(*it);
+                result += ' ';
             }
-            return ss.str();
+            return result;
         }
 
         error_type type() const
@@ -218,11 +218,9 @@ namespace error {
 
         std::string description() const
         {
-            std::ostringstream ss;
-            ss << "Type mismatch between expected type \""
-               << expected_type() << "\" and actual type \""
-               << actual_type() << '\"';
-            return ss.str();
+            return std::string("Type mismatch between expected type ")
+                   + utility::quote(expected_type())
+                   + " and actual type " + utility::quote(actual_type());
         }
 
         error_type type() const
@@ -254,12 +252,9 @@ namespace error {
 
         std::string description() const
         {
-            std::ostringstream ss;
-            ss << "Number out of range: expected type is \""
-               << expected_type() << "\" but the type needed to"
-                                     " represent the number is \""
-               << actual_type() << '\"';
-            return ss.str();
+            return std::string("Number out of range: expected type ")
+                   + utility::quote(expected_type())
+                   + " but the type needed is " + utility::quote(actual_type());
         }
 
         error_type type() const
@@ -298,7 +293,7 @@ namespace error {
 
         std::string description() const
         {
-            return "Duplicate key in uniquely keyed mapp type: " + utility::escape_unprintable(key());
+            return "Duplicate key in uniquely keyed mapp type: " + utility::quote(key());
         }
     };
 
@@ -361,7 +356,7 @@ namespace error {
 
         std::string description() const
         {
-            return "Unknown field with name: " + utility::escape_unprintable(field_name());
+            return "Unknown field with name: " + utility::quote(field_name());
         }
     };
 
@@ -423,12 +418,12 @@ namespace error {
         {
         }
 
-        const_iterator begin() const
+        const_iterator begin() const AUTOJSONCXX_NOEXCEPT
         {
             return const_iterator(head);
         }
 
-        const_iterator end() const
+        const_iterator end() const AUTOJSONCXX_NOEXCEPT
         {
             return const_iterator(0);
         }
@@ -457,7 +452,7 @@ namespace error {
             return 0;
         }
 
-        bool empty() const
+        bool empty() const AUTOJSONCXX_NOEXCEPT
         {
             return head == 0;
         }
@@ -500,6 +495,12 @@ namespace error {
 #endif
     };
 
+    // For argument dependent lookup
+    void swap(ErrorStack& s1, ErrorStack& s2)
+    {
+        s1.swap(s2);
+    }
+
     template <class OutputStream>
     OutputStream& operator<<(OutputStream& out, const ErrorStack& errs)
     {
@@ -512,8 +513,10 @@ namespace error {
 
     class ParsingResult;
 
-    template <class OutputStream>
-    OutputStream& operator<<(OutputStream& out, const ParsingResult& result);
+    using rapidjson::ParseErrorCode;
+
+    template <class CharType, class Traits>
+    std::basic_ostream<CharType, Traits>& operator<<(std::basic_ostream<CharType, Traits>& out, const ParsingResult& result);
 
     class ParsingResult {
     private:
@@ -527,24 +530,29 @@ namespace error {
         {
         }
 
-        rapidjson::ParseResult& json_parse_result()
+        void set_result(const rapidjson::ParseResult& result_)
         {
-            return result;
+            result = result_;
         }
 
-        const rapidjson::ParseResult& json_parse_result() const
+        void set_result(ParseErrorCode err, std::size_t offset)
         {
-            return result;
+            result = rapidjson::ParseResult(err, offset);
         }
 
-        rapidjson::ParseErrorCode error_code() const
+        ParseErrorCode error_code() const AUTOJSONCXX_NOEXCEPT
         {
             return result.Code();
         }
 
-        std::size_t offset() const
+        std::size_t offset() const AUTOJSONCXX_NOEXCEPT
         {
             return result.Offset();
+        }
+
+        std::string short_description() const
+        {
+            return rapidjson::GetParseError_En(error_code());
         }
 
         ErrorStack& error_stack()
@@ -559,12 +567,12 @@ namespace error {
 
         typedef ErrorStack::const_iterator const_iterator;
 
-        const_iterator begin() const
+        const_iterator begin() const AUTOJSONCXX_NOEXCEPT
         {
             return stack.begin();
         }
 
-        const_iterator end() const
+        const_iterator end() const AUTOJSONCXX_NOEXCEPT
         {
             return stack.end();
         }
@@ -618,21 +626,27 @@ namespace error {
 #endif
     };
 
-    template <class OutputStream>
-    OutputStream& operator<<(OutputStream& out, const ParsingResult& result)
+    template <class CharType, class Traits>
+    std::basic_ostream<CharType, Traits>& operator<<(std::basic_ostream<CharType, Traits>& out, const ParsingResult& result)
     {
         if (result.has_error()) {
-            out << "Parsing failed at offset " << result.json_parse_result().Offset()
-                << " with error code " << result.json_parse_result().Code() << ":\n"
-                << rapidjson::GetParseError_En(result.json_parse_result().Code())
+            out << "Parsing failed at offset " << result.offset()
+                << " with error code " << result.error_code() << ":\n"
+                << rapidjson::GetParseError_En(result.error_code())
                 << '\n';
 
-            if (result.json_parse_result().Code() == rapidjson::kParseErrorTermination
+            if (result.error_code() == rapidjson::kParseErrorTermination
                 || !result.error_stack().empty()) {
                 out << "\nTrace back (last call first):\n" << result.error_stack();
             }
         }
         return out;
+    }
+
+    // For argument dependent lookup
+    void swap(ParsingResult& r1, ParsingResult& r2)
+    {
+        r1.swap(r2);
     }
 }
 

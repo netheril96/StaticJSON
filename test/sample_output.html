@@ -8,8 +8,8 @@
 </head>
 <body>
 <pre>
-Script started on Fri Sep 19 09:44:11 2014
-bash-4.3$ clang++ -Os -DAUTOJSONCXX_HAS_VARIADIC_TEMPLATE=1 -std=c++11 -I./include -I./rapidjson/include -I./catch/single_include test/main.cpp test/test.cpp -o autojsoncxx_test
+Script started on Fri Sep 19 12:15:50 2014
+bash-4.3$ clang++ -Os -DAUTOJSONCXX_HAS_VARIADIC_TEMPLATE=1 -std=c++11 -I./include -I./rapidjson/include -I./catch/single_include test/main.cpp test/test.cpp -o autojsoncxx_test
 bash-4.3$ ./autojsoncxx_test --success
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,7 +61,7 @@ Test for correct parsing
 <span style="color:green;">PASSED:
 </span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
 </span>with expansion:
-<span style="color:olive;">  0x00007fd202c06088 != 0
+<span style="color:olive;">  0x00007fd7c0406088 != 0
 </span>
 <span style="color:gray;">test/test.cpp:89: </span>
 <span style="color:green;">PASSED:
@@ -176,7 +176,7 @@ Test for correct parsing
 <span style="color:green;">PASSED:
 </span><span style="color:teal;">  REQUIRE( u.block_event.get() != 0 )
 </span>with expansion:
-<span style="color:olive;">  0x00007fd202c05ce8 != 0
+<span style="color:olive;">  0x00007fd7c0405ce8 != 0
 </span>
 <span style="color:gray;">test/test.cpp:129: </span>
 <span style="color:green;">PASSED:
@@ -478,8 +478,8 @@ Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
   Terminate parsing due to Handler error.
   
   Trace back (last call first):
-  (*) Number out of range: expected type is &quot;int&quot; but the type needed to
-  represent the number is &quot;uint64_t&quot;
+  (*) Number out of range: expected type &quot;int&quot; but the type needed is
+  &quot;uint64_t&quot;
   (*) Error at object member with name &quot;day&quot;
   (*) Error at object member with name &quot;date&quot;
   (*) Error at object member with name &quot;block_event&quot;
@@ -551,7 +551,7 @@ Test for mismatch between JSON and C++ class std::vector&lt;config::User&gt;
   Terminate parsing due to Handler error.
   
   Trace back (last call first):
-  (*) Unknown field with name: &quot;year\x00 I am invisible because I am behind a
+  (*) Unknown field with name: &quot;year\u0000 I am invisible because I am behind a
   null&quot;
   (*) Error at object member with name &quot;date&quot;
   (*) Error at object member with name &quot;block_event&quot;
@@ -820,7 +820,7 @@ Test for parsing tuple type
 
 bash-4.3$ exit
 
-Script done on Fri Sep 19 09:44:32 2014
+Script done on Fri Sep 19 12:16:11 2014
 </pre>
 </body>
 </html>

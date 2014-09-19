@@ -43,9 +43,8 @@ inline bool from_json(Reader& r, InputStream& is, ValueType& value, ParsingResul
     // so it is safer to allocate it on the heap
     utility::scoped_ptr<handler_type> handler(new handler_type(&value));
 
-    result.json_parse_result() = r.Parse(is, *handler);
-    if (!result.json_parse_result())
-        handler->ReapError(result.error_stack());
+    result.set_result(r.Parse(is, *handler));
+    handler->ReapError(result.error_stack());
     return !result.has_error();
 }
 

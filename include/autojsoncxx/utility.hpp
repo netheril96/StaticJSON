@@ -197,27 +197,67 @@ namespace utility {
         return len1 == len2 && std::equal(str1, str1 + len1, str2);
     }
 
-    inline std::string escape_unprintable(const std::string& str)
+    // Adapted from Jettison's implementation (http://jettison.codehaus.org/)
+    // Original copyright (compatible with MIT):
+
+    // Copyright 2006 Envoi Solutions LLC
+    //
+    // Licensed under the Apache License, Version 2.0 (the "License");
+    // you may not use this file except in compliance with the License.
+    // You may obtain a copy of the License at
+    //
+    //     http://www.apache.org/licenses/LICENSE-2.0
+    //
+    // Unless required by applicable law or agreed to in writing, software
+    // distributed under the License is distributed on an "AS IS" BASIS,
+    // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    // See the License for the specific language governing permissions and
+    // limitations under the License.
+    inline std::string quote(const std::string& str)
     {
-        std::string result = "\"";
+        std::string sb;
+        sb.reserve(str.size() + 8);
+        sb += '\"';
+
         typedef std::string::const_iterator iterator;
 
         for (iterator it = str.begin(), end = str.end(); it != end; ++it) {
-            if (*it == '\\')
-                result += "\\\\";
-            else if (*it == '\"')
-                result += "\\\"";
-            else if (std::isprint(static_cast<unsigned char>(*it))) {
-                result += *it;
-            } else {
-                char buffer[16];
-                std::sprintf(buffer, "\\x%02x", static_cast<unsigned int>(static_cast<unsigned char>(*it)));
-                result.append(buffer);
+            char c = *it;
+            switch (c) {
+            case '\\':
+            case '"':
+                sb += '\\';
+                sb += c;
+                break;
+            case '\b':
+                sb.append("\\b", 2);
+                break;
+            case '\t':
+                sb.append("\\t", 2);
+                break;
+            case '\n':
+                sb.append("\\n", 2);
+                break;
+            case '\f':
+                sb.append("\\f", 2);
+                break;
+            case '\r':
+                sb.append("\\r", 2);
+                break;
+            default: {
+                if (c < ' ') {
+                    char buffer[16];
+                    std::sprintf(buffer, "\\u%04x", static_cast<unsigned int>(static_cast<unsigned char>(c)));
+                    sb.append(buffer, 6);
+                } else {
+                    sb += c;
+                }
+            } break;
             }
         }
 
-        result += '\"';
-        return result;
+        sb += '\"';
+        return sb;
     }
 }
 
