@@ -8,7 +8,7 @@ JSON is an excellent format for data serialization due to its simplicity, flexib
 
 More importantly, maually writing the code means duplication of effort, and duplication is bad for programmers. When your client or PM request a change in feature, many classes (like the class responsible for configuration) will likely change, and you will have to rewrite the code. During the rewrite, time is wasted, people become impatient, and bugs may be introduced when the class definition, parsing and serialization code become out of sync.
 
-*autojsoncxx* is an attempt to solve this problem by automating such process. It is currently still in alpha stage, so expect things to change in the future, or to break down when your class structure is too convoluted.
+*autojsoncxx* is an attempt to solve this problem by automating such process. It is currently still in beta stage, so expect things to change in the future.
 
 Dependency: 
 * RapidJSON (https://github.com/miloyip/rapidjson) 
@@ -323,7 +323,7 @@ The default encoding is `UTF-8`. If you need to read/write JSON in `UTF-16` or `
 
 To build the test, UNIX-like operating system users can simply call the script `./do_test.sh` from the root of the repository.
 
-For Windows users. First call `git submodule init` and `git submodule update` to pull the dependency down. Then generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Finally, open the solution file `test/mscv10_test/mscv_test.sln` to build and run the test.
+Windows users: First call `git submodule init` and `git submodule update` to pull the dependency down. Then generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Finally, open the solution file under `test/mscvXX_test/` to build and run the test.
 
 If all the tests fail, make sure your work directory points to the root of this repo.
 
