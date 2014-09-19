@@ -201,7 +201,7 @@ If you include `<autojsoncxx/boost_types.hpp>`, you will also get support for
 * Nullable types: `boost::shared_ptr<>`, `boost::optional<>`
 * Map types: `boost::unordered_map<>`, `boost::unordered_multimap<>` (The key must be of string type)
 
-**No raw pointer and reference types are supported**. They do not convey any information about ownership, and will make correct memory management (especially by a code generator) much more difficult.
+**No raw pointer and reference types are supported. Use smart pointers instead**. They do not convey any information about ownership, and will make correct memory management (especially by a code generator) much more difficult.
 
 ### Complex types
 
@@ -284,9 +284,9 @@ struct Serializer;
 }
 ```
 
-Each of the full or partial specialization of these templates will add new capability to the library. 
+Each of the full or partial specialization of these templates will add new type support to the library. 
 
-Writing the handler is somewhat difficult, so there is some base classes provided, based on *Curiously Recurring Template Pattern* . The base class for array type is `VectorBaseSAXEventHandler`, nullable type `NullableBaseSAXEventHandler`, map type `MapBaseSAXEventHandler`.
+Writing the handler is somewhat difficult, because there are a multitude of errors that can result from a mismatched JSON. So there is some base classes provided, based on *Curiously Recurring Template Pattern*. For primitive types, such as a simple variant of `int` and `bool`, or string types (`QString`, `CString`, `icu::UnicodeString`, `YetAnotherStringThatIsSoMuchBetterThanTheRest`), derive from `BaseSAXEventHandler`. There are also base classes for array type `VectorBaseSAXEventHandler`, nullable type `NullableBaseSAXEventHandler`, map type `MapBaseSAXEventHandler`. If you implement your own string, you probably want to add map type support as well, because the default implementation is specialized on `std::string`.
 
 Writing the serializer is very easy, and one can easily figure it out by looking at the source code.
 
