@@ -1,5 +1,5 @@
-autojsoncxx
-===========
+# autojsoncxx
+
 A header-only library and a code generator to **automagically** translate between **JSON** and **C++** types.
 
 ## Overview
@@ -10,7 +10,8 @@ More importantly, maually writing the code means duplication of effort, and dupl
 
 *autojsoncxx* is an attempt to solve this problem by automating such process. It is currently still in beta stage, so expect things to change in the future.
 
-Dependency: 
+### Dependency 
+
 * RapidJSON (https://github.com/miloyip/rapidjson) 
 * (optional for building the test, header only) Catch (https://github.com/philsquared/Catch)
 * (optional, only the headers) Boost (http://www.boost.org)
@@ -19,10 +20,37 @@ Dependency:
 
 * The parsing/serializing code are *automagically* generated. You don't even need to understand what is proper JSON to use it, although it may help you diagnose problems.
 * *Detailed error message*. Not only do you get informed if the JSON is not valid, but you will have a verbose trace back pointing to the location of the problem as well, if the JSON value does not fit your class structure.
-* *Ease of use*. Many convience functions are added so that a single function call is enough for most use cases. The library as well as its dependency are header only, so no complicated setup for your build system is needed.
+* *Ease of use*. Many convience functions are added so that a single function call is enough for most use cases. The library as well as its dependency are header only, while the code generator depends only on standard library of Python 3, so no complicated setup for your build system is needed.
 * *Fast*. The underlying JSON engine (RapidJSON) has been benchmarked to be about an order of magnitude faster than other popular JSON libraries. Besides, this library uses its SAX API, obviating the need of constructing a Document Object Model as the intermediate representation. Lastly, the library utilizes C++ templates to generate the algorithm at compile time, so no overhead of runtime indirection (except when error occurs).
 * *Flexible framework*. You can add more type support to the library by specializing certain template classes. In addition, whenever a class is generated, you can also parse/serialize an array of such class, a nullable wrapper of such class, another class that contains it, etc.
 * *Liberal licence*. Both the library and its dependency are licenced liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
+
+## Testing
+
+To build the test, you need a sufficiently new compiler because the goal is to test all the type support, including many ones only introduced in c++11.
+
+First clone the repository, and pull the dependency
+
+```bash
+git clone https://github.com/netheril96/autojsoncxx.git
+git submodule init
+git submodule update
+```
+
+UNIX-like operating system users can simply call the script `./do_test.sh` from the root of the repository.
+
+Windows users: Generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Then open the solution file under `test/mscvXX_test/` to build and run the test.
+
+If too many tests fail, make sure your work directory points to the root of this repo.
+
+### Currently tested compilers
+
+* Clang 3.4 on Mac OS X (11.9)
+* GCC 4.9 (Homebrew) on Mac OS X (11.9)
+* Clang 3.0 on Ubuntu 12.04 (x64) <small>g++-4.6 compilation fails with "internal bug at cp/pt.c" </small>
+* GCC 4.8 on Ubuntu 14.04.1 (x86/x64)
+* MSVC 10 (x86) on Windows 7
+* MSVC 11/12 (x86/x64) on Windows 7
 
 ## First example
 
@@ -53,6 +81,7 @@ Remember to add the include directory of *autojsoncxx* and *rapidjson* to your p
 The below examples uses c++11 features, but the library should also work with c++03 compilers.
 
 ### Serialization
+
 ```c++
 #define AUTOJSONCXX_MODERN_COMPILER 1 // Turn on all the c++11 features of the library
 #include <iostream>
@@ -72,7 +101,9 @@ int main()
     return 0;
 }
 ```
+
 This will generate a file `person.json` with contents below:
+
 ```javascript
 {
     "name": "Mike",
@@ -89,6 +120,7 @@ This will generate a file `person.json` with contents below:
 
 ### Parsing
 Now let's try read that back
+
 ```c++
 #define AUTOJSONCXX_MODERN_COMPILER 1
 #include <iostream>
@@ -115,12 +147,14 @@ int main()
     return 0;
 }
 ```
+
 ### Error handling
+
 If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not layed out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code.
 
 Here is valid JSON file
 
-```js
+```javascript
 {
     "name": "Mike",
     "ID": 8940220481904,
@@ -199,6 +233,7 @@ Exception handling (`throw`, `try`, `catch`) is not used by this library, to acc
 Notably, the `ParsingResult` class is not copyable. This simplifies the memory handling because it fully owns the error stack. It is movable, however, if you define `AUTOJSONCXX_HAS_RVALUE`. If you ever need to pass it around or store it somewhere, the simpliest way is to use a shared pointer.
 
 ## Type support
+
 These types are supported by this library:
 
 * Basic types: `bool`, `char`, `int`, `unsigned int`, `long long`, `unsigned long long`, `std::string`
@@ -332,14 +367,6 @@ The 64-bit integer type `long long` and `unsigned long long` is always required.
 ## Encoding
 
 The default encoding is `UTF-8`. If you need to read/write JSON in `UTF-16` or `UTF-32`, instantiate the class `SAXEventHandler` and/or `Serializer`, and use it in combination with RapidJSON's transcoding capability.
-
-## Testing
-
-To build the test, UNIX-like operating system users can simply call the script `./do_test.sh` from the root of the repository.
-
-Windows users: First call `git submodule init` and `git submodule update` to pull the dependency down. Then generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Finally, open the solution file under `test/mscvXX_test/` to build and run the test.
-
-If all the tests fail, make sure your work directory points to the root of this repo.
 
 ## Other
 
