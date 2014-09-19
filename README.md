@@ -18,12 +18,12 @@ More importantly, maually writing the code means duplication of effort, and dupl
 
 ## Features
 
-* The parsing/serializing code are *automagically* generated. You don't even need to understand what is proper JSON to use it, although it may help you diagnose problems.
-* *Detailed error message*. Not only do you get informed if the JSON is not valid, but you will have a verbose trace back pointing to the location of the problem as well, if the JSON value does not fit your class structure.
-* *Ease of use*. Many convience functions are added so that a single function call is enough for most use cases. The library as well as its dependency are header only, while the code generator depends only on standard library of Python 3, so no complicated setup for your build system is needed.
-* *Fast*. The underlying JSON engine (RapidJSON) has been benchmarked to be about an order of magnitude faster than other popular JSON libraries. Besides, this library uses its SAX API, obviating the need of constructing a Document Object Model as the intermediate representation. Lastly, the library utilizes C++ templates to generate the algorithm at compile time, so no overhead of runtime indirection (except when error occurs).
-* *Flexible framework*. You can add more type support to the library by specializing certain template classes. In addition, whenever a class is generated, you can also parse/serialize an array of such class, a nullable wrapper of such class, another class that contains it, etc.
-* *Liberal licence*. Both the library and its dependency are licenced liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
+* The parsing/serializing code are **automagically** generated. You don't even need to understand what is proper JSON to use it, although it may help you diagnose problems.
+* **Detailed error message**. Not only do you get informed if the JSON is not valid, but you will have a verbose trace back pointing to the location of the problem as well, if the JSON value does not fit your class structure.
+* **Ease of use**. Many convience functions are added so that a single function call is enough for most use cases. The library as well as its dependency are header only, while the code generator depends only on standard library of Python 3, so no complicated setup for your build system is needed.
+* **Fast**. The underlying JSON engine (RapidJSON) has been benchmarked to be about an order of magnitude faster than other popular JSON libraries. Besides, this library uses its SAX API, obviating the need of constructing a Document Object Model as the intermediate representation. Lastly, the library utilizes C++ templates to generate the algorithm at compile time, so no overhead of runtime indirection (except when error occurs).
+* **Flexible framework**. You can add more type support to the library by specializing certain template classes. In addition, whenever a class is generated, you can also parse/serialize an array of such class, a nullable wrapper of such class, another class that contains it, etc.
+* **Liberal licence**. Both the library and its dependency are licenced liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
 
 ## Testing
 
@@ -274,7 +274,8 @@ int main()
 {
     auto test = std::make_tuple(std::vector<std::string>{ "A", "BC", "DEF" }, nullptr,
                                 3.1415926, -223, std::shared_ptr<int>(),
-                                std::map<std::string, bool>{ { "a", true }, { "Δ", false } },
+                                std::map<std::string, bool>{ { "a", true }, 
+                                                           { "Δ", false } },
                                 std::make_shared<std::array<Person, 2>>());
     
     std::string str;
