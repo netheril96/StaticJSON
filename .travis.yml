@@ -1,2 +1,4 @@
 language: cpp
+before_install: "sudo apt-get update"
+install: "sudo apt-get install python3"
 script: "make && make test"
