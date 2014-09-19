@@ -26,7 +26,6 @@
 
 import re
 import argparse
-import sys
 import json
 import os
 
@@ -269,16 +268,16 @@ def build_class(template, class_info):
     gen = MainCodeGenerator(class_info)
 
     result = template
-    result = re.sub(r'/\*\s*class definition\s*\*/', class_info.class_definition(), result)
-    result = re.sub(r'/\*\s*list of declarations\s*\*/', gen.handler_declarations() + gen.flags_declaration(), result)
-    result = re.sub(r'/\*\s*init\s*\*/', gen.handler_initializers(), result)
-    result = re.sub(r'/\*\s*serialize all members\s*\*/', gen.data_serialization(), result)
-    result = re.sub(r'/\*\s*change state\s*\*/', gen.key_event_handling(), result)
-    result = re.sub(r'/\*\s*reap error\s*\*/', gen.error_reaping(), result)
-    result = re.sub(r'/\*\s*get member name\s*\*/', gen.current_member_name(), result)
-    result = re.sub(r'/\*\s*validation\s*\*/', gen.post_validation(), result)
-    result = re.sub(r'/\*\s*reset flags\s*\*/', gen.flags_reset(), result)
-    result = re.sub(r'/\*\s*handle unknown keys?\s*\*/', gen.unknown_key_handling(), result)
+    result = result.replace("/* class definition */", class_info.class_definition())
+    result = result.replace("/* list of declarations */", gen.handler_declarations() + gen.flags_declaration())
+    result = result.replace("/* init */", gen.handler_initializers())
+    result = result.replace("/* serialize all members */", gen.data_serialization())
+    result = result.replace("/* change state */", gen.key_event_handling())
+    result = result.replace("/* reap error */", gen.error_reaping())
+    result = result.replace("/* get member name */", gen.current_member_name())
+    result = result.replace("/* validation */", gen.post_validation())
+    result = result.replace("/* reset flags */", gen.flags_reset())
+    result = result.replace("/* handle unknown key */", gen.unknown_key_handling())
 
     def evaluate(match):
         return gen.event_forwarding(match.group(1))

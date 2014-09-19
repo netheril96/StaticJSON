@@ -533,6 +533,7 @@ namespace error {
         void set_result(const rapidjson::ParseResult& result_)
         {
             result = result_;
+            ErrorStack().swap(stack);
         }
 
         void set_result(ParseErrorCode err, std::size_t offset)
