@@ -1,11 +1,9 @@
-CXX := c++
-CXXFLAGS := -std=c++11 -O2 -Wall -Wextra -pedantic -g
-INCLUDE := -I../include -I../rapidjson/include -I../catch/single_include
-TARGET := autojsoncxx_catch
+INCLUDE ?= -I../include -I../rapidjson/include -I../catch/single_include
+TARGET ?= autojsoncxx_catch
 
-PYTHON3 := python3
-DEFINITION_FILE := ../examples/userdef.json
-GENERATED_HPP := userdef.hpp
+PYTHON3 ?= python3
+DEFINITION_FILE ?= ../examples/userdef.json
+GENERATED_HPP ?= userdef.hpp
 
 all: $(TARGET)
 
@@ -23,7 +21,7 @@ test.o: test.cpp $(GENERATED_HPP)
 	
 .PHONY: clean test
 
-test:
+test: $(TARGET)
 	./$(TARGET) --success
 
 clean:
