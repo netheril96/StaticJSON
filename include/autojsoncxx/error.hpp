@@ -501,8 +501,8 @@ namespace error {
         s1.swap(s2);
     }
 
-    template <class OutputStream>
-    OutputStream& operator<<(OutputStream& out, const ErrorStack& errs)
+    template <class CharType, class Traits>
+    std::basic_ostream<CharType, Traits>& operator<<(std::basic_ostream<CharType, Traits>& out, const ErrorStack& errs)
     {
         typedef ErrorStack::const_iterator iterator;
         for (iterator it = errs.begin(); it != errs.end(); ++it) {
