@@ -5,13 +5,14 @@ PYTHON3 ?= python3
 GENERATOR_SCRIPT = ../autojsoncxx.py
 DEFINITION_FILE ?= ../examples/userdef.json
 GENERATED_HPP ?= userdef.hpp
+CODE_TEMPLATE = ../code_template
 
 all: $(TARGET)
 
 $(TARGET): main.o test.o $(GENERATED_HPP)
 	$(CXX) $(CXXFLAGS) main.o test.o -o $(TARGET)
 	
-$(GENERATED_HPP): $(DEFINITION_FILE) $(GENERATOR_SCRIPT)
+$(GENERATED_HPP): $(DEFINITION_FILE) $(GENERATOR_SCRIPT) $(CODE_TEMPLATE)
 	$(PYTHON3) $(GENERATOR_SCRIPT) --out=$(GENERATED_HPP) $(DEFINITION_FILE)
 
 main.o: main.cpp 

@@ -28,6 +28,7 @@ import re
 import argparse
 import json
 import os
+import hashlib
 
 
 class InvalidDefinitionError(Exception):
@@ -242,9 +243,13 @@ class MainCodeGenerator:
         return '\n'.join('case {0}:\n     handler_{0}.ReapError(errs); break;'.format(i)
                          for i in range(len(self.members_info)))
 
+    def writer_type_name(self):
+        return "Writer" + hashlib.sha256(self.class_info.qualified_name().encode()).hexdigest()
+
     def data_serialization(self):
-        return '\n'.join('w.Key({}); Serializer< Writer_6FD4E37439E0A95BB8A3, {} >()(w, value.{});'
-                             .format(hard_escape(m.json_key()), m.type_name(), m.variable_name())
+        return '\n'.join('w.Key({}); Serializer< {}, {} >()(w, value.{});'
+                             .format(hard_escape(m.json_key()), self.writer_type_name(),
+                                     m.type_name(), m.variable_name())
                          for m in self.members_info)
 
     def current_member_name(self):
@@ -259,7 +264,6 @@ class MainCodeGenerator:
 
 
 def build_class(template, class_info):
-
     gen = MainCodeGenerator(class_info)
 
     replacement = {
@@ -273,7 +277,8 @@ def build_class(template, class_info):
         "validation": gen.post_validation(),
         "reset flags": gen.flags_reset(),
         "handle unknown key": gen.unknown_key_handling(),
-        "TypeName": class_info.qualified_name()}
+        "TypeName": class_info.qualified_name(),
+        "Writer": gen.writer_type_name()}
 
     def evaluate(match):
         try:

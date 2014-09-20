@@ -332,10 +332,10 @@ public:
     }
 };
 
-template <class Writer_6FD4E37439E0A95BB8A3>
-struct Serializer<Writer_6FD4E37439E0A95BB8A3, /* TypeName */ > {
+template < class /* Writer */ >
+struct Serializer< /* Writer */, /* TypeName */ > {
 
-    void operator()(Writer_6FD4E37439E0A95BB8A3& w, const /* TypeName */& value) const
+    void operator()( /* Writer */& w, const /* TypeName */& value) const
     {
         w.StartObject();
 
