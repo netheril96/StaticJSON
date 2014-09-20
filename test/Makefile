@@ -13,7 +13,7 @@ $(TARGET): main.o test.o $(GENERATED_HPP)
 	$(CXX) $(CXXFLAGS) main.o test.o -o $(TARGET)
 	
 $(GENERATED_HPP): $(DEFINITION_FILE) $(GENERATOR_SCRIPT) $(CODE_TEMPLATE)
-	$(PYTHON3) $(GENERATOR_SCRIPT) --out=$(GENERATED_HPP) $(DEFINITION_FILE)
+	$(PYTHON3) $(GENERATOR_SCRIPT) --check --output=$(GENERATED_HPP) --input=$(DEFINITION_FILE)
 
 main.o: main.cpp 
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c main.cpp -o main.o

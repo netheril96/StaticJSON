@@ -29,6 +29,12 @@ import argparse
 import json
 import os
 import hashlib
+import sys
+
+try:
+    from type_check import check_type_name
+except ImportError:
+    check_type_name = None
 
 
 class InvalidDefinitionError(Exception):
@@ -293,12 +299,33 @@ def build_class(template, class_info):
     return re.sub(r'/\*\s*(.*?)\s*\*/', evaluate, template)
 
 
+def check_all_members(members_info, cache):
+    for m in members_info:
+        unknowns = check_type_name(m.type_name(), cache)
+        if unknowns is None:
+            print("Warning:", "invalid C++ type name", repr(m.type_name), file=sys.stderr)
+        else:
+            for u in unknowns:
+                print("Warning:", "The type", repr(m.type_name()),
+                      "may not be recognized\n     Undefined implicit instantiation template error may occur",
+                      file=sys.stderr)
+
+
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("definition", help='definition file for classes')
-    parser.add_argument('-o', '--out', help='output file name', default=None)
+    parser = argparse.ArgumentParser(description='`autojsoncxx` code generator '
+                                                 '(visit https://github.com/netheril96/autojsoncxx for details)')
+
+    parser.add_argument('-c', '--check', help='check the types entered; requires `parsimonious` to be installed',
+                        action='store_true', default=False)
+    parser.add_argument('-i', '--input', help='input name for the definition file for classes', required=True)
+    parser.add_argument('-o', '--output', help='output name for the header file', default=None)
     parser.add_argument('--template', help='location of the template file', default=None)
     args = parser.parse_args()
+
+    if args.check and not check_type_name:
+        print("Unable to import type checking module; make sure you have `parsimonious` installed", file=sys.stderr)
+        print("Type checks disabled", file=sys.stderr)
+        args.check = False
 
     if args.template is None:
         args.template = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'code_template')
@@ -306,23 +333,41 @@ def main():
     with open(args.template) as f:
         template = f.read()
 
+    cache = {'bool', 'char', 'int', 'unsigned int', 'unsigned', 'long long', 'long long int',
+             'unsigned long long', 'unsigned long long int', 'std::uint32_t', 'std::int32_t',
+             'std::uint64_t', 'std::int64_t', 'uint32_t', 'int32_t', 'uint64_t', 'int64_t', 'std::nullptr_t',
+             'std::size_t', 'size_t', 'std::ptrdiff_t', 'ptrdiff_t',
+             'double', 'std::string', 'std::vector', 'std::deque', 'std::array',
+             'boost::container::vector', 'boost::container:;deque', 'boost::array',
+             'std::shared_ptr', 'std::unique_ptr', 'boost::shared_ptr', 'boost::optional',
+             'std::map', 'std::unordered_map', 'std::multimap', 'std::unordered_multimap',
+             'boost::unordered_map', 'boost::unordered_multimap'}
+
     def process_file(output):
-        with open(args.definition) as f:
+        with open(args.input) as f:
             raw_record = json.load(f)
 
         output.write('#pragma once\n\n')
 
+        def output_class(class_record):
+            class_info = ClassInfo(class_record)
+            cache.add(class_info.qualified_name())
+
+            if args.check:
+                check_all_members(class_info.members(), cache)
+            output.write(build_class(template, class_info))
+
         if isinstance(raw_record, list):
             for r in raw_record:
-                output.write(build_class(template, ClassInfo(r)))
+                output_class(r)
         else:
-            output.write(build_class(template, ClassInfo(raw_record)))
+            output_class(raw_record)
 
-    if args.out is None:
-        args.out = os.path.basename(args.definition)
-        args.out = os.path.splitext(args.out)[0] + '.hpp'
+    if args.output is None:
+        args.output = os.path.basename(args.definition)
+        args.output = os.path.splitext(args.out)[0] + '.hpp'
 
-    with open(args.out, 'w') as f:
+    with open(args.output, 'w') as f:
         process_file(f)
 
 
