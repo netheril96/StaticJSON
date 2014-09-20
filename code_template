@@ -343,7 +343,7 @@ struct Serializer<Writer_6FD4E37439E0A95BB8A3, /* TypeName */ > {
 
         w.EndObject();
     }
-    
+
 };
 }
 

@@ -101,7 +101,7 @@ class ClassInfo:
         return '\n'.join(m.type_name() + ' ' + m.variable_name() + ';' for m in self.members())
 
     def initializer_list(self):
-        return ', '.join('{0}()'.format(m.variable_name()) for m in self.members())
+        return ', '.join('{0}({1})'.format(m.variable_name(), m.constructor_args()) for m in self.members())
 
     def constructor(self):
         return 'explicit {name}():{init} {{ {code} }}\n'.format(name=self.name(), init=self.initializer_list(),

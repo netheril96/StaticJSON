@@ -72,6 +72,33 @@ inline Date create_date(int year, int month, int day)
 // Point the work directory to the root of autojsoncxx, where `autojsoncxx.py` resides
 // or redefine the macro AUTOJSONCXX_ROOT_DIRECTORY.
 
+TEST_CASE("Test for the constructor of generated class", "[code generator]")
+{
+    User user;
+
+    REQUIRE(user.ID == 0ULL);
+
+    // Do not use string literal because MSVC will mess up the encoding
+    static const char default_nickname[] = { char(0xe2), char(0x9d), char(0xb6), char(0xe2),
+                                             char(0x9d), char(0xb7), char(0xe2), char(0x9d),
+                                             char(0xb8) };
+
+    REQUIRE(user.nickname.size() == sizeof(default_nickname));
+    REQUIRE(std::equal(user.nickname.begin(), user.nickname.end(), default_nickname));
+
+    REQUIRE(user.birthday == create_date(0, 0, 0));
+    REQUIRE(user.dark_history.empty());
+    REQUIRE(user.optional_attributes.empty());
+    REQUIRE(!user.block_event);
+
+    BlockEvent event;
+
+    REQUIRE(event.admin_ID == 255ULL);
+    REQUIRE(event.date == create_date(1970, 1, 1));
+    REQUIRE(event.serial_number == 0ULL);
+    REQUIRE(event.description.empty());
+}
+
 TEST_CASE("Test for correct parsing", "[parsing]")
 {
     SECTION("Test for an array of user", "[parsing]")
@@ -108,7 +135,7 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             const User& u = users.back();
             REQUIRE(u.ID == 13478355757133566847ULL);
             REQUIRE(u.nickname.size() == 15);
-            REQUIRE(u.block_event.get() == 0);
+            REQUIRE(!u.block_event);
             REQUIRE(u.optional_attributes.size() == 3);
             REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
         }
@@ -148,7 +175,7 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             const User& u = users["Second"];
             REQUIRE(u.ID == 13478355757133566847ULL);
             REQUIRE(u.nickname.size() == 15);
-            REQUIRE(u.block_event.get() == 0);
+            REQUIRE(!u.block_event);
             REQUIRE(u.optional_attributes.size() == 3);
             REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
         }
