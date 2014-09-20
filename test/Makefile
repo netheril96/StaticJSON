@@ -14,7 +14,7 @@ $(TARGET): main.o test.o $(GENERATED_HPP)
 $(GENERATED_HPP): $(DEFINITION_FILE) $(GENERATOR_SCRIPT)
 	$(PYTHON3) $(GENERATOR_SCRIPT) --out=$(GENERATED_HPP) $(DEFINITION_FILE)
 
-main.o: main.cpp $(GENERATED_HPP)
+main.o: main.cpp 
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c main.cpp -o main.o
 
 test.o: test.cpp $(GENERATED_HPP)
