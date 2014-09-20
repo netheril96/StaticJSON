@@ -244,18 +244,91 @@ namespace utility {
             case '\r':
                 sb.append("\\r", 2);
                 break;
-            default: {
-                if (c < ' ') {
-                    char buffer[16];
-                    std::sprintf(buffer, "\\u%04x", static_cast<unsigned int>(static_cast<unsigned char>(c)));
-                    sb.append(buffer, 6);
-                } else {
-                    sb += c;
-                }
-            } break;
+            case '\x00':
+                sb.append("\\x00", 4);
+                break;
+            case '\x01':
+                sb.append("\\x01", 4);
+                break;
+            case '\x02':
+                sb.append("\\x02", 4);
+                break;
+            case '\x03':
+                sb.append("\\x03", 4);
+                break;
+            case '\x04':
+                sb.append("\\x04", 4);
+                break;
+            case '\x05':
+                sb.append("\\x05", 4);
+                break;
+            case '\x06':
+                sb.append("\\x06", 4);
+                break;
+            case '\x07':
+                sb.append("\\x07", 4);
+                break;
+            case '\x0b':
+                sb.append("\\x0b", 4);
+                break;
+            case '\x0e':
+                sb.append("\\x0e", 4);
+                break;
+            case '\x0f':
+                sb.append("\\x0f", 4);
+                break;
+            case '\x10':
+                sb.append("\\x10", 4);
+                break;
+            case '\x11':
+                sb.append("\\x11", 4);
+                break;
+            case '\x12':
+                sb.append("\\x12", 4);
+                break;
+            case '\x13':
+                sb.append("\\x13", 4);
+                break;
+            case '\x14':
+                sb.append("\\x14", 4);
+                break;
+            case '\x15':
+                sb.append("\\x15", 4);
+                break;
+            case '\x16':
+                sb.append("\\x16", 4);
+                break;
+            case '\x17':
+                sb.append("\\x17", 4);
+                break;
+            case '\x18':
+                sb.append("\\x18", 4);
+                break;
+            case '\x19':
+                sb.append("\\x19", 4);
+                break;
+            case '\x1a':
+                sb.append("\\x1a", 4);
+                break;
+            case '\x1b':
+                sb.append("\\x1b", 4);
+                break;
+            case '\x1c':
+                sb.append("\\x1c", 4);
+                break;
+            case '\x1d':
+                sb.append("\\x1d", 4);
+                break;
+            case '\x1e':
+                sb.append("\\x1e", 4);
+                break;
+            case '\x1f':
+                sb.append("\\x1f", 4);
+                break;
+            default:
+                sb += c;
             }
         }
-
         sb += '\"';
         return sb;
     }
