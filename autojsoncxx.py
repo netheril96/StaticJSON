@@ -385,7 +385,7 @@ def main():
              'boost::container::vector', 'boost::container:;deque', 'boost::array',
              'std::shared_ptr', 'std::unique_ptr', 'boost::shared_ptr', 'boost::optional',
              'std::map', 'std::unordered_map', 'std::multimap', 'std::unordered_multimap',
-             'boost::unordered_map', 'boost::unordered_multimap'}
+             'boost::unordered_map', 'boost::unordered_multimap', 'std::tuple'}
 
     def process_file(output):
         with open(args.input) as f:
