@@ -259,27 +259,33 @@ class MainCodeGenerator:
 
 
 def build_class(template, class_info):
+
     gen = MainCodeGenerator(class_info)
 
-    result = template
-    result = result.replace("/* class definition */", class_info.class_definition())
-    result = result.replace("/* list of declarations */", gen.handler_declarations() + gen.flags_declaration())
-    result = result.replace("/* init */", gen.handler_initializers())
-    result = result.replace("/* serialize all members */", gen.data_serialization())
-    result = result.replace("/* change state */", gen.key_event_handling())
-    result = result.replace("/* reap error */", gen.error_reaping())
-    result = result.replace("/* get member name */", gen.current_member_name())
-    result = result.replace("/* validation */", gen.post_validation())
-    result = result.replace("/* reset flags */", gen.flags_reset())
-    result = result.replace("/* handle unknown key */", gen.unknown_key_handling())
+    replacement = {
+        "class definition": class_info.class_definition(),
+        "list of declarations": gen.handler_declarations() + gen.flags_declaration(),
+        "init": gen.handler_initializers(),
+        "serialize all members": gen.data_serialization(),
+        "change state": gen.key_event_handling(),
+        "reap error": gen.error_reaping(),
+        "get member name": gen.current_member_name(),
+        "validation": gen.post_validation(),
+        "reset flags": gen.flags_reset(),
+        "handle unknown key": gen.unknown_key_handling(),
+        "TypeName": class_info.qualified_name()}
 
     def evaluate(match):
-        return gen.event_forwarding(match.group(1))
+        try:
+            return replacement[match.group(1)]
+        except KeyError:
+            match = re.match(r'forward (.*?) to members', match.group(1))
+            if match:
+                return gen.event_forwarding(match.group(1))
+            else:
+                raise
 
-    result = re.sub(r'/\*\s*forward (.*?) to members\s*\*/', evaluate, result)
-    result = result.replace('TypeName_A27885315D2EA6F8BEB7', class_info.qualified_name())
-
-    return result
+    return re.sub(r'/\*\s*(.*?)\s*\*/', evaluate, template)
 
 
 def main():

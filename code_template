@@ -22,14 +22,17 @@
 
 #include <autojsoncxx/autojsoncxx.hpp>
 
+// The comments are reserved for replacement
+// such syntax is chosen so that the template file looks like valid C++
+
 /* class definition */
 
 namespace autojsoncxx {
 
 template <>
-class SAXEventHandler<TypeName_A27885315D2EA6F8BEB7> {
+class SAXEventHandler< /* TypeName */ > {
 private:
-    typedef TypeName_A27885315D2EA6F8BEB7 object_type;
+    typedef /* TypeName */ object_type;
 
     utility::scoped_ptr<error::ErrorBase> the_error;
     int state;
@@ -330,8 +333,9 @@ public:
 };
 
 template <class Writer_6FD4E37439E0A95BB8A3>
-struct Serializer<Writer_6FD4E37439E0A95BB8A3, TypeName_A27885315D2EA6F8BEB7> {
-    void operator()(Writer_6FD4E37439E0A95BB8A3& w, const TypeName_A27885315D2EA6F8BEB7& value) const
+struct Serializer<Writer_6FD4E37439E0A95BB8A3, /* TypeName */ > {
+
+    void operator()(Writer_6FD4E37439E0A95BB8A3& w, const /* TypeName */& value) const
     {
         w.StartObject();
 
@@ -339,6 +343,7 @@ struct Serializer<Writer_6FD4E37439E0A95BB8A3, TypeName_A27885315D2EA6F8BEB7> {
 
         w.EndObject();
     }
+    
 };
 }
 
