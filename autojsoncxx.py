@@ -32,9 +32,54 @@ import hashlib
 import sys
 
 try:
-    from type_check import check_type_name
+    import parsimonious
+
+    # PEG grammar for parsing the C++ type name we support
+    # Note that raw pointer, reference, array, void, enum, function and pointer-to-member types are not supported
+    grammar = parsimonious.Grammar(r'''
+        type = (space cv_type space "<" space type_list space ">" space) / ( space cv_type space )
+        type_list = (type space "," space type_list) / type
+
+        cv_type = c_and_v_type / c_or_v_type / simple_type
+        c_and_v_type = ("const" space "volatile" space simple_type) / ("volatile" space "const" space simple_type)
+        c_or_v_type = ("const" space simple_type) / ("volatile" space simple_type)
+
+        simple_type = spaced_type / ("::"? identifier ("::" identifier)*)
+        spaced_type = sign_type / long_type
+        sign_type = ("unsigned" / "signed")  space ( ("long" space "long"? space "int"?) / "int" / "char")
+        long_type = ("long" space "long" space "int") / ("long" space "long") / ("long" space "int")
+
+        identifier = ~"[A-Za-z_][A-Za-z_0-9]*"
+        space = ~"[ \t]*"
+        ''')
+
+    def extract_simple_type(node):
+        if node.expr_name == 'simple_type':
+            yield node.text.lstrip(':')
+
+        for sub_node in node.children:
+            for value in extract_simple_type(sub_node):
+                yield value
+
+
+    def check_type_name(name, cache):
+        '''
+        :param name: the full name of the type to check
+        :param cache: the names that has been encountered so far; updated after function returns
+        :return: None if error in parsing the name; otherwise a list of unknown types
+        '''
+        try:
+            node = grammar.parse(name)
+            simple_types = set(extract_simple_type(node))
+            unknowns = simple_types - cache
+            cache.update(simple_types)
+            return unknowns
+
+        except parsimonious.ParseError:
+            return None
+
 except ImportError:
-    check_type_name = None
+    parsimonious = None
 
 
 class InvalidDefinitionError(Exception):
@@ -322,9 +367,8 @@ def main():
     parser.add_argument('--template', help='location of the template file', default=None)
     args = parser.parse_args()
 
-    if args.check and not check_type_name:
-        print("Unable to import type checking module; make sure you have `parsimonious` installed", file=sys.stderr)
-        print("Type checks disabled", file=sys.stderr)
+    if args.check and not parsimonious:
+        print("Unable to import module `parsimonious`", "Type checks disabled", "", sep='\n', file=sys.stderr)
         args.check = False
 
     if args.template is None:
@@ -351,7 +395,7 @@ def main():
 
         def output_class(class_record):
             class_info = ClassInfo(class_record)
-            cache.add(class_info.qualified_name())
+            cache.add(class_info.qualified_name().lstrip(':'))
 
             if args.check:
                 check_all_members(class_info.members(), cache)
