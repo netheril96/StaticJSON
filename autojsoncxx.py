@@ -345,22 +345,22 @@ def build_class(template, class_info):
 
 
 def check_all_members(members_info, cache):
+
     for m in members_info:
         unknowns = check_type_name(m.type_name(), cache)
+
         if unknowns is None:
-            print("Warning:", "invalid C++ type name", repr(m.type_name), file=sys.stderr)
+            print("Warning:", "Invalid C++ type name", repr(m.type_name()), '\n', file=sys.stderr)
         else:
             for u in unknowns:
-                print("Warning:", "The type", repr(m.type_name()),
-                      "may not be recognized\n     Undefined implicit instantiation template error may occur",
-                      file=sys.stderr)
+                print("Warning:", "The type", repr(u), "may not be recognized\n", file=sys.stderr)
 
 
 def main():
     parser = argparse.ArgumentParser(description='`autojsoncxx` code generator '
                                                  '(visit https://github.com/netheril96/autojsoncxx for details)')
 
-    parser.add_argument('-c', '--check', help='check the types entered; requires `parsimonious` to be installed',
+    parser.add_argument('-c', '--check', help='check the type names specified; requires `parsimonious` to be installed',
                         action='store_true', default=False)
     parser.add_argument('-i', '--input', help='input name for the definition file for classes', required=True)
     parser.add_argument('-o', '--output', help='output name for the header file', default=None)
