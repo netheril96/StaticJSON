@@ -12,9 +12,10 @@ More importantly, maually writing the code means duplication of effort, and dupl
 
 ### Dependency 
 
-* RapidJSON (https://github.com/miloyip/rapidjson) 
-* (optional for building the test, header only) Catch (https://github.com/philsquared/Catch)
-* (optional, only the headers) Boost (http://www.boost.org)
+* [RapidJSON](https://github.com/miloyip/rapidjson) 
+* (optional) [Parsimonious](https://github.com/erikrose/parsimonious)
+* (optional) [Catch](https://github.com/philsquared/Catch)
+* (optional) [Boost](http://www.boost.org)
 
 ## Features
 
@@ -82,7 +83,7 @@ The code generator reads a JSON file that defines the class structure. An exampl
 Run the script *autojsoncxx.py* (requires Python 3) on this definition file, and a header file will be generated. It includes a definition for `Person` as well as some helper classes. The `Person` is a `struct` with all members public, meant as a data holder without any additional functionalities. It can be used with free functions, or [wrapped up in another class to provide encapsulation and polymorphism](https://en.wikipedia.org/wiki/Composition_over_inheritance).
 
 ```bash
-python3 autojsoncxx.py --out=person.hpp def.json
+python3 autojsoncxx.py --input=persondef.json --output=person.hpp
 ```
 
 Remember to add the include directory of *autojsoncxx* and *rapidjson* to your project header search path (no linking is required). 
