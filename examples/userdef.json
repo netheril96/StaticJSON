@@ -16,7 +16,7 @@
         ["unsigned long long", "serial_number", {"required": true}],
         ["unsigned long long", "admin_ID", {"json_key": "administrator ID", "default": 255}],
         ["Date", "date"],
-        ["std::string", "description"],
+        ["std::string", "description", {"default": "/* init */ trying to mess up with the code generator"}],
         ["std::string", "details"]
     ],
     "constructor_code": "date.year = 1970; date.month = 1; date.day = 1; /* Assign date to the UNIX epoch */"

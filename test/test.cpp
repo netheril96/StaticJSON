@@ -96,7 +96,7 @@ TEST_CASE("Test for the constructor of generated class", "[code generator]")
     REQUIRE(event.admin_ID == 255ULL);
     REQUIRE(event.date == create_date(1970, 1, 1));
     REQUIRE(event.serial_number == 0ULL);
-    REQUIRE(event.description.empty());
+    REQUIRE(event.details.empty());
 }
 
 TEST_CASE("Test for correct parsing", "[parsing]")

@@ -1,5 +1,5 @@
 CXX ?= c++
-CXXFLAGS ?= -std=c++11 -O2 -Wall -Wextra -pedantic -g
+CXXFLAGS ?= -std=c++0x -O2 -Wall -Wextra -pedantic -g
 
 export
 

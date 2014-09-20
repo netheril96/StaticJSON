@@ -2,6 +2,7 @@ INCLUDE ?= -I../include -I../rapidjson/include -I../catch/single_include
 TARGET ?= autojsoncxx_catch
 
 PYTHON3 ?= python3
+GENERATOR_SCRIPT = ../autojsoncxx.py
 DEFINITION_FILE ?= ../examples/userdef.json
 GENERATED_HPP ?= userdef.hpp
 
@@ -10,8 +11,8 @@ all: $(TARGET)
 $(TARGET): main.o test.o $(GENERATED_HPP)
 	$(CXX) $(CXXFLAGS) main.o test.o -o $(TARGET)
 	
-$(GENERATED_HPP): $(DEFINITION_FILE)
-	$(PYTHON3) ../autojsoncxx.py --out=$(GENERATED_HPP) $(DEFINITION_FILE)
+$(GENERATED_HPP): $(DEFINITION_FILE) $(GENERATOR_SCRIPT)
+	$(PYTHON3) $(GENERATOR_SCRIPT) --out=$(GENERATED_HPP) $(DEFINITION_FILE)
 
 main.o: main.cpp $(GENERATED_HPP)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c main.cpp -o main.o
