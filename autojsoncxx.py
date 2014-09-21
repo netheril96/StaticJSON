@@ -38,7 +38,7 @@ try:
     # Note that raw pointer, reference, array, void, enum, function and pointer-to-member types are not supported
     grammar = parsimonious.Grammar(r'''
         type = (space cv_type space "<" space type_list space ">" space) / ( space cv_type space )
-        type_list = (type space "," space type_list) / type
+        type_list = (type space "," space type_list) / type / space
 
         cv_type = c_and_v_type / c_or_v_type / simple_type
         c_and_v_type = ("const" space "volatile" space simple_type) / ("volatile" space "const" space simple_type)
@@ -61,22 +61,18 @@ try:
             for value in extract_simple_type(sub_node):
                 yield value
 
-
-    def check_type_name(name, cache):
-        '''
+    def check_for_unknown_basic_types(name, cache):
+        """
         :param name: the full name of the type to check
         :param cache: the names that has been encountered so far; updated after function returns
-        :return: None if error in parsing the name; otherwise a list of unknown types
-        '''
-        try:
-            node = grammar.parse(name)
-            simple_types = set(extract_simple_type(node))
-            unknowns = simple_types - cache
-            cache.update(simple_types)
-            return unknowns
+        :return: a list of unknown types
+        """
+        node = grammar.parse(name)
+        simple_types = set(extract_simple_type(node))
+        unknowns = simple_types - cache
+        cache.update(simple_types)
+        return unknowns
 
-        except parsimonious.ParseError:
-            return None
 
 except ImportError:
     parsimonious = None
@@ -281,7 +277,7 @@ class MainCodeGenerator:
 
     def key_event_handling(self):
         return '\n'.join('else if (utility::string_equal(str, length, {key}, {key_length}))\n\
-                    {{ state={state}; {check} }}'
+                         {{ state={state}; {check} }}'
                              .format(key=hard_escape(m.json_key()), key_length=len(m.json_key()),
                                      state=i, check=m.set_flag_statement("true"))
                          for i, m in enumerate(self.members_info))
@@ -344,16 +340,18 @@ def build_class(template, class_info):
     return re.sub(r'/\*\s*(.*?)\s*\*/', evaluate, template)
 
 
-def check_all_members(members_info, cache):
-
-    for m in members_info:
-        unknowns = check_type_name(m.type_name(), cache)
-
-        if unknowns is None:
-            print("Warning:", "Invalid C++ type name", repr(m.type_name()), '\n', file=sys.stderr)
-        else:
+def check_all_members(class_info, cache):
+    for m in class_info.members():
+        try:
+            unknowns = check_for_unknown_basic_types(m.type_name(), cache)
             for u in unknowns:
-                print("Warning:", "The type", repr(u), "may not be recognized\n", file=sys.stderr)
+                print("Warning:", "The type", repr(u), "may not be recognized", file=sys.stderr)
+                print("\tReferenced from variable", repr(m.variable_name()),
+                      "in class", repr(class_info.qualified_name()), "\n", file=sys.stderr)
+        except parsimonious.ParseError:
+            print("Warning:", "The type", repr(m.type_name()), "is not valid", file=sys.stderr)
+            print("\tReferenced from variable", repr(m.variable_name()),
+                  "in class", repr(class_info.qualified_name()), "\n", file=sys.stderr)
 
 
 def main():
@@ -398,7 +396,7 @@ def main():
             cache.add(class_info.qualified_name().lstrip(':'))
 
             if args.check:
-                check_all_members(class_info.members(), cache)
+                check_all_members(class_info, cache)
             output.write(build_class(template, class_info))
 
         if isinstance(raw_record, list):
