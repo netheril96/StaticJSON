@@ -26,10 +26,14 @@
 
 import re
 import argparse
-import json
 import os
 import hashlib
 import sys
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 try:
     import parsimonious
