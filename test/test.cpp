@@ -68,8 +68,8 @@ inline Date create_date(int year, int month, int day)
     return d;
 }
 
-// If all of the cases fail, you probably set the work directory wrong.
-// Point the work directory to the root of autojsoncxx, where `autojsoncxx.py` resides
+// If most of the cases fail, you probably set the work directory wrong.
+// Point the work directory to the `test/` subdirectory
 // or redefine the macro AUTOJSONCXX_ROOT_DIRECTORY.
 
 TEST_CASE("Test for the constructor of generated class", "[code generator]")
