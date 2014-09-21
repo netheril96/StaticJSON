@@ -394,4 +394,5 @@ You can have multiple definition of classes in the same file, simply by making t
 - [ ] Variant types support
 - [ ] Properly format the output of code generator
 - [ ] Option to separate the class definition and its helper classes in the output
+- [x] Option to check the definition file for potential errors, in order to avoid horrid C++ template compile error
 
