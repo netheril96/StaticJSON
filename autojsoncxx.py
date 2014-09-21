@@ -142,7 +142,7 @@ class ClassInfo:
 
         check_identifier(self._name)
 
-        if self._namespace is not None and not re.match(r'^[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*$', self._namespace):
+        if self._namespace is not None and not re.match(r'^(?:::)?[A-Za-z_]\w*(?:::[A-Za-z_]\w*)*$', self._namespace):
             raise InvalidNamespace(self._namespace)
 
         for op in record:
@@ -174,9 +174,12 @@ class ClassInfo:
         return self._name
 
     def qualified_name(self):
-        if self._namespace is None:
+        if self.namespace() is None:
             return '::' + self.name()
-        return self._namespace + '::' + self.name()
+        if self.namespace().startswith('::'):
+            return self.namespace() + '::' + self.name()
+        else:
+            return '::' + self.namespace() + '::' + self.name()
 
     def members(self):
         return self._members

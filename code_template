@@ -32,8 +32,6 @@ namespace autojsoncxx {
 template <>
 class SAXEventHandler< /* TypeName */ > {
 private:
-    typedef /* TypeName */ object_type;
-
     utility::scoped_ptr<error::ErrorBase> the_error;
     int state;
     int depth;
@@ -83,7 +81,7 @@ private:
     }
 
 public:
-    explicit SAXEventHandler(object_type* obj)
+    explicit SAXEventHandler( /* TypeName */ * obj)
         : state(-1)
         , depth(0)
         /* init */
@@ -151,7 +149,7 @@ public:
         return true;
     }
 
-    bool Int64(int64_t i)
+    bool Int64(utility::int64_t i)
     {
         if (!check_depth("int64_t"))
             return false;
@@ -166,7 +164,7 @@ public:
         return true;
     }
 
-    bool Uint64(uint64_t i)
+    bool Uint64(utility::uint64_t i)
     {
         if (!check_depth("uint64_t"))
             return false;

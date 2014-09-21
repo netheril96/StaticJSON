@@ -381,7 +381,8 @@ The default encoding is `UTF-8`. If you need to read/write JSON in `UTF-16` or `
 
 ## Other
 
-You can have multiple definition of classes in the same file, simply by making the root an array of definitions.
+* You can have multiple definition of classes in the same file, simply by making the root an array of definitions.
+* Remember to fully qualify the type names or otherwise they may not be found. If the compiler still errs or warns about the namespaces, prefix it with global namespace scope resolution operator `::`, such as `::utility::event`, `::std::vector<::utility::event>`.
 
 ## To do
 
