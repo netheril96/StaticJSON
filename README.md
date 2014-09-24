@@ -90,6 +90,8 @@ Remember to add the include directory of *autojsoncxx* and *rapidjson* to your p
 
 The below examples uses c++11 features, but the library should also work with c++03 compilers.
 
+(There is now also support for using `libclang` to *directly* parse C++ source, without JSON definition file at all. However, given that the API of `clang` changes so frequently without regards about backwards compatibility, it is not recommended for the faint of heart. See branch `clang` for details.)
+
 ### Serialization
 
 ```c++
