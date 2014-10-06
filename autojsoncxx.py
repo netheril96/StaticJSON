@@ -417,8 +417,8 @@ def main():
             output_class(raw_record)
 
     if args.output is None:
-        args.output = os.path.basename(args.definition)
-        args.output = os.path.splitext(args.out)[0] + '.hpp'
+        args.output = os.path.basename(args.input)
+        args.output = os.path.splitext(args.output)[0] + '.hpp'
 
     with open(args.output, 'w') as f:
         process_file(f)
