@@ -6,7 +6,7 @@ A header-only library and a code generator to **automagically** translate betwee
 
 JSON is an excellent format for data serialization due to its simplicity, flexibility, portability and human-readable nature. Writing code to parse and generate JSON, however, is not an easy task in a statically typed language. Even with the help of JSON libraries, you need to write a lot of boilerplate code, and convoluted ones if you need to enforce the static typing of C++.
 
-More importantly, maually writing the code means duplication of effort, and duplication is bad for programmers. When your client or PM request a change in feature, many classes (like the class responsible for configuration) will likely change, and you will have to rewrite the code. During the rewrite, time is wasted, people become impatient, and bugs may be introduced when the class definition, parsing and serialization code become out of sync.
+More importantly, manually writing the code means duplication of effort, and duplication is bad for programmers. When your client or PM request a change in feature, many classes (like the class responsible for configuration) will likely change, and you will have to rewrite the code. During the rewrite, time is wasted, people become impatient, and bugs may be introduced when the class definition, parsing and serialization code become out of sync.
 
 *autojsoncxx* is an attempt to solve this problem by automating such process. It is currently still in beta stage, so expect things to change in the future.
 
@@ -21,10 +21,10 @@ More importantly, maually writing the code means duplication of effort, and dupl
 
 * The parsing/serializing code are **automagically** generated. You don't even need to understand what is proper JSON to use it, although it may help you diagnose problems.
 * **Detailed error message**. Not only do you get informed if the JSON is not valid, but you will have a verbose trace back pointing to the location of the problem as well, if the JSON value does not fit your class structure.
-* **Ease of use**. Many convience functions are added so that a single function call is enough for most use cases. The library as well as its dependency are header only, while the code generator depends only on standard library of Python 3, so no complicated setup for your build system is needed.
+* **Ease of use**. Many convenience functions are added so that a single function call is enough for most use cases. The library as well as its dependency are header only, while the code generator depends only on standard library of Python 3, so no complicated setup for your build system is needed.
 * **Fast**. The underlying JSON engine (RapidJSON) has been benchmarked to be about an order of magnitude faster than other popular JSON libraries. Besides, this library uses its SAX API, obviating the need of constructing a Document Object Model as the intermediate representation. Lastly, the library utilizes C++ templates to generate the algorithm at compile time, so no overhead of runtime indirection (except when error occurs).
 * **Flexible framework**. You can add more type support to the library by specializing certain template classes. In addition, whenever a class is generated, you can also parse/serialize an array of such class, a nullable wrapper of such class, another class that contains it, etc.
-* **Liberal licence**. Both the library and its dependency are licenced liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
+* **Liberal license**. Both the library and its dependency are licensed liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
 
 ## Testing
 
@@ -89,8 +89,6 @@ python3 autojsoncxx.py --input=persondef.json --output=person.hpp
 Remember to add the include directory of *autojsoncxx* and *rapidjson* to your project header search path (no linking is required). 
 
 The below examples uses c++11 features, but the library should also work with c++03 compilers.
-
-(There is now also support for using `libclang` to *directly* parse C++ source, without JSON definition file at all. However, given that the API of `clang` changes so frequently without regards about backwards compatibility, it is not recommended for the faint of heart. See branch `clang` for details.)
 
 ### Serialization
 
@@ -162,7 +160,7 @@ int main()
 
 ### Error handling
 
-If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not layed out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code.
+If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not laid out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code.
 
 Here is valid JSON file
 
@@ -242,19 +240,19 @@ for (auto&& e : result) {
 
 Exception handling (`throw`, `try`, `catch`) is not used by this library, to accommodate the needs of fake C++ programmers. It is designed, however, to be exception safe by using RAII wrappers to do all resource management. Copy, move constructor/assignment operator are disabled at certain places to avoid ownership mismanagement.
 
-Notably, the `ParsingResult` class is not copyable. This simplifies the memory handling because it fully owns the error stack. It is movable, however, if you define `AUTOJSONCXX_HAS_RVALUE`. If you ever need to pass it around or store it somewhere, the simpliest way is to use a shared pointer.
+Notably, the `ParsingResult` class is not copyable. This simplifies the memory handling because it fully owns the error stack. It is movable, however, if you define `AUTOJSONCXX_HAS_RVALUE`. If you ever need to pass it around or store it somewhere, the simplest way is to use a shared pointer.
 
 ## Type support
 
 These types are supported by this library:
 
 * Basic types: `bool`, `char`, `int`, `unsigned int`, `long long`, `unsigned long long`, `std::string`
-* Array tyeps: `std::vector<>`, `std::deque<>`, `std::array<>`, `std::tuple<>` (this one needs special care)
+* Array types: `std::vector<>`, `std::deque<>`, `std::array<>`, `std::tuple<>` (this one needs special care)
 * Nullable types: `std::nullptr_t`, `std::unique_ptr<>`, `std::shared_ptr<>`
 * Map types: `std::map<>`, `std::unordered_map<>`, `std::multimap<>`, `std::unordered_multimap<>` (The key must be of string type)
 * Object types: any class generated by the script *autojsoncxx.py*.
 
-Note: `char` is mapped to JSON `Boolean` type, the same as `bool`. This is done so that people can avoid the cariacture that is `std::vector<bool>`. If you need a character type, use an integer type or a single character string instead.
+Note: `char` is mapped to JSON `Boolean` type, the same as `bool`. This is done so that people can avoid the caricature that is `std::vector<bool>`. If you need a character type, use an integer type or a single character string instead.
 
 If you include `<autojsoncxx/boost_types.hpp>`, you will also get support for
 
@@ -366,7 +364,7 @@ Note that the matched part still must have compatible type. Support for variant 
 
 ## Definition file syntax
 
-The definition file is a simple JSON file that lists all the classes, their memebers as well as options to control the parsing. The root must be an object corresponding to a class definition, or an array of such objects.
+The definition file is a simple JSON file that lists all the classes, their members as well as options to control the parsing. The root must be an object corresponding to a class definition, or an array of such objects.
 
 ### Class definition
 
@@ -377,11 +375,11 @@ A class definition is an object with the following fields:
 * **parse_mode** (optional). "strict" or otherwise, default "". When set to strict, any unrecognized JSON key will cause an `UnknownFieldError`. Otherwise they are simply ignored. The default is ignoring, so that you can upgrade your protocol by appending new fields without affecting old applications.
 * **constructor_code**. (optional). Arbitrary C++ code to execute in the constructor, useful if you need to perform initialization that cannot be done with the `default` option.
 * **comment** (optional). Ignored.
-* **members**. An array of memember definitions.
+* **members**. An array of member definitions.
 
 ### Member definition
 
-A memeber definition is a JSON array of two or three elements. The first two is "positional arguments", referring to the *fully qualified* type name and the variable name, mimicking the declaration order in C++. The third element, if any, is a JSON object with one or more of the following keys:
+A member definition is a JSON array of two or three elements. The first two is "positional arguments", referring to the *fully qualified* type name and the variable name, mimicking the declaration order in C++. The third element, if any, is a JSON object with one or more of the following keys:
 
 * **required**. true/false (default: false). When set to true, the lack of such field in the JSON triggers `MissingFieldError`. If you want to know whether a certain key is present but not wanting the errors, you can use a nullable wrapper.
 * **default**. A boolean, number or string, used to initialize this field. When not set, the field is value initialized in the constructor.
@@ -399,7 +397,7 @@ A set of macros control the usage of c++11 features. Define these macros as nonz
 * `AUTOJSONCXX_HAS_VARIADIC_TEMPLATE`: enable the use of variadic templates. required if `std::tuple<>` is used.
 * `AUTOJSONCXX_HAS_EXPLICIT_OPERATOR`: enable the use of `explicit operator bool()`. Otherwise no conversion to bool operator is defined.
 
-The 64-bit integer type `long long` and `unsigned long long` is always required. Though not in C++03 standard, most compilers support it nontheless.
+The 64-bit integer type `long long` and `unsigned long long` is always required. Though not in C++03 standard, most compilers support it nonetheless.
 
 ## Encoding
 
