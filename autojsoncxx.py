@@ -377,7 +377,11 @@ def main():
         args.check = False
 
     if args.template is None:
-        args.template = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'code_template')
+        if getattr(sys, 'frozen', False):
+            dir = os.path.dirname(sys.executable)
+        else:
+            dir = os.path.dirname(os.path.abspath(__file__))
+        args.template = os.path.join(dir, 'code_template')
 
     with open(args.template) as f:
         template = f.read()
@@ -387,7 +391,7 @@ def main():
              'std::uint64_t', 'std::int64_t', 'uint32_t', 'int32_t', 'uint64_t', 'int64_t', 'std::nullptr_t',
              'std::size_t', 'size_t', 'std::ptrdiff_t', 'ptrdiff_t',
              'double', 'std::string', 'std::vector', 'std::deque', 'std::array',
-             'boost::container::vector', 'boost::container:;deque', 'boost::array',
+             'boost::container::vector', 'boost::container::deque', 'boost::array',
              'std::shared_ptr', 'std::unique_ptr', 'boost::shared_ptr', 'boost::optional',
              'std::map', 'std::unordered_map', 'std::multimap', 'std::unordered_multimap',
              'boost::unordered_map', 'boost::unordered_multimap', 'std::tuple'}
