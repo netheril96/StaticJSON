@@ -55,7 +55,7 @@ If too many tests fail, make sure your work directory points to the `test` direc
 
 ### Currently tested compilers
 
-* Clang 3.4 on Mac OS X (11.9)
+* Clang 3.4/3.5 on Mac OS X (11.9)
 * GCC 4.9 (Homebrew) on Mac OS X (11.9)
 * Clang 3.0 on Ubuntu 12.04 (x64)
 * GCC 4.8 on Ubuntu 14.04.1 (x86/x64)
@@ -88,7 +88,7 @@ python3 autojsoncxx.py --input=persondef.json --output=person.hpp
 
 Remember to add the include directory of *autojsoncxx* and *rapidjson* to your project header search path (no linking is required). 
 
-The below examples uses c++11 features, but the library should also work with c++03 compilers.
+The below examples uses c++11 features, but the library also works with c++03 compilers (provided you do not use new classes from c++11).
 
 ### Serialization
 
@@ -254,7 +254,7 @@ These types are supported by this library:
 
 Note: `char` is mapped to JSON `Boolean` type, the same as `bool`. This is done so that people can avoid the caricature that is `std::vector<bool>`. If you need a character type, use an integer type or a single character string instead.
 
-If you include `<autojsoncxx/boost_types.hpp>`, you will also get support for
+If you include `<autojsoncxx/boost_types.hpp>` (a relatively new `boost` is required), you will also get support for
 
 * Array types: `boost::container::vector<>`, `boost::container::deque<>`, `boost::array`
 * Nullable types: `boost::shared_ptr<>`, `boost::optional<>`
@@ -406,7 +406,7 @@ The default encoding is `UTF-8`. If you need to read/write JSON in `UTF-16` or `
 ## To do
 
 - [x] Automatic <s>unit</s> functional testing of the library
-- [ ] Test on C++03 compilers
+- [x] Test on C++03 compilers
 - [x] Test on Microsoft's C++ compiler
 - [ ] Automatic detection of compiler support for c++11 features
 - [ ] Full documentation about the API
