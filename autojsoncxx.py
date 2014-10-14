@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # The MIT License (MIT)
@@ -23,12 +23,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import unicode_literals
+from __future__ import print_function
 
 import re
 import argparse
 import os
 import hashlib
 import sys
+
+is_python2 = sys.version_info.major == 2
+
+if is_python2:
+    import io
+    open = io.open
+    str = unicode
 
 try:
     import simplejson as json
@@ -118,11 +127,18 @@ class UnsupportedTypeError(InvalidDefinitionError):
         return "Unsupported C++ type: " + repr(self.type_name)
 
 
-def hard_escape(text):
-    def escape(char):
-        return '\\x{:02x}'.format(char)
+if is_python2:
+    def hard_escape(text):
+        def escape(char):
+            return '\\x{:02x}'.format(ord(char))
 
-    return '"' + ''.join(escape(char) for char in text) + '"'
+        return '"' + ''.join(escape(char) for char in text) + '"'
+else:
+    def hard_escape(text):
+        def escape(char):
+            return '\\x{:02x}'.format(char)
+
+        return '"' + ''.join(escape(char) for char in text) + '"'
 
 
 def check_identifier(identifier):
@@ -378,10 +394,10 @@ def main():
 
     if args.template is None:
         if getattr(sys, 'frozen', False):
-            dir = os.path.dirname(sys.executable)
+            executable_dir = os.path.dirname(sys.executable)
         else:
-            dir = os.path.dirname(os.path.abspath(__file__))
-        args.template = os.path.join(dir, 'code_template')
+            executable_dir = os.path.dirname(os.path.abspath(__file__))
+        args.template = os.path.join(executable_dir, 'code_template')
 
     with open(args.template) as f:
         template = f.read()
