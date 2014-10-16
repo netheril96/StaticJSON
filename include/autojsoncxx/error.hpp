@@ -496,7 +496,7 @@ namespace error {
     };
 
     // For argument dependent lookup
-    void swap(ErrorStack& s1, ErrorStack& s2)
+    inline void swap(ErrorStack& s1, ErrorStack& s2)
     {
         s1.swap(s2);
     }
@@ -645,7 +645,7 @@ namespace error {
     }
 
     // For argument dependent lookup
-    void swap(ParsingResult& r1, ParsingResult& r2)
+    inline void swap(ParsingResult& r1, ParsingResult& r2)
     {
         r1.swap(r2);
     }
