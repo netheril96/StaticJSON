@@ -32,25 +32,28 @@ import os
 import hashlib
 import sys
 
-is_python2 = sys.version_info.major == 2
 
+# Python 2/3 compatibility layer
+is_python2 = sys.version_info.major == 2
 if is_python2:
     import io
-
     open = io.open
     str = unicode
 
+# simplejson has the same interface as the standard json module, but with better error messages
 try:
     import simplejson as json
 except ImportError:
     import json
 
+# parsimonious is required for parsing C++ type name
 try:
     import parsimonious
 except ImportError:
     parsimonious = None
 
 
+# base class for all custom exceptions in this unit
 class InvalidDefinitionError(Exception):
     pass
 
@@ -87,18 +90,13 @@ class UnsupportedTypeError(InvalidDefinitionError):
         return "Unsupported C++ type: " + repr(self.type_name)
 
 
+# convert arbitrary byte sequence into a C++ string literal by escaping every character
 if is_python2:
-    def hard_escape(text):
-        def escape(char):
-            return '\\x{:02x}'.format(ord(char))
-
-        return '"' + ''.join(escape(char) for char in text) + '"'
+    def cstring_literal(byte_string):
+        return '"' + ''.join('\\x{:02x}'.format(ord(char)) for char in byte_string) + '"'
 else:
-    def hard_escape(text):
-        def escape(char):
-            return '\\x{:02x}'.format(char)
-
-        return '"' + ''.join(escape(char) for char in text) + '"'
+    def cstring_literal(byte_string):
+        return '"' + ''.join('\\x{:02x}'.format(char) for char in byte_string) + '"'
 
 
 def check_identifier(identifier):
@@ -247,7 +245,7 @@ class MemberInfo:
         elif args is False:
             return 'false'
         elif isinstance(args, str):
-            return hard_escape(args.encode('utf-8'))
+            return cstring_literal(args.encode('utf-8'))
         elif isinstance(args, int) or isinstance(args, float):
             return str(args)
         else:
@@ -287,7 +285,7 @@ class HelperClassCodeGenerator:
     def key_event_handling(self):
         return '\n'.join('else if (utility::string_equal(str, length, {key}, {key_length}))\n\
                          {{ state={state}; {check} }}'
-                             .format(key=hard_escape(m.json_key), key_length=len(m.json_key),
+                             .format(key=cstring_literal(m.json_key), key_length=len(m.json_key),
                                      state=i, check=HelperClassCodeGenerator.flag_statement(m, "true"))
                          for i, m in enumerate(self.members_info))
 
@@ -304,7 +302,7 @@ class HelperClassCodeGenerator:
 
     def data_serialization(self):
         return '\n'.join('w.Key({}); Serializer< {}, {} >()(w, value.{});'
-                             .format(hard_escape(m.json_key), self.writer_type_name(),
+                             .format(cstring_literal(m.json_key), self.writer_type_name(),
                                      m.type_name, m.variable_name)
                          for m in self.members_info)
 
