@@ -36,6 +36,7 @@ is_python2 = sys.version_info.major == 2
 
 if is_python2:
     import io
+
     open = io.open
     str = unicode
 
@@ -46,47 +47,6 @@ except ImportError:
 
 try:
     import parsimonious
-
-    # PEG grammar for parsing the C++ type name we support
-    # Note that raw pointer, reference, array, void, enum, function and pointer-to-member types are not supported
-    grammar = parsimonious.Grammar(r'''
-        type = (space cv_type space "<" space type_list space ">" space) / ( space cv_type space )
-        type_list = (type space "," space type_list) / type / space
-
-        cv_type = c_and_v_type / c_or_v_type / simple_type
-        c_and_v_type = ("const" space "volatile" space simple_type) / ("volatile" space "const" space simple_type)
-        c_or_v_type = ("const" space simple_type) / ("volatile" space simple_type)
-
-        simple_type = spaced_type / ("::"? identifier ("::" identifier)*)
-        spaced_type = sign_type / long_type
-        sign_type = ("unsigned" / "signed")  space ( ("long" space "long"? space "int"?) / "int" / "char")
-        long_type = ("long" space "long" space "int") / ("long" space "long") / ("long" space "int")
-
-        identifier = ~"[A-Za-z_][A-Za-z_0-9]*"
-        space = ~"[ \t]*"
-        ''')
-
-    def extract_simple_type(node):
-        if node.expr_name == 'simple_type':
-            yield node.text.lstrip(':')
-
-        for sub_node in node.children:
-            for value in extract_simple_type(sub_node):
-                yield value
-
-    def check_for_unknown_basic_types(name, cache):
-        """
-        :param name: the full name of the type to check
-        :param cache: the names that has been encountered so far; updated after function returns
-        :return: a list of unknown types
-        """
-        node = grammar.parse(name)
-        simple_types = set(extract_simple_type(node))
-        unknowns = simple_types - cache
-        cache.update(simple_types)
-        return unknowns
-
-
 except ImportError:
     parsimonious = None
 
@@ -366,6 +326,69 @@ class HelperClassCodeGenerator:
             return ''
 
 
+class CPPTypeNameChecker:
+    # PEG grammar for parsing the C++ type name we support
+    # Note that raw pointer, reference, array, void, enum, function and pointer-to-member types are not supported
+    PEG_GRAMMAR = r'''
+        type = (space cv_type space "<" space type_list space ">" space) / ( space cv_type space )
+        type_list = (type space "," space type_list) / type / space
+
+        cv_type = c_and_v_type / c_or_v_type / simple_type
+        c_and_v_type = ("const" space "volatile" space simple_type) / ("volatile" space "const" space simple_type)
+        c_or_v_type = ("const" space simple_type) / ("volatile" space simple_type)
+
+        simple_type = spaced_type / ("::"? identifier ("::" identifier)*)
+        spaced_type = sign_type / long_type
+        sign_type = ("unsigned" / "signed")  space ( ("long" space "long"? space "int"?) / "int" / "char")
+        long_type = ("long" space "long" space "int") / ("long" space "long") / ("long" space "int")
+
+        identifier = ~"[A-Za-z_][A-Za-z_0-9]*"
+        space = ~"[ \t]*"
+        '''
+
+    KNOWN_BASIC_TYPE_NAMES = frozenset(['bool', 'char', 'int', 'unsigned int', 'unsigned', 'long long', 'long long int',
+                        'unsigned long long', 'unsigned long long int', 'std::uint32_t', 'std::int32_t',
+                        'std::uint64_t', 'std::int64_t', 'uint32_t', 'int32_t', 'uint64_t', 'int64_t', 'std::nullptr_t',
+                        'std::size_t', 'size_t', 'std::ptrdiff_t', 'ptrdiff_t',
+                        'double', 'std::string', 'std::vector', 'std::deque', 'std::array',
+                        'boost::container::vector', 'boost::container::deque', 'boost::array',
+                        'std::shared_ptr', 'std::unique_ptr', 'boost::shared_ptr', 'boost::optional',
+                        'std::map', 'std::unordered_map', 'std::multimap', 'std::unordered_multimap',
+                        'boost::unordered_map', 'boost::unordered_multimap', 'std::tuple'])
+
+    ParseError = parsimonious.ParseError if parsimonious else None
+
+    def __init__(self):
+        self._grammar = parsimonious.Grammar(CPPTypeNameChecker.PEG_GRAMMAR)
+        self._known_names = set(CPPTypeNameChecker.KNOWN_BASIC_TYPE_NAMES)
+
+    def extract_simple_type(self, node):
+        if node.expr_name == 'simple_type':
+            yield node.text.lstrip(':')
+
+        for sub_node in node.children:
+            for value in self.extract_simple_type(sub_node):
+                yield value
+
+    def check_for_unknown_basic_types(self, name):
+        """
+        :param name: the full name of the type to check
+        :return: a list of unknown basic types
+        """
+        node = self.grammar.parse(name)
+        simple_types = set(self.extract_simple_type(node))
+        unknowns = simple_types - self.known_names
+        return unknowns
+
+    @property
+    def grammar(self):
+        return self._grammar
+
+    @property
+    def known_names(self):
+        return self._known_names
+
+
 def build_class(template, class_info):
     gen = HelperClassCodeGenerator(class_info)
 
@@ -396,15 +419,16 @@ def build_class(template, class_info):
     return re.sub(r'/\*\s*(.*?)\s*\*/', evaluate, template)
 
 
-def check_all_members(class_info, cache):
+def warn_if_name_unknown(checker, class_info):
+    checker.known_names.add(class_info.qualified_name.lstrip(':'))
     for m in class_info.members:
         try:
-            unknowns = check_for_unknown_basic_types(m.type_name, cache)
+            unknowns = checker.check_for_unknown_basic_types(m.type_name)
             for u in unknowns:
                 print("Warning:", "The type", repr(u), "may not be recognized", file=sys.stderr)
                 print("\tReferenced from variable", repr(m.variable_name),
                       "in class", repr(class_info.qualified_name), "\n", file=sys.stderr)
-        except parsimonious.ParseError:
+        except CPPTypeNameChecker.ParseError:
             print("Warning:", "The type", repr(m.type_name), "is not valid", file=sys.stderr)
             print("\tReferenced from variable", repr(m.variable_name),
                   "in class", repr(class_info.qualified_name), "\n", file=sys.stderr)
@@ -432,31 +456,27 @@ def main():
             executable_dir = os.path.dirname(os.path.abspath(__file__))
         args.template = os.path.join(executable_dir, 'code_template')
 
+    if args.output is None:
+        args.output = os.path.basename(args.input)
+        args.output = os.path.splitext(args.output)[0] + '.hpp'
+
+    if args.check:
+        checker = CPPTypeNameChecker()
+    else:
+        checker = None
+
     with open(args.template) as f:
         template = f.read()
+    with open(args.input) as f:
+        raw_record = json.load(f)
 
-    cache = {'bool', 'char', 'int', 'unsigned int', 'unsigned', 'long long', 'long long int',
-             'unsigned long long', 'unsigned long long int', 'std::uint32_t', 'std::int32_t',
-             'std::uint64_t', 'std::int64_t', 'uint32_t', 'int32_t', 'uint64_t', 'int64_t', 'std::nullptr_t',
-             'std::size_t', 'size_t', 'std::ptrdiff_t', 'ptrdiff_t',
-             'double', 'std::string', 'std::vector', 'std::deque', 'std::array',
-             'boost::container::vector', 'boost::container::deque', 'boost::array',
-             'std::shared_ptr', 'std::unique_ptr', 'boost::shared_ptr', 'boost::optional',
-             'std::map', 'std::unordered_map', 'std::multimap', 'std::unordered_multimap',
-             'boost::unordered_map', 'boost::unordered_multimap', 'std::tuple'}
-
-    def process_file(output):
-        with open(args.input) as f:
-            raw_record = json.load(f)
-
+    with open(args.output, 'w') as output:
         output.write('#pragma once\n\n')
 
         def output_class(class_record):
             class_info = ClassInfo(class_record)
-            cache.add(class_info.qualified_name.lstrip(':'))
-
             if args.check:
-                check_all_members(class_info, cache)
+                warn_if_name_unknown(checker, class_info)
             output.write(build_class(template, class_info))
 
         if isinstance(raw_record, list):
@@ -464,13 +484,6 @@ def main():
                 output_class(r)
         else:
             output_class(raw_record)
-
-    if args.output is None:
-        args.output = os.path.basename(args.input)
-        args.output = os.path.splitext(args.output)[0] + '.hpp'
-
-    with open(args.output, 'w') as f:
-        process_file(f)
 
 
 if __name__ == '__main__':
