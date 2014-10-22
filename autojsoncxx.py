@@ -165,61 +165,65 @@ class ClassInfo:
             if op not in ClassInfo.accept_options:
                 raise UnrecognizedOption(op)
 
-    def member_declarations(self):
-        return '\n'.join(m.type_name() + ' ' + m.variable_name() + ';' for m in self.members())
-
-    def initializer_list(self):
-        return ', '.join('{0}({1})'.format(m.variable_name(), m.constructor_args()) for m in self.members())
-
-    def constructor(self):
-        return 'explicit {name}():{init} {{ {code} }}\n'.format(name=self.name(), init=self.initializer_list(),
-                                                                code=self._constructor_code)
-
-    def class_definition(self):
-        class_def = 'struct {name} {{\n {declarations}\n\n{constructor}\n\n \n}};' \
-            .format(name=self.name(), declarations=self.member_declarations(),
-                    constructor=self.constructor())
-
-        if self._namespace is not None:
-            for space in reversed(self._namespace.split('::')):
-                if space:
-                    class_def = 'namespace {} {{ {} }}\n'.format(space, class_def)
-        return class_def
-
+    @property
     def name(self):
         return self._name
 
+    @property
     def qualified_name(self):
-        if self.namespace() is None:
-            return '::' + self.name()
-        if self.namespace().startswith('::'):
-            return self.namespace() + '::' + self.name()
+        if self.namespace is None:
+            return '::' + self.name
+        if self.namespace.startswith('::'):
+            return self.namespace + '::' + self.name
         else:
-            return '::' + self.namespace() + '::' + self.name()
+            return '::' + self.namespace + '::' + self.name
 
+    @property
     def members(self):
         return self._members
 
+    @property
     def strict_parsing(self):
         return self._strict
 
+    @property
     def namespace(self):
         return self._namespace
 
+    @property
+    def constructor_code(self):
+        return self._constructor_code
 
-def to_cpp_repr(args):
-    if args is None:
-        return ''
-    elif args is True:
-        return 'true'
-    elif args is False:
-        return 'false'
-    elif isinstance(args, str):
-        return hard_escape(args.encode('utf-8'))
-    elif isinstance(args, int) or isinstance(args, float):
-        return str(args)
-    else:
-        raise UnrecognizedOption("default=" + repr(args))
+
+class ClassDefinitionCodeGenerator:
+    def __init__(self, class_info):
+        self._class_info = class_info
+
+    @property
+    def class_info(self):
+        return self._class_info
+
+    def member_declarations(self):
+        return '\n'.join(m.type_name + ' ' + m.variable_name + ';' for m in self.class_info.members)
+
+    def initializer_list(self):
+        return ', '.join('{0}({1})'.format(m.variable_name, m.constructor_args) for m in self.class_info.members)
+
+    def constructor(self):
+        return 'explicit {name}():{init} {{ {code} }}\n'.format(name=self.class_info.name,
+                                                                init=self.initializer_list(),
+                                                                code=self.class_info.constructor_code)
+
+    def class_definition(self):
+        class_def = 'struct {name} {{\n {declarations}\n\n{constructor}\n\n \n}};' \
+            .format(name=self.class_info.name, declarations=self.member_declarations(),
+                    constructor=self.constructor())
+
+        if self.class_info.namespace is not None:
+            for space in reversed(self.class_info.namespace.split('::')):
+                if space:
+                    class_def = 'namespace {} {{ {} }}\n'.format(space, class_def)
+        return class_def
 
 
 class MemberInfo:
@@ -228,10 +232,10 @@ class MemberInfo:
     def __init__(self, record):
         self._record = record
 
-        if '*' in self.type_name() or '&' in self.type_name():
-            raise UnsupportedTypeError(self.type_name())
+        if '*' in self.type_name or '&' in self.type_name:
+            raise UnsupportedTypeError(self.type_name)
 
-        check_identifier(self.variable_name())
+        check_identifier(self.variable_name)
 
         if len(record) > 3:
             raise UnrecognizedOption(record[3:])
@@ -241,68 +245,90 @@ class MemberInfo:
                 if op not in MemberInfo.accept_options:
                     raise UnrecognizedOption(op)
 
+    @property
     def type_name(self):
         return self._record[0]
 
+    @property
     def variable_name(self):
         return self._record[1]
 
+    @property
     def json_key(self):
         try:
             return self._record[2]['json_key'].encode('utf-8')
         except (IndexError, KeyError):
-            return self.variable_name().encode('utf-8')
+            return self.variable_name.encode('utf-8')
 
+    @property
     def is_required(self):
         try:
             return self._record[2]['required']
         except (IndexError, KeyError):
             return False
 
+    @property
     def default(self):
         try:
             return self._record[2]['default']
         except (IndexError, KeyError):
             return None
 
+    @property
     def constructor_args(self):
-        return to_cpp_repr(self.default())
+        return MemberInfo.cpp_repr(self.default)
 
-    def set_flag_statement(self, flag):
-        if self.is_required():
-            return 'has_{} = {};'.format(self.variable_name(), flag)
-        else:
+    @staticmethod
+    def cpp_repr(args):
+        if args is None:
             return ''
+        elif args is True:
+            return 'true'
+        elif args is False:
+            return 'false'
+        elif isinstance(args, str):
+            return hard_escape(args.encode('utf-8'))
+        elif isinstance(args, int) or isinstance(args, float):
+            return str(args)
+        else:
+            raise UnrecognizedOption("default=" + repr(args))
 
 
-class MainCodeGenerator:
+class HelperClassCodeGenerator:
     def __init__(self, class_info):
-        self.members_info = class_info.members()
-        self.class_info = class_info
+        self._class_info = class_info
+
+    @property
+    def class_info(self):
+        return self._class_info
+
+    @property
+    def members_info(self):
+        return self._class_info.members
 
     def handler_declarations(self):
-        return '\n'.join('SAXEventHandler< {} > handler_{};'.format(m.type_name(), i)
+        return '\n'.join('SAXEventHandler< {} > handler_{};'.format(m.type_name, i)
                          for i, m in enumerate(self.members_info))
 
     def handler_initializers(self):
-        return '\n'.join(', handler_{}(&obj->{})'.format(i, m.variable_name())
+        return '\n'.join(', handler_{}(&obj->{})'.format(i, m.variable_name)
                          for i, m in enumerate(self.members_info))
 
     def flags_declaration(self):
-        return '\n'.join('bool has_{};'.format(m.variable_name()) for m in self.members_info if m.is_required())
+        return '\n'.join('bool has_{};'.format(m.variable_name) for m in self.members_info if m.is_required)
 
     def flags_reset(self):
-        return '\n'.join(m.set_flag_statement("false") for m in self.members_info)
+        return '\n'.join(HelperClassCodeGenerator.flag_statement(m, "false") for m in self.members_info)
 
     def post_validation(self):
         return '\n'.join('if (!has_{0}) set_missing_required("{0}");'
-                             .format(m.variable_name()) for m in self.members_info if m.is_required())
+                             .format(m.variable_name) for m in self.members_info if m.is_required)
 
     def key_event_handling(self):
         return '\n'.join('else if (utility::string_equal(str, length, {key}, {key_length}))\n\
                          {{ state={state}; {check} }}'
-                             .format(key=hard_escape(m.json_key()), key_length=len(m.json_key()),
-                                     state=i, check=m.set_flag_statement("true"))
+                             .format(key=hard_escape(m.json_key), key_length=len(m.json_key),
+                                     state=i, check=HelperClassCodeGenerator.flag_statement(m, "true"))
                          for i, m in enumerate(self.members_info))
 
     def event_forwarding(self, call_text):
@@ -314,30 +340,37 @@ class MainCodeGenerator:
                          for i in range(len(self.members_info)))
 
     def writer_type_name(self):
-        return "Writer" + hashlib.sha256(self.class_info.qualified_name().encode()).hexdigest()
+        return "Writer" + hashlib.sha256(self.class_info.qualified_name.encode()).hexdigest()
 
     def data_serialization(self):
         return '\n'.join('w.Key({}); Serializer< {}, {} >()(w, value.{});'
-                             .format(hard_escape(m.json_key()), self.writer_type_name(),
-                                     m.type_name(), m.variable_name())
+                             .format(hard_escape(m.json_key), self.writer_type_name(),
+                                     m.type_name, m.variable_name)
                          for m in self.members_info)
 
     def current_member_name(self):
-        return '\n'.join('case {}:\n    return "{}";'.format(i, m.variable_name())
+        return '\n'.join('case {}:\n    return "{}";'.format(i, m.variable_name)
                          for i, m in enumerate(self.members_info))
 
     def unknown_key_handling(self):
-        if self.class_info.strict_parsing():
+        if self.class_info.strict_parsing:
             return 'the_error.reset(new error::UnknownFieldError(str, length)); return false;'
         else:
             return 'return true;'
 
+    @staticmethod
+    def flag_statement(member_info, flag):
+        if member_info.is_required:
+            return 'has_{} = {};'.format(member_info.variable_name, flag)
+        else:
+            return ''
+
 
 def build_class(template, class_info):
-    gen = MainCodeGenerator(class_info)
+    gen = HelperClassCodeGenerator(class_info)
 
     replacement = {
-        "class definition": class_info.class_definition(),
+        "class definition": ClassDefinitionCodeGenerator(class_info).class_definition(),
         "list of declarations": gen.handler_declarations() + gen.flags_declaration(),
         "init": gen.handler_initializers(),
         "serialize all members": gen.data_serialization(),
@@ -347,7 +380,7 @@ def build_class(template, class_info):
         "validation": gen.post_validation(),
         "reset flags": gen.flags_reset(),
         "handle unknown key": gen.unknown_key_handling(),
-        "TypeName": class_info.qualified_name(),
+        "TypeName": class_info.qualified_name,
         "Writer": gen.writer_type_name()}
 
     def evaluate(match):
@@ -364,17 +397,17 @@ def build_class(template, class_info):
 
 
 def check_all_members(class_info, cache):
-    for m in class_info.members():
+    for m in class_info.members:
         try:
-            unknowns = check_for_unknown_basic_types(m.type_name(), cache)
+            unknowns = check_for_unknown_basic_types(m.type_name, cache)
             for u in unknowns:
                 print("Warning:", "The type", repr(u), "may not be recognized", file=sys.stderr)
-                print("\tReferenced from variable", repr(m.variable_name()),
-                      "in class", repr(class_info.qualified_name()), "\n", file=sys.stderr)
+                print("\tReferenced from variable", repr(m.variable_name),
+                      "in class", repr(class_info.qualified_name), "\n", file=sys.stderr)
         except parsimonious.ParseError:
-            print("Warning:", "The type", repr(m.type_name()), "is not valid", file=sys.stderr)
-            print("\tReferenced from variable", repr(m.variable_name()),
-                  "in class", repr(class_info.qualified_name()), "\n", file=sys.stderr)
+            print("Warning:", "The type", repr(m.type_name), "is not valid", file=sys.stderr)
+            print("\tReferenced from variable", repr(m.variable_name),
+                  "in class", repr(class_info.qualified_name), "\n", file=sys.stderr)
 
 
 def main():
@@ -420,7 +453,7 @@ def main():
 
         def output_class(class_record):
             class_info = ClassInfo(class_record)
-            cache.add(class_info.qualified_name().lstrip(':'))
+            cache.add(class_info.qualified_name.lstrip(':'))
 
             if args.check:
                 check_all_members(class_info, cache)
