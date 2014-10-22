@@ -133,8 +133,7 @@ class ClassInfo:
             return '::' + self.name
         if self.namespace.startswith('::'):
             return self.namespace + '::' + self.name
-        else:
-            return '::' + self.namespace + '::' + self.name
+        return '::' + self.namespace + '::' + self.name
 
     @property
     def members(self):

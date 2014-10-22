@@ -4,15 +4,16 @@ A header-only library and a code generator to **automagically** translate betwee
 
 ## Overview
 
-JSON is an excellent format for data serialization due to its simplicity, flexibility, portability and human-readable nature. Writing code to parse and generate JSON, however, is not an easy task in a statically typed language. Even with the help of JSON libraries, you need to write a lot of boilerplate code, and convoluted ones if you need to enforce the static typing of C++.
+JSON is an excellent format for data serialization due to its simplicity, flexibility, portability and human-readable nature. Writing code to parse and generate JSON, however, is not an easy task in a statically typed language. Even with the help of JSON libraries, you still need to write a lot of boilerplate code, and convoluted ones if you need to enforce the static typing of C++.
 
-More importantly, manually writing the code means duplication of effort, and duplication is bad for programmers. When your client or PM request a change in feature, many classes (like the class responsible for configuration) will likely change, and you will have to rewrite the code. During the rewrite, time is wasted, people become impatient, and bugs may be introduced when the class definition, parsing and serialization code become out of sync.
+More importantly, manually writing such code means duplication of effort, a violation of **DRY** principle. When manually written, the class definition, parsing and serialization code can easily become out of sync with one another, leading to brittle code and subtle bugs.
 
-*autojsoncxx* is an attempt to solve this problem by automating such process. It is currently still in beta stage, so expect things to change in the future.
+*autojsoncxx* is an attempt to solve this problem by automating such process.
 
 ### Dependency 
 
 * [RapidJSON](https://github.com/miloyip/rapidjson) 
+* [Python](https://www.python.org) (2.7 or 3.3+)
 * (optional) [Parsimonious](https://github.com/erikrose/parsimonious)
 * (optional) [Catch](https://github.com/philsquared/Catch)
 * (optional) [Boost](http://www.boost.org)

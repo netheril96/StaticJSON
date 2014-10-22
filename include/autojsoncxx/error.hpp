@@ -293,7 +293,7 @@ namespace error {
 
         std::string description() const
         {
-            return "Duplicate key in uniquely keyed mapp type: " + utility::quote(key());
+            return "Duplicate key in uniquely keyed map type: " + utility::quote(key());
         }
     };
 
