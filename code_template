@@ -339,7 +339,7 @@ struct Serializer< /* Writer */, /* TypeName */ > {
 
         /* serialize all members */
 
-        w.EndObject();
+        w.EndObject(/* count of members */);
     }
 
 };

@@ -30,6 +30,7 @@
 #include <deque>
 #include <stack>
 #include <cassert>
+#include <iterator>
 
 #if AUTOJSONCXX_HAS_MODERN_TYPES
 #include <array>
@@ -312,7 +313,7 @@ struct ContainerSerializer {
         w.StartArray();
         for (ConstIteratorType it = con.begin(), end = con.end(); it != end; ++it)
             Serializer<Writer, ValueType>()(w, *it);
-        w.EndArray();
+        w.EndArray(static_cast<SizeType>(std::distance(con.begin(), con.end())));
     }
 };
 

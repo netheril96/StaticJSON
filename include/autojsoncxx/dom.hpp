@@ -219,11 +219,34 @@ public:
 template <class Writer, class Encoding, class Allocator, class StackAllocator>
 struct Serializer<Writer, rapidjson::GenericDocument<Encoding, Allocator, StackAllocator> > {
 
-    void operator()(Writer& w, const rapidjson::GenericDocument<Encoding, Allocator, StackAllocator>& doc)
+    void operator()(Writer& w, const rapidjson::GenericDocument<Encoding, Allocator, StackAllocator>& doc) const
     {
         doc.template Accept<Writer>(w);
     }
 };
+
+template <class T, class Encoding, class Allocator, class StackAllocator>
+void to_document(const T& value, rapidjson::GenericDocument<Encoding, Allocator, StackAllocator>& doc)
+{
+    doc.SetNull();
+
+    typedef rapidjson::GenericDocument<Encoding, Allocator, StackAllocator> document_type;
+    typedef SAXEventHandler<document_type> handler_type;
+    handler_type handler(&doc);
+    Serializer<handler_type, T>()(handler, value);
+}
+
+template <class T, class Encoding, class Allocator, class StackAllocator>
+bool from_document(T& value, const rapidjson::GenericDocument<Encoding, Allocator, StackAllocator>& doc,
+                   error::ErrorStack& errs)
+{
+    typedef SAXEventHandler<T> handler_type;
+
+    handler_type handler(&value);
+    doc.template Accept<handler_type>(handler);
+    handler.ReapError(errs);
+    return errs.empty();
+}
 }
 
 #endif

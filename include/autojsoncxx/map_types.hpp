@@ -206,11 +206,11 @@ struct MapSerializer {
         w.StartObject();
 
         for (ConstIteratorType it = map.begin(), end = map.end(); it != end; ++it) {
-            w.Key(it->first.data(), static_cast<SizeType>(it->first.size()));
+            w.Key(it->first.data(), static_cast<SizeType>(it->first.size()), true);
             Serializer<Writer, ElementType>()(w, it->second);
         }
 
-        w.EndObject();
+        w.EndObject(static_cast<SizeType>(map.size()));
     }
 };
 

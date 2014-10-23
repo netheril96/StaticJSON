@@ -37,6 +37,7 @@ import sys
 is_python2 = sys.version_info.major == 2
 if is_python2:
     import io
+
     open = io.open
     str = unicode
 
@@ -300,9 +301,9 @@ class HelperClassCodeGenerator:
         return "Writer" + hashlib.sha256(self.class_info.qualified_name.encode()).hexdigest()
 
     def data_serialization(self):
-        return '\n'.join('w.Key({}); Serializer< {}, {} >()(w, value.{});'
-                             .format(cstring_literal(m.json_key), self.writer_type_name(),
-                                     m.type_name, m.variable_name)
+        return '\n'.join('w.Key({}, {}, false); Serializer< {}, {} >()(w, value.{});'
+                             .format(cstring_literal(m.json_key), len(m.json_key),
+                                     self.writer_type_name(), m.type_name, m.variable_name)
                          for m in self.members_info)
 
     def current_member_name(self):
@@ -314,6 +315,9 @@ class HelperClassCodeGenerator:
             return 'the_error.reset(new error::UnknownFieldError(str, length)); return false;'
         else:
             return 'return true;'
+
+    def count_of_members(self):
+        return str(len(self.members_info))
 
     @staticmethod
     def flag_statement(member_info, flag):
@@ -344,14 +348,15 @@ class CPPTypeNameChecker:
         '''
 
     KNOWN_BASIC_TYPE_NAMES = frozenset(['bool', 'char', 'int', 'unsigned int', 'unsigned', 'long long', 'long long int',
-                        'unsigned long long', 'unsigned long long int', 'std::uint32_t', 'std::int32_t',
-                        'std::uint64_t', 'std::int64_t', 'uint32_t', 'int32_t', 'uint64_t', 'int64_t', 'std::nullptr_t',
-                        'std::size_t', 'size_t', 'std::ptrdiff_t', 'ptrdiff_t',
-                        'double', 'std::string', 'std::vector', 'std::deque', 'std::array',
-                        'boost::container::vector', 'boost::container::deque', 'boost::array',
-                        'std::shared_ptr', 'std::unique_ptr', 'boost::shared_ptr', 'boost::optional',
-                        'std::map', 'std::unordered_map', 'std::multimap', 'std::unordered_multimap',
-                        'boost::unordered_map', 'boost::unordered_multimap', 'std::tuple'])
+                                        'unsigned long long', 'unsigned long long int', 'std::uint32_t', 'std::int32_t',
+                                        'std::uint64_t', 'std::int64_t', 'uint32_t', 'int32_t', 'uint64_t', 'int64_t',
+                                        'std::nullptr_t',
+                                        'std::size_t', 'size_t', 'std::ptrdiff_t', 'ptrdiff_t',
+                                        'double', 'std::string', 'std::vector', 'std::deque', 'std::array',
+                                        'boost::container::vector', 'boost::container::deque', 'boost::array',
+                                        'std::shared_ptr', 'std::unique_ptr', 'boost::shared_ptr', 'boost::optional',
+                                        'std::map', 'std::unordered_map', 'std::multimap', 'std::unordered_multimap',
+                                        'boost::unordered_map', 'boost::unordered_multimap', 'std::tuple'])
 
     ParseError = parsimonious.ParseError if parsimonious else None
 
@@ -401,6 +406,7 @@ def build_class(template, class_info):
         "reset flags": gen.flags_reset(),
         "handle unknown key": gen.unknown_key_handling(),
         "TypeName": class_info.qualified_name,
+        "count of members": gen.count_of_members(),
         "Writer": gen.writer_type_name()}
 
     def evaluate(match):

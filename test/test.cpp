@@ -34,8 +34,6 @@
 
 #include "userdef.hpp"
 
-#include <autojsoncxx/dom.hpp>
-
 #include <fstream>
 #include <sstream>
 #include <stack>
@@ -410,20 +408,48 @@ TEST_CASE("Test for DOM support", "[DOM]")
     rapidjson::Document doc;
     ParsingResult err;
     bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json", doc, err);
-    REQUIRE(doc.IsArray());
-    REQUIRE(doc.Size() == 2);
+    {
+        CAPTURE(err.description());
+        REQUIRE(success);
+    }
 
-    const rapidjson::Value& second = doc[1u];
-    REQUIRE(second["ID"].IsUint64());
-    REQUIRE(second["ID"].GetUint64() == 13478355757133566847ULL);
-    REQUIRE(second["block_event"].IsNull());
-    REQUIRE(second["dark_history"].IsArray());
-    REQUIRE(second["dark_history"][0u].IsObject());
-    REQUIRE(second["dark_history"][0u]["description"] == "copyright infringement");
+    SECTION("Test for parsed result", "[DOM], [parsing]")
+    {
+        REQUIRE(doc.IsArray());
+        REQUIRE(doc.Size() == 2);
 
-    std::string output;
-    to_json_string(output, doc);
-    REQUIRE(output == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
+        const rapidjson::Value& second = doc[1u];
+        REQUIRE(second["ID"].IsUint64());
+        REQUIRE(second["ID"].GetUint64() == 13478355757133566847ULL);
+        REQUIRE(second["block_event"].IsNull());
+        REQUIRE(second["dark_history"].IsArray());
+        REQUIRE(second["dark_history"][0u].IsObject());
+        REQUIRE(second["dark_history"][0u]["description"] == "copyright infringement");
+    }
+
+    SECTION("Test for serialization", "[DOM], [serialization]")
+    {
+        std::string output;
+        to_json_string(output, doc);
+        REQUIRE(output == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
+    }
+
+    SECTION("Test for to/from DOM", "[DOM], [conversion]")
+    {
+        std::vector<User> users;
+        error::ErrorStack errs;
+
+        REQUIRE(from_document(users, doc, errs));
+
+        REQUIRE(users.size() == 2);
+        REQUIRE(users[0].birthday == create_date(1984, 9, 2));
+        REQUIRE(users[0].block_event);
+        REQUIRE(users[0].block_event->details == "most likely a troll");
+
+        rapidjson::Document another_doc;
+        to_document(users, another_doc);
+        REQUIRE(doc == another_doc);
+    }
 }
 
 #if AUTOJSONCXX_HAS_VARIADIC_TEMPLATE
