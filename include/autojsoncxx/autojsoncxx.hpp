@@ -32,5 +32,6 @@
 #include <autojsoncxx/map_types.hpp>
 #include <autojsoncxx/to_json.hpp>
 #include <autojsoncxx/from_json.hpp>
+#include <autojsoncxx/dom.hpp>
 
 #endif

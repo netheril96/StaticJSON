@@ -34,6 +34,8 @@
 
 #include "userdef.hpp"
 
+#include <autojsoncxx/dom.hpp>
+
 #include <fstream>
 #include <sstream>
 #include <stack>
@@ -385,6 +387,13 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
     }
 }
 
+TEST_CASE("Test of DOM support", "[DOM]")
+{
+    rapidjson::Document doc;
+    ParsingResult err;
+    bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json", doc , err);
+}
+
 TEST_CASE("Test for writing JSON", "[serialization]")
 {
     std::vector<User> users;
@@ -431,5 +440,4 @@ TEST_CASE("Test for parsing tuple type", "[parsing], [tuple]")
         REQUIRE(static_cast<const error::TypeMismatchError&>(*err.begin()).actual_type() == "null");
     }
 }
-
 #endif
