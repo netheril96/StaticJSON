@@ -468,7 +468,7 @@ def main():
 
     with io.open(args.template, encoding='utf-8') as f:
         template = f.read()
-    with io.open(args.input, 'rb') as f:
+    with io.open(args.input, encoding='utf-8') as f:
         raw_record = json.load(f)
 
     with io.open(args.output, 'w', encoding='utf-8') as output:
