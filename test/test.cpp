@@ -387,13 +387,6 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
     }
 }
 
-TEST_CASE("Test of DOM support", "[DOM]")
-{
-    rapidjson::Document doc;
-    ParsingResult err;
-    bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json", doc , err);
-}
-
 TEST_CASE("Test for writing JSON", "[serialization]")
 {
     std::vector<User> users;
@@ -409,6 +402,27 @@ TEST_CASE("Test for writing JSON", "[serialization]")
     std::string output;
     to_json_string(output, users);
 
+    REQUIRE(output == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
+}
+
+TEST_CASE("Test for DOM support", "[DOM]")
+{
+    rapidjson::Document doc;
+    ParsingResult err;
+    bool success = from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json", doc, err);
+    REQUIRE(doc.IsArray());
+    REQUIRE(doc.Size() == 2);
+
+    const rapidjson::Value& second = doc[1u];
+    REQUIRE(second["ID"].IsUint64());
+    REQUIRE(second["ID"].GetUint64() == 13478355757133566847ULL);
+    REQUIRE(second["block_event"].IsNull());
+    REQUIRE(second["dark_history"].IsArray());
+    REQUIRE(second["dark_history"][0u].IsObject());
+    REQUIRE(second["dark_history"][0u]["description"] == "copyright infringement");
+
+    std::string output;
+    to_json_string(output, doc);
     REQUIRE(output == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
 }
 

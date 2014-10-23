@@ -28,7 +28,6 @@
 
 #include <rapidjson/document.h>
 
-#include <stack>
 #include <cassert>
 
 namespace autojsoncxx {
@@ -40,91 +39,7 @@ public:
     typedef typename value_type::Ch char_type;
 
 private:
-    // Workarounds for the lack of copy constructor for value_type
-    // This class moves value around, like auto_ptr
-    class value_shim {
-    private:
-        value_type internal;
-
-    public:
-        value_shim()
-            : internal()
-        {
-        }
-
-        value_shim(value_type& v)
-        {
-            internal.Swap(v);
-        }
-
-        value_shim(value_shim& that)
-        {
-            internal.Swap(that.internal);
-        }
-
-        value_type& value() AUTOJSONCXX_NOEXCEPT
-        {
-            return internal;
-        }
-
-        const value_type& value() const AUTOJSONCXX_NOEXCEPT
-        {
-            return internal;
-        }
-
-#if AUTOJSONCXX_HAS_RVALUE
-    private:
-        value_shim(value_shim&&);
-
-        value_shim& operator=(value_shim&&);
-#endif
-    };
-
-    class value_stack {
-    private:
-        std::stack<value_shim> internal_stack;
-
-    public:
-        bool empty() const AUTOJSONCXX_NOEXCEPT
-        {
-            return internal_stack.empty();
-        }
-
-        void emplace()
-        {
-            value_shim shim;
-            internal_stack.push(shim);
-        }
-
-        void push(value_type& v)
-        {
-            value_shim shim(v);
-            internal_stack.push(shim);
-        }
-
-        value_type& top()
-        {
-            return internal_stack.top().value();
-        }
-
-        const value_type& top() const
-        {
-            return internal_stack.top().value();
-        }
-
-        void pop()
-        {
-            internal_stack.pop();
-        }
-
-        std::size_t size() const AUTOJSONCXX_NOEXCEPT
-        {
-            return internal_stack.size();
-        }
-    };
-
-private:
-    value_stack working_stack;
+    utility::stack<value_type, 32> working_stack;
     utility::scoped_ptr<error::ErrorBase> the_error;
     document_type* doc;
 
@@ -166,7 +81,11 @@ private:
             if (!top_value()->IsObject())
                 return set_dom_error("DOM corrupted: Non-object types encountered where object is expected");
             top_value()->AddMember(key, to_be_inserted, doc->GetAllocator());
-        }
+
+        } else if (top_value()->IsArray()) {
+            top_value()->PushBack(to_be_inserted, doc->GetAllocator());
+        } else
+            return set_dom_error("DOM corrupted: a composite type neither array nor object encountered");
 
         return true;
     }
@@ -256,6 +175,7 @@ public:
 
     bool StartArray()
     {
+        pre_processing();
         top_value()->SetArray();
         return true;
     }
@@ -267,6 +187,7 @@ public:
 
     bool StartObject()
     {
+        pre_processing();
         top_value()->SetObject();
         return true;
     }
@@ -292,6 +213,15 @@ public:
 
     void PrepareForReuse()
     {
+    }
+};
+
+template <class Writer, class Encoding, class Allocator, class StackAllocator>
+struct Serializer<Writer, rapidjson::GenericDocument<Encoding, Allocator, StackAllocator> > {
+
+    void operator()(Writer& w, const rapidjson::GenericDocument<Encoding, Allocator, StackAllocator>& doc)
+    {
+        doc.template Accept<Writer>(w);
     }
 };
 }
