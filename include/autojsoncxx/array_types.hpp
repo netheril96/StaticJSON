@@ -43,7 +43,7 @@ private:
     ElementType current;
     SAXEventHandler<ElementType> internal_handler;
     utility::scoped_ptr<error::ErrorBase> the_error;
-    std::stack<signed char> state;
+    utility::stack<signed char, 32> state;
     // A stack of StartArray() and StartObject() event
     // must be recorded, so we know when the current
     // element has been fully parsed, and needs to be

@@ -36,6 +36,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <stack>
 
 using namespace autojsoncxx;
 using namespace config;
@@ -66,6 +67,65 @@ inline Date create_date(int year, int month, int day)
     d.month = month;
     d.day = day;
     return d;
+}
+
+template <class T, std::size_t num_elements_per_node>
+inline bool is_consistent(const std::stack<T>& stk1, const utility::stack<T, num_elements_per_node>& stk2)
+{
+    if (stk1.empty() != stk2.empty())
+        return false;
+
+    if (stk1.size() != stk2.size())
+        return false;
+
+    if (!stk2.empty())
+        return stk1.top() == stk2.top();
+
+    return true;
+}
+
+TEST_CASE("Test for internal implementations", "[internal]")
+{
+    std::stack<std::string> standard_stack;
+    utility::stack<std::string, 2> test_stack;
+
+    enum operation_type {
+        PUSH,
+        POP
+    };
+
+    typedef std::pair<operation_type, std::string> operation;
+    operation ops[] = {
+        { PUSH, "1" },
+        { POP, std::string() },
+        { PUSH, "2" },
+        { PUSH, "3" },
+        { PUSH, "4" },
+        { PUSH, "5" },
+        { POP, std::string() },
+        { POP, std::string() },
+        { PUSH, "10" },
+        { POP, std::string() },
+        { PUSH, "9" }
+    };
+
+    for (std::size_t i = 0; i < sizeof(ops) / sizeof(*ops); ++i) {
+        switch (ops[i].first) {
+        case PUSH:
+            standard_stack.push(ops[i].second);
+            test_stack.push(ops[i].second);
+            break;
+
+        case POP:
+            standard_stack.pop();
+            test_stack.pop();
+            break;
+
+        default:
+            break;
+        }
+        REQUIRE(is_consistent(standard_stack, test_stack));
+    }
 }
 
 // If most of the cases fail, you probably set the work directory wrong.
