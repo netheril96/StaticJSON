@@ -94,26 +94,41 @@ TEST_CASE("Test for internal implementations", "[internal]")
         POP
     };
 
-    typedef std::pair<operation_type, std::string> operation;
+    struct operation {
+        operation_type type;
+        std::string arg;
+
+        operation(operation_type type_)
+            : type(type_)
+        {
+        }
+
+        operation(operation_type type_, std::string arg_)
+            : type(type_)
+        {
+            arg.swap(arg_);
+        }
+    };
+
     operation ops[] = {
-        { PUSH, "1" },
-        { POP, std::string() },
-        { PUSH, "2" },
-        { PUSH, "3" },
-        { PUSH, "4" },
-        { PUSH, "5" },
-        { POP, std::string() },
-        { POP, std::string() },
-        { PUSH, "10" },
-        { POP, std::string() },
-        { PUSH, "9" }
+        operation(PUSH, "1"),
+        operation(POP),
+        operation(PUSH, "2"),
+        operation(PUSH, "3"),
+        operation(PUSH, "4"),
+        operation(PUSH, "5"),
+        operation(POP),
+        operation(POP),
+        operation(PUSH, "10"),
+        operation(POP),
+        operation(PUSH, "9")
     };
 
     for (std::size_t i = 0; i < sizeof(ops) / sizeof(*ops); ++i) {
-        switch (ops[i].first) {
+        switch (ops[i].type) {
         case PUSH:
-            standard_stack.push(ops[i].second);
-            test_stack.push(ops[i].second);
+            standard_stack.push(ops[i].arg);
+            test_stack.push(ops[i].arg);
             break;
 
         case POP:
