@@ -31,14 +31,12 @@ import argparse
 import os
 import hashlib
 import sys
+import io
 
 
 # Python 2/3 compatibility layer
 is_python2 = sys.version_info.major == 2
 if is_python2:
-    import io
-
-    open = io.open
     str = unicode
 
 # simplejson has the same interface as the standard json module, but with better error messages
@@ -468,12 +466,12 @@ def main():
     else:
         checker = None
 
-    with open(args.template) as f:
+    with io.open(args.template, encoding='utf-8') as f:
         template = f.read()
-    with open(args.input) as f:
+    with io.open(args.input, 'rb') as f:
         raw_record = json.load(f)
 
-    with open(args.output, 'w') as output:
+    with io.open(args.output, 'w', encoding='utf-8') as output:
         output.write('#pragma once\n\n')
 
         def output_class(class_record):
