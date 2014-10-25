@@ -59,24 +59,25 @@ inline void to_json_string(std::string& str, const ValueType& v,
 }
 
 template <class ValueType>
-inline void to_json_file(std::FILE* fp, const ValueType& v)
+inline bool to_json_file(std::FILE* fp, const ValueType& v)
 {
     char buffer[utility::default_buffer_size];
     rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
     to_json(os, v);
+    return !std::ferror(fp);
 }
 
 template <class ValueType>
-inline void to_json_file(const char* file_name, const ValueType& v)
+inline bool to_json_file(const char* file_name, const ValueType& v)
 {
     typedef utility::scoped_ptr<std::FILE, utility::file_closer> guard_type;
 
     guard_type file_guard(std::fopen(file_name, "w"));
 
     if (file_guard.empty())
-        return;
+        return false;
 
-    to_json_file(file_guard.get(), v);
+    return to_json_file(file_guard.get(), v);
 }
 
 template <class ValueType>
@@ -103,24 +104,25 @@ inline void to_pretty_json_string(std::string& str, const ValueType& v,
 }
 
 template <class ValueType>
-inline void to_pretty_json_file(std::FILE* fp, const ValueType& v)
+inline bool to_pretty_json_file(std::FILE* fp, const ValueType& v)
 {
     char buffer[utility::default_buffer_size];
     rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
     to_pretty_json(os, v);
+    return !std::ferror(fp);
 }
 
 template <class ValueType>
-inline void to_pretty_json_file(const char* file_name, const ValueType& v)
+inline bool to_pretty_json_file(const char* file_name, const ValueType& v)
 {
     typedef utility::scoped_ptr<std::FILE, utility::file_closer> guard_type;
 
     guard_type file_guard(std::fopen(file_name, "w"));
 
     if (file_guard.empty())
-        return;
+        return false;
 
-    to_pretty_json_file(file_guard.get(), v);
+    return to_pretty_json_file(file_guard.get(), v);
 }
 
 template <class ValueType>
