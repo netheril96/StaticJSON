@@ -126,7 +126,7 @@ Trace back (last call first):
 (*) Error at object member with name "known_associates"
 ```
 
-You can also [programmingly examine the error](error_handling.md).
+You can also [programmingly examine the error](user_guide/error_handling.md).
 
 ## More complex types
 
