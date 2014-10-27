@@ -130,7 +130,7 @@ You can also [programmingly examine the error](user_guide/error_handling.md).
 
 ## More complex types
 
-The design of `autojsoncxx` makes it possible to read/write not only the class generated, but also the combination of all supported types. That is, you can also call the `to_json` and `from_json` family of functions on `std::vector<Person>`, `std::map<std::string, Person>`, `std::shared_ptr<Person>`, or even more complicated ones like `std::tuple<std::string, double, Person, std::deque<int>, std::vector<std::unique_ptr<Person>, bool>`.
+The design of `autojsoncxx` makes it possible to read/write not only the class generated, but also the combination of all supported types. That is, you can also call the `to_json` and `from_json` family of functions on `std::vector<Person>`, `std::map<std::string, Person>`, `std::shared_ptr<Person>`, or even more complicated ones like `std::tuple<std::string, double, Person, std::deque<int>, std::vector<std::unique_ptr<Person>>, bool>`.
 
 This also makes it possible to build more complex types. For example, the definition file can be written as
 
