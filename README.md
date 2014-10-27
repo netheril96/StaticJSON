@@ -92,14 +92,14 @@ python autojsoncxx.py --input=persondef.json --output=person.hpp
 Person p;
 autojsoncxx::to_pretty_json_file("person.json", p);
 autojsoncxx::to_json_file(stdout, p);
-autojsoncxx::to_json_string(p);
+autojsoncxx::to_json_string(std::make_shared<Person>(p));
 ```
 
 ### Parsing
 
 ```c++
 autojsoncxx::ParsingResult result;
-std::vector<Person> p;
+Person p;
 if (!autojsoncxx::from_json_file("person.json", p, result)) {
     std::cerr << result << '\n';
     return -1;
