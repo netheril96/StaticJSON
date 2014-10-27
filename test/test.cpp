@@ -412,10 +412,7 @@ TEST_CASE("Test for writing JSON", "[serialization]")
     }
     REQUIRE(users.size() == 2);
 
-    std::string output;
-    to_json_string(output, users);
-
-    REQUIRE(output == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
+    REQUIRE(to_json_string(users) == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
 }
 
 TEST_CASE("Test for DOM support", "[DOM]")

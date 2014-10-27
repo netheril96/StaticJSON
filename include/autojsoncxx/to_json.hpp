@@ -59,6 +59,14 @@ inline void to_json_string(std::string& str, const ValueType& v,
 }
 
 template <class ValueType>
+inline std::string to_json_string(const ValueType& v)
+{
+    std::string str;
+    to_json_string(str, v);
+    return str;
+}
+
+template <class ValueType>
 inline bool to_json_file(std::FILE* fp, const ValueType& v)
 {
     char buffer[utility::default_buffer_size];
@@ -101,6 +109,14 @@ inline void to_pretty_json_string(std::string& str, const ValueType& v,
     OutputStreamType os(0, BufferSize);
     to_pretty_json(os, v);
     str.assign(os.GetString(), os.GetSize());
+}
+
+template <class ValueType>
+inline std::string to_pretty_json_string(const ValueType& v)
+{
+    std::string str;
+    to_pretty_json_string(str, v);
+    return str;
 }
 
 template <class ValueType>
