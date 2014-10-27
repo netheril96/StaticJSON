@@ -24,7 +24,7 @@ Run the script *autojsoncxx.py* (requires Python 2.7+, including version 3+) on 
 python autojsoncxx.py --input=persondef.json --output=person.hpp
 ```
 
-Remember to add the include directory of *autojsoncxx* and *rapidjson* to your project header search path (no linking is required). 
+Remember to add the include directory of *autojsoncxx* and *rapidjson* to your project header search path (no linking is required).
 
 The below examples uses c++11 features, but the library also works with c++03 compilers (provided you do not use new classes from c++11).
 
@@ -136,25 +136,26 @@ This also makes it possible to build more complex types. For example, the defini
 
 ```javascript
 [
-{
-    "name": "Person",
-    "members":
-    [
-        ["unsigned long long", "ID", {"required": true}],
-        ["std::string", "name", {"default": "anonymous"}],
-        ["double", "height"],
-        ["double", "weight"],
-        ["std::vector<unsigned long long>", "known_associates"]
-    ]
-},
-{
-    "name": "Group",
-    "members":
-    [
-        ["unsigned long long", "GroupID", {"required": true}],
-        ["std::string", "name"],
-        ["std::vector<std::shared_ptr<Person>>", "persons"]
-    ]   
+    {
+        "name": "Person",
+        "members":
+        [
+            ["unsigned long long", "ID", {"required": true}],
+            ["std::string", "name", {"default": "anonymous"}],
+            ["double", "height"],
+            ["double", "weight"],
+            ["std::vector<unsigned long long>", "known_associates"]
+        ]
+    },
+    {
+        "name": "Group",
+        "members":
+        [
+            ["unsigned long long", "GroupID", {"required": true}],
+            ["std::string", "name"],
+            ["std::vector<std::shared_ptr<Person>>", "persons"]
+        ]
+    }
 ]
 ```
 
