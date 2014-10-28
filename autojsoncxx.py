@@ -32,6 +32,7 @@ import os
 import hashlib
 import sys
 import io
+from numbers import Number
 
 
 # Python 2/3 compatibility layer
@@ -244,8 +245,10 @@ class MemberInfo:
             return 'false'
         elif isinstance(args, str):
             return cstring_literal(args.encode('utf-8'))
-        elif isinstance(args, int) or isinstance(args, float):
+        elif isinstance(args, Number):
             return str(args)
+        elif isinstance(args, bytes):
+            return cstring_literal(args)
         else:
             raise UnrecognizedOption("default=" + repr(args))
 
