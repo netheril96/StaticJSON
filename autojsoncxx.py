@@ -365,12 +365,13 @@ class CPPTypeNameChecker:
         self._grammar = parsimonious.Grammar(CPPTypeNameChecker.PEG_GRAMMAR)
         self._known_names = set(CPPTypeNameChecker.KNOWN_BASIC_TYPE_NAMES)
 
-    def extract_simple_type(self, node):
+    @staticmethod
+    def __extract_simple_type(node):
         if node.expr_name == 'simple_type':
             yield node.text.lstrip(':')
 
         for sub_node in node.children:
-            for value in self.extract_simple_type(sub_node):
+            for value in CPPTypeNameChecker.__extract_simple_type(sub_node):
                 yield value
 
     def check_for_unknown_basic_types(self, name):
@@ -379,9 +380,8 @@ class CPPTypeNameChecker:
         :return: a list of unknown basic types
         """
         node = self.grammar.parse(name)
-        simple_types = set(self.extract_simple_type(node))
-        unknowns = simple_types - self.known_names
-        return unknowns
+        simple_types = set(self.__extract_simple_type(node))
+        return simple_types - self.known_names
 
     @property
     def grammar(self):
