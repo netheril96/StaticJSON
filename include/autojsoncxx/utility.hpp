@@ -356,7 +356,8 @@ namespace utility {
 
             current_size = num_elements_per_node;
             node* next = head->next;
-            delete head;
+            head->~node();
+            operator delete(head);
             head = next;
         }
 
@@ -375,7 +376,8 @@ namespace utility {
         T& emplace()
         {
             if (current_size == num_elements_per_node) {
-                node* new_node = new node;
+                // operator new always return memory maximumly aligned
+                node* new_node = static_cast<node*>(operator new(sizeof(*new_node)));
                 new_node->next = head;
                 head = new_node;
                 current_size = 0;
