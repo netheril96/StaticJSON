@@ -10,9 +10,9 @@ More importantly, manually writing such code is a violation of **DRY** principle
 
 *autojsoncxx* is an attempt to solve this problem by automating such process.
 
-### Dependency 
+### Dependency
 
-* [RapidJSON](https://github.com/miloyip/rapidjson) 
+* [RapidJSON](https://github.com/miloyip/rapidjson)
 * [Python](https://www.python.org) (2.7 or 3.3+)
 * (optional) [Parsimonious](https://github.com/erikrose/parsimonious)
 * (optional) [Catch](https://github.com/philsquared/Catch)
@@ -48,7 +48,7 @@ make
 make test
 ```
 
-*Windows users*: 
+*Windows users*:
 
 Generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Then open the solution file under `test/mscvXX_test/` to build and run the test.
 
@@ -63,7 +63,7 @@ If too many tests fail, make sure your work directory points to the `test` direc
 * MSVC 10 (x86) on Windows 7
 * MSVC 11/12 (x86/x64) on Windows 7
 
-## Quick start 
+## Quick start
 
 The code generator reads a JSON file that defines the class structure. An example definition is like this
 ```javascript
@@ -80,7 +80,7 @@ The code generator reads a JSON file that defines the class structure. An exampl
 }
 ```
 
-Run the script *autojsoncxx.py* (requires Python 2.7+, including version 3+) on this definition file, and a header file will be generated. It includes a definition for `Person` as well as some helper classes. 
+Run the script *autojsoncxx.py* (requires Python 2.7+, including version 3+) on this definition file, and a header file will be generated. It includes a definition for `Person` as well as some helper classes.
 
 ```bash
 python autojsoncxx.py --input=persondef.json --output=person.hpp
@@ -141,3 +141,7 @@ One can also [query the errors programmingly](https://netheril96.github.io/autoj
 ## Documentation
 
 Read more [here](https://netheril96.github.io/autojsoncxx/tutorial).
+
+## Credit
+
+This project is inspired by [google protobuf](https://developers.google.com/protocol-buffers/). It adopts the same approach in protobuf (compiler + definition file), and borrows various parse options from it.
