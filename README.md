@@ -136,6 +136,8 @@ Trace back (last call first):
 (*) Error at object member with name "known_associates"
 ```
 
+One can also [query the errors programmingly](https://netheril96.github.io/autojsoncxx/user_guide/error_handling/).
+
 ## Documentation
 
 Read more [here](https://netheril96.github.io/autojsoncxx/tutorial).
