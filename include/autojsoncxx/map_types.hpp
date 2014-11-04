@@ -195,6 +195,9 @@ public:
 
     void PrepareForReuse()
     {
+        the_error.reset();
+        state.clear();
+        internal_handler.PrepareForReuse();
     }
 };
 
@@ -202,7 +205,6 @@ template <class Writer, class MapType, class ElementType, class ConstIteratorTyp
 struct MapSerializer {
     void operator()(Writer& w, const MapType& map) const
     {
-
         w.StartObject();
 
         for (ConstIteratorType it = map.begin(), end = map.end(); it != end; ++it) {

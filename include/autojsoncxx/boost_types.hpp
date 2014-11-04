@@ -386,6 +386,7 @@ public:
     void PrepareForReuse()
     {
         internal_handler = boost::none;
+        depth = 0;
     }
 };
 

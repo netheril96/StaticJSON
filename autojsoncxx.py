@@ -327,6 +327,9 @@ class HelperClassCodeGenerator:
         else:
             return ''
 
+    def prepare_for_reuse(self):
+        return ''.join('handler_{}.PrepareForReuse();\n'.format(i) for i in range(len(self.members_info)))
+
 
 class CPPTypeNameChecker:
     # PEG grammar for parsing the C++ type name we support
@@ -408,7 +411,9 @@ def build_class(template, class_info):
         "handle unknown key": gen.unknown_key_handling(),
         "TypeName": class_info.qualified_name,
         "count of members": gen.count_of_members(),
-        "Writer": gen.writer_type_name()}
+        "Writer": gen.writer_type_name(),
+        "call PrepareForReuse": gen.prepare_for_reuse()
+    }
 
     def evaluate(match):
         try:

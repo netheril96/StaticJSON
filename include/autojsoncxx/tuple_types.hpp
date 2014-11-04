@@ -54,7 +54,7 @@ struct Serializer<Writer, std::tuple<Args...> > {
     void operator()(Writer& w, const std::tuple<Args...>& t) const
     {
         w.StartArray();
-        TupleSerializer<Writer, std::tuple<Args...>, sizeof...(Args) - 1>()(w, t);
+        TupleSerializer<Writer, std::tuple<Args...>, sizeof...(Args)-1>()(w, t);
         w.EndArray();
     }
 };
@@ -207,6 +207,7 @@ public:
     {
         total_depth = 0;
         finished = false;
+        internal_handler.PrepareForReuse();
         static_cast<base_type*>(this)->PrepareForReuse();
     }
 };
@@ -327,6 +328,12 @@ public:
         if (array_depth-- > 1)
             return static_cast<base_type*>(this)->EndArray(len);
         return true;
+    }
+
+    void PrepareForReuse()
+    {
+        array_depth = 0;
+        static_cast<base_type*>(this)->PrepareForReuse();
     }
 };
 }

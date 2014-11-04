@@ -209,6 +209,9 @@ public:
 
     void PrepareForReuse()
     {
+        the_error.reset();
+        state.clear();
+        internal_handler.PrepareForReuse();
     }
 };
 

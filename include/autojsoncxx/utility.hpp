@@ -176,7 +176,7 @@ namespace utility {
             return *ptr;
         }
 
-        void reset(pointer_type p)
+        void reset(pointer_type p = 0)
         {
             Deleter()(ptr);
             ptr = p;
@@ -356,7 +356,6 @@ namespace utility {
 
             current_size = num_elements_per_node;
             node* next = head->next;
-            head->~node();
             operator delete(head);
             head = next;
         }
@@ -425,6 +424,13 @@ namespace utility {
             --total_size;
         }
 
+        void clear()
+        {
+            while (head)
+                deallocate_current_node();
+            head = 0;
+        }
+
         bool empty() const AUTOJSONCXX_NOEXCEPT
         {
             return total_size == 0;
@@ -437,8 +443,7 @@ namespace utility {
 
         ~stack()
         {
-            while (head)
-                deallocate_current_node();
+            clear();
         }
     };
 }

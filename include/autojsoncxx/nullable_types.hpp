@@ -161,7 +161,8 @@ public:
 
     void PrepareForReuse()
     {
-        internal_handler.reset(0);
+        depth = 0;
+        internal_handler.reset();
     }
 };
 

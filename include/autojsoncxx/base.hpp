@@ -142,6 +142,7 @@ public:
 
     void PrepareForReuse()
     {
+        the_error.reset();
     }
 };
 

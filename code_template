@@ -326,7 +326,9 @@ public:
     {
         depth = 0;
         state = -1;
+        the_error.reset();
         reset_flags();
+        /* call PrepareForReuse */
     }
 };
 

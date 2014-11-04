@@ -213,6 +213,8 @@ public:
 
     void PrepareForReuse()
     {
+        the_error.reset();
+        working_stack.clear();
     }
 };
 
