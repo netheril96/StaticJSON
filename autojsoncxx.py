@@ -104,7 +104,7 @@ def check_identifier(identifier):
         raise InvalidIdentifier(identifier)
 
 
-class ClassInfo:
+class ClassInfo(object):
     accept_options = {"name", "namespace", "parse_mode", "members", "constructor_code", "comment"}
 
     def __init__(self, record):
@@ -152,7 +152,7 @@ class ClassInfo:
         return self._constructor_code
 
 
-class ClassDefinitionCodeGenerator:
+class ClassDefinitionCodeGenerator(object):
     def __init__(self, class_info):
         self._class_info = class_info
 
@@ -183,7 +183,7 @@ class ClassDefinitionCodeGenerator:
         return class_def
 
 
-class MemberInfo:
+class MemberInfo(object):
     accept_options = {'default', 'required', 'json_key', 'comment'}
 
     def __init__(self, record):
@@ -253,7 +253,7 @@ class MemberInfo:
             raise UnrecognizedOption("default=" + repr(args))
 
 
-class HelperClassCodeGenerator:
+class HelperClassCodeGenerator(object):
     def __init__(self, class_info):
         self._class_info = class_info
 
@@ -331,7 +331,7 @@ class HelperClassCodeGenerator:
         return ''.join('handler_{}.PrepareForReuse();\n'.format(i) for i in range(len(self.members_info)))
 
 
-class CPPTypeNameChecker:
+class CPPTypeNameChecker(object):
     # PEG grammar for parsing the C++ type name we support
     # Note that raw pointer, reference, array, void, enum, function and pointer-to-member types are not supported
     PEG_GRAMMAR = r'''
