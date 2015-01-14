@@ -24,7 +24,7 @@ More importantly, manually writing such code is a violation of **DRY** principle
 * **Detailed error message**. Unlike ordinary JSON libraries, *autojsoncxx* will detect not only invalid JSON errors, but also mismatch between JSON value and C++ type specification.
 * **Ease of use**. A single function call is enough for most use cases. The library has no complicated build setup, since it's header only.
 * **Fast**. Based on the streaming API of `rapidjson` and C++ templates, this library is efficient both in space and time.
-* **Flexible framework**. Whenever the support of a certain class `Foo` is added to the library, all the combination of types, like `std::vector<Foo>`, `std::shared_ptr<Foo>`, `std::deque<std::map<std::string, Foo>>>` is automatically supported as well, thanks to the use of template specialization.
+* **Flexible**. Whenever the support of a certain class `Foo` is added to the library, all the combination of types, like `std::vector<Foo>`, `std::shared_ptr<Foo>`, `std::deque<std::map<std::string, Foo>>>` is automatically supported as well, thanks to the use of template specialization.
 * **Liberal license**. Both the library and its dependency are licensed liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
 
 ## Testing
