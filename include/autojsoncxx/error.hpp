@@ -23,6 +23,9 @@
 #ifndef AUTOJSONCXX_ERROR_HPP_29A4C106C1B1
 #define AUTOJSONCXX_ERROR_HPP_29A4C106C1B1
 
+#define RAPIDJSON_NAMESPACE_BEGIN namespace rapidjson {
+#define RAPIDJSON_NAMESPACE_END }
+
 #include <autojsoncxx/utility.hpp>
 #include <rapidjson/error/error.h>
 #include <rapidjson/error/en.h>
