@@ -4,8 +4,8 @@ PROJECT(autojsoncxx)
 
 # Fill free to provide correct version information here
 SET(LIB_MAJOR_VERSION "0")
-SET(LIB_MINOR_VERSION "1")
-SET(LIB_PATCH_VERSION "0")
+SET(LIB_MINOR_VERSION "3")
+SET(LIB_PATCH_VERSION "1")
 set(LIB_VERSION_STRING "${LIB_MAJOR_VERSION}.${LIB_MINOR_VERSION}.${LIB_PATCH_VERSION}")
 
 # Perform tests

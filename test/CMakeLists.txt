@@ -3,7 +3,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET(CMAKE_CXX_FLAGS "-std=c++0x -O2 -Wall -Wextra -pedantic -g")
 
 # Generate header
-SET(PYTHON_INTERP /usr/bin/python)
+IF(UNIX OR CYGWIN)
+    SET(PYTHON_INTERP /usr/bin/python)
+ELSEIF (WIN32)
+    SET(PYTHON_INTERP python)
+ENDIF()
 SET(GENERATOR_SCRIPT ${CMAKE_SOURCE_DIR}/autojsoncxx.py)
 SET(DEFINITION_FILE ${CMAKE_SOURCE_DIR}/examples/userdef.json)
 SET(GENERATED_HPP ${CMAKE_SOURCE_DIR}/test/userdef.hpp)
