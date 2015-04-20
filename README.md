@@ -36,9 +36,7 @@ To build the test, you need a sufficiently new compiler because the goal is to t
 First clone the repository, and pull the dependency
 
 ```bash
-git clone https://github.com/netheril96/autojsoncxx.git
-git submodule init
-git submodule update
+git clone https://github.com/netheril96/autojsoncxx.git --recursive
 ```
 
 *UNIX/Linux/Mac users*:
