@@ -44,6 +44,7 @@ git submodule update
 *UNIX/Linux/Mac users*:
 
 ```bash
+cmake .
 make
 make test
 ```
