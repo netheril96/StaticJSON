@@ -1,3 +1,3 @@
 language: cpp
-script: "make && make test"
+script: "cmake . && make && make test"
 compiler: clang
