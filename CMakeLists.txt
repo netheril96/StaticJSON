@@ -1,5 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
+enable_testing()
+
 PROJECT(autojsoncxx)
 
 ADD_SUBDIRECTORY(test)
@@ -22,4 +24,3 @@ INSTALL(
     COMPONENT dev
     )
 
-ADD_TEST(${PROJECT_SOURCE_DIR}/${TARGET} --success)
