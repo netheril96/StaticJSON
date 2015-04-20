@@ -6,7 +6,7 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x -O2 -Wall -Wextra -pedantic -g")
 SET(PYTHON_INTERP /usr/bin/python)
 SET(GENERATOR_SCRIPT ${CMAKE_SOURCE_DIR}/autojsoncxx.py)
 SET(DEFINITION_FILE ${CMAKE_SOURCE_DIR}/examples/userdef.json)
-SET(GENERATED_HPP userdef.hpp)
+SET(GENERATED_HPP ${CMAKE_SOURCE_DIR}/test/userdef.hpp)
 SET(CODE_TEMPLATE ${CMAKE_SOURCE_DIR}/code_template)
 
 EXEC_PROGRAM("${PYTHON_INTERP} ${GENERATOR_SCRIPT} --check --output=${GENERATED_HPP} --input=${DEFINITION_FILE}")
