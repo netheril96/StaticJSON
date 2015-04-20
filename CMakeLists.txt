@@ -28,7 +28,6 @@ INSTALL(
 # Simplified debianization
 if (UNIX)
 
-    # Common information
     SET(CPACK_COMPONENTS_ALL dev)
     SET(CPACK_GENERATOR "TGZ;DEB")
     SET(CPACK_SOURCE_TGZ "ON")
@@ -38,9 +37,6 @@ if (UNIX)
     SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY
         "A header-only library and a code generator to automagically translate between JSON and C++ types")
     SET(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
-
-
-    # Debian-aware information
     EXEC_PROGRAM("/bin/date +%Y%m%d" OUTPUT_VARIABLE DATE)
     SET(CPACK_DEBIAN_PACKAGE_VERSION "~git${DATE}-1")
     SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Vitaly Isaev <vitalyisaev2@gmail.com>")
