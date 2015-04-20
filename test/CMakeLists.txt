@@ -18,3 +18,5 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include
 SET(TARGET autojsoncxx_catch)
 SET(SOURCES main.cpp test.cpp)
 ADD_EXECUTABLE(${TARGET} ${SOURCES})
+
+ADD_TEST(${PROJECT_SOURCE_DIR}/test/${TARGET} --success)
