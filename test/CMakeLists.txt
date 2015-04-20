@@ -20,4 +20,4 @@ SET(SOURCES main.cpp test.cpp)
 ADD_EXECUTABLE(${TARGET} ${SOURCES})
 
 # Perform testing
-ADD_TEST(NAME {$TARGET} COMMAND ${TARGET} --success)
+ADD_TEST(NAME ${TARGET} COMMAND ${TARGET} --success)
