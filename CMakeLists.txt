@@ -37,7 +37,7 @@ if (UNIX)
     SET(CPACK_DEBIAN_PACKAGE_NAME ${PROJECT})
     SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY
         "A header-only library and a code generator to automagically translate between JSON and C++ types")
-    SET(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE.TXT)
+    SET(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
 
 
     # Debian-aware information
