@@ -21,3 +21,5 @@ INSTALL(
     DESTINATION share
     COMPONENT dev
     )
+
+ADD_TEST(${PROJECT_SOURCE_DIR}/${TARGET} --success)

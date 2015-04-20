@@ -4,13 +4,12 @@ SET(CMAKE_CXX_FLAGS "-std=c++0x -O2 -Wall -Wextra -pedantic -g")
 
 # Generate header
 SET(PYTHON_INTERP /usr/bin/python)
-SET(GENERATOR_SCRIPT ../autojsoncxx.py)
-SET(DEFINITION_FILE ../examples/userdef.json)
+SET(GENERATOR_SCRIPT ${CMAKE_SOURCE_DIR}/autojsoncxx.py)
+SET(DEFINITION_FILE ${CMAKE_SOURCE_DIR}/examples/userdef.json)
 SET(GENERATED_HPP userdef.hpp)
-SET(CODE_TEMPLATE ../code_template)
+SET(CODE_TEMPLATE ${CMAKE_SOURCE_DIR}/code_template)
 
-EXECUTE_PROCESS(${PYTHON_INTERP} ${GENERATOR_SCRIPT} --check 
-                --output=${GENERATED_HPP} --input=${DEFINITION_FILE})
+EXEC_PROGRAM("${PYTHON_INTERP} ${GENERATOR_SCRIPT} --check --output=${GENERATED_HPP} --input=${DEFINITION_FILE}")
 
 # Create a binary depending on generated header
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include 
@@ -19,5 +18,3 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include
 SET(TARGET autojsoncxx_catch)
 SET(SOURCES main.cpp test.cpp)
 ADD_EXECUTABLE(${TARGET} ${SOURCES})
-
-ADD_TEST(${TARGET} --success)
