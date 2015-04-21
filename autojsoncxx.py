@@ -462,7 +462,7 @@ def main():
         if getattr(sys, 'frozen', False):
             executable_dir = os.path.dirname(sys.executable)
         else:
-            executable_dir = os.path.dirname(os.path.abspath(__file__))
+            executable_dir = "/usr/share/autojsoncxx"
         args.template = os.path.join(executable_dir, 'code_template')
 
     if args.output is None:
