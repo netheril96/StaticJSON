@@ -461,7 +461,7 @@ def main():
     if args.template is None:
         if getattr(sys, 'frozen', False):
             template_dir = os.path.dirname(sys.executable)
-            args.template = os.path.join(executable_dir, 'code_template')
+            args.template = os.path.join(template_dir, 'code_template')
         # It's worth checking system directories while looking for a code_template
         else:
             possible_template_dirs = (
@@ -469,7 +469,7 @@ def main():
                 "/usr/share/autojsoncxx"
             )
             possible_template_pathes = (os.path.join(d, 'code_template') for d in possible_template_dirs)
-            args.template = next(path for path in possible_template_dirs if os.path.isfile(p)
+            args.template = next(path for path in possible_template_pathes if os.path.isfile(p))
 
     if args.output is None:
         args.output = os.path.basename(args.input)
