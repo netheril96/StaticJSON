@@ -459,15 +459,23 @@ def main():
         args.check = False
 
     if args.template is None:
+
+        # On Windows code_template located in the same folder as the executable
         if getattr(sys, 'frozen', False):
             template_dir = os.path.dirname(sys.executable)
             args.template = os.path.join(template_dir, 'code_template')
+
         # On UNIX It's worth checking system directories while looking for a code_template
         else:
-            possible_template_dirs = (
+            possible_template_dirs = [
+                "/usr/local/share/autojsoncxx",
+                "/usr/share/autojsoncxx",
                 os.path.dirname(os.path.abspath(__file__)),
-                "/usr/share/autojsoncxx"
-            )
+            ]
+            custom_template_dir = os.environ.get("AUTOJSONCXX_TEMPLATE_DIR")
+            if custom_template_dir and os.path.isdir(custom_template_dir):
+                possible_template_dirs.insert(0, custom_template_dir)
+
             possible_template_pathes = (os.path.join(d, 'code_template') for d in possible_template_dirs)
             args.template = next(p for p in possible_template_pathes if os.path.isfile(p))
 
