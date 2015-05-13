@@ -4,7 +4,7 @@ PROJECT(autojsoncxx)
 
 # Version information - derived from tag
 EXECUTE_PROCESS(
-  COMMAND git describe
+  COMMAND git describe --tags
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   OUTPUT_VARIABLE GIT_DESCRIBE_DIRTY
   OUTPUT_STRIP_TRAILING_WHITESPACE
