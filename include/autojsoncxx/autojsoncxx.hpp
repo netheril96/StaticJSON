@@ -33,5 +33,8 @@
 #include <autojsoncxx/to_json.hpp>
 #include <autojsoncxx/from_json.hpp>
 #include <autojsoncxx/dom.hpp>
+#ifdef AUTOJSONCXX_ENABLE_BOOST_TYPES
+#include <autojsoncxx/boost_types.hpp>
+#endif
 
 #endif
