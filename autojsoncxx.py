@@ -3,7 +3,7 @@
 
 # The MIT License (MIT)
 #
-# Copyright (c) 2014 Siyuan Ren (netheril96@gmail.com)
+# Copyright (c) 2014 Siyuan Ren (rsy96@outlook.com)
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -445,7 +445,7 @@ def warn_if_name_unknown(checker, class_info):
 
 def main():
     parser = argparse.ArgumentParser(description='`autojsoncxx` code generator '
-                                                 '(visit https://github.com/netheril96/autojsoncxx for details)')
+                                                 '(visit https://github.com/rsy96/autojsoncxx for details)')
 
     parser.add_argument('-c', '--check', help='check the type names specified; requires `parsimonious` to be installed',
                         action='store_true', default=False)
