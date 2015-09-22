@@ -9,6 +9,7 @@ A class definition is an object with the following fields:
 * **name**. The unqualified name of the class.
 * **namespace**. (optional). The full namespace of this class, such as `mycompany::data` or `::mycompany::data`. When not set, the class is put in the global namespace.
 * **parse_mode** (optional). "strict" or otherwise, default "". When set to strict, any unrecognized JSON key will cause an `UnknownFieldError`. Otherwise they are simply ignored. The default is ignoring, so that you can upgrade your protocol by appending new fields without affecting old applications.
+* **no_duplicates** (optional). When true, an error is raised if any duplicate field is encountered. Otherwise the last occurrence will be retained.
 * **constructor_code**. (optional). Arbitrary C++ code to execute in the constructor, useful if you need to perform initialization that cannot be done with the `default` option.
 * **comment** (optional). Ignored.
 * **members**. An array of member definitions.
