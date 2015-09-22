@@ -25,6 +25,7 @@
 {
     "name": "User",
     "namespace": "config",
+    "no_duplicates": true,
     "members": [
         ["unsigned long long", "ID", {"required": true}],
         ["std::string", "nickname", {"required": true, "default": "❶❷❸"} ],

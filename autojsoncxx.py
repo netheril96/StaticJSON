@@ -105,7 +105,7 @@ def check_identifier(identifier):
 
 
 class ClassInfo(object):
-    accept_options = {"name", "namespace", "parse_mode", "members", "constructor_code", "comment"}
+    accept_options = {"name", "namespace", "parse_mode", "members", "constructor_code", "comment", "no_duplicates"}
 
     def __init__(self, record):
         self._name = record['name']
@@ -113,6 +113,7 @@ class ClassInfo(object):
         self._strict = record.get('parse_mode', '') == 'strict'
         self._namespace = record.get("namespace", None)
         self._constructor_code = record.get("constructor_code", "")
+        self._no_duplicates = record.get("no_duplicates", False)
 
         check_identifier(self._name)
 
@@ -150,6 +151,10 @@ class ClassInfo(object):
     @property
     def constructor_code(self):
         return self._constructor_code
+
+    @property
+    def no_duplicates(self):
+        return self._no_duplicates
 
 
 class ClassDefinitionCodeGenerator(object):
@@ -274,10 +279,11 @@ class HelperClassCodeGenerator(object):
                          for i, m in enumerate(self.members_info))
 
     def flags_declaration(self):
-        return '\n'.join('bool has_{};'.format(m.variable_name) for m in self.members_info if m.is_required)
+        return '\n'.join('bool has_{};'.format(m.variable_name) for m in self.members_info
+                         if self.class_info.no_duplicates or m.is_required)
 
     def flags_reset(self):
-        return '\n'.join(HelperClassCodeGenerator.flag_statement(m, "false") for m in self.members_info)
+        return '\n'.join(self.flag_statement(m, "false") for m in self.members_info)
 
     def post_validation(self):
         return '\n'.join('if (!has_{0}) set_missing_required("{0}");'
@@ -285,9 +291,10 @@ class HelperClassCodeGenerator(object):
 
     def key_event_handling(self):
         return '\n'.join('else if (utility::string_equal(str, length, {key}, {key_length}))\n\
-                         {{ state={state}; {check} }}'
+                         {{ state={state}; {dup_check} {set_flag} }}'
                              .format(key=cstring_literal(m.json_key), key_length=len(m.json_key),
-                                     state=i, check=HelperClassCodeGenerator.flag_statement(m, "true"))
+                                     state=i, dup_check=self.check_for_duplicate_key(m),
+                                     set_flag=self.flag_statement(m, "true"))
                          for i, m in enumerate(self.members_info))
 
     def event_forwarding(self, call_text):
@@ -320,10 +327,16 @@ class HelperClassCodeGenerator(object):
     def count_of_members(self):
         return str(len(self.members_info))
 
-    @staticmethod
-    def flag_statement(member_info, flag):
-        if member_info.is_required:
+    def flag_statement(self, member_info, flag):
+        if self.class_info.no_duplicates or member_info.is_required:
             return 'has_{} = {};'.format(member_info.variable_name, flag)
+        else:
+            return ''
+
+    def check_for_duplicate_key(self, member_info):
+        if self.class_info.no_duplicates:
+            return 'if (has_{}) the_error.reset(new error::DuplicateKeyError(current_member_name()));\n'.\
+                format(member_info.variable_name)
         else:
             return ''
 
