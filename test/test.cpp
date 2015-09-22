@@ -324,6 +324,17 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
         REQUIRE(static_cast<const error::DuplicateKeyError&>(*err.begin()).key() == "Auth-Token");
     }
 
+    SECTION("Duplicate key in class User", "[parsing], [error], [duplicate key]")
+    {
+        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/duplicate_key_user.json", users, err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
+        REQUIRE(err.begin()->type() == error::DUPLICATE_KEYS);
+
+        REQUIRE(static_cast<const error::DuplicateKeyError&>(*err.begin()).key() == "ID");
+    }
+
     SECTION("Out of range", "[parsing], [error], [out of range]")
     {
         REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/out_of_range.json", users, err));
