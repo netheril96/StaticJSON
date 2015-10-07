@@ -49,7 +49,7 @@ if (UNIX)
     # Common package information
     SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY
         "A header-only library and a code generator to automagically translate between JSON and C++ types")
-    SET(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/rsy96/autojsoncxx")
+    SET(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/netheril96/autojsoncxx")
     SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Vitaly Isaev <vitalyisaev2@gmail.com>")
     SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "all")
 

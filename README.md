@@ -29,12 +29,14 @@ More importantly, manually writing such code is a violation of **DRY** principle
 
 ## Testing
 
+[![Build Status](https://travis-ci.org/netheril96/autojsoncxx.svg?branch=master)](https://travis-ci.org/netheril96/autojsoncxx)
+
 To build the test, you need a sufficiently new compiler because the goal is to test all the type support, including many ones only introduced in c++11.
 
 First clone the repository, and pull the dependency
 
 ```bash
-git clone https://github.com/rsy96/autojsoncxx.git --recursive
+git clone https://github.com/netheril96/autojsoncxx.git --recursive
 ```
 
 *UNIX/Linux/Mac users*:
@@ -133,11 +135,11 @@ Trace back (last call first):
 (*) Error at object member with name "known_associates"
 ```
 
-One can also [query the errors programmingly](https://rsy96.github.io/autojsoncxx/user_guide/error_handling/).
+One can also [query the errors programmingly](https://netheril96.github.io/autojsoncxx/user_guide/error_handling/).
 
 ## Documentation
 
-Read more [here](https://rsy96.github.io/autojsoncxx/tutorial).
+Read more [here](https://netheril96.github.io/autojsoncxx/tutorial).
 
 ## Credit
 
