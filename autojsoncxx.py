@@ -456,6 +456,14 @@ def warn_if_name_unknown(checker, class_info):
                   "in class", repr(class_info.qualified_name), "\n", file=sys.stderr)
 
 
+def read_utf8(filename):
+    with io.open(filename, 'rt', encoding='utf-8') as f:
+        text = f.read()
+    if text.startswith(u'\ufeff'): # Skip BOM
+        text = text[1:]
+    return text
+
+
 def main():
     parser = argparse.ArgumentParser(description='`autojsoncxx` code generator '
                                                  '(visit https://github.com/netheril96/autojsoncxx for details)')
@@ -501,10 +509,8 @@ def main():
     else:
         checker = None
 
-    with io.open(args.template, encoding='utf-8') as f:
-        template = f.read()
-    with io.open(args.input, encoding='utf-8') as f:
-        raw_record = json.load(f)
+    template = read_utf8(args.template)
+    raw_record = json.loads(read_utf8(args.input))
 
     with io.open(args.output, 'w', encoding='utf-8') as output:
         output.write('#pragma once\n\n')
