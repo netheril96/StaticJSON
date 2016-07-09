@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_BASE_HPP_29A4C106C1B1
-#define AUTOJSONCXX_BASE_HPP_29A4C106C1B1
+#ifndef STATICJSON_BASE_HPP_29A4C106C1B1
+#define STATICJSON_BASE_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
-#include <autojsoncxx/error.hpp>
+#include <staticjson/utility.hpp>
+#include <staticjson/error.hpp>
 
 #include <string>
 #include <cstring>
@@ -32,7 +32,7 @@
 #include <algorithm>
 #include <utility>
 
-namespace autojsoncxx {
+namespace staticjson {
 
 using utility::SizeType;
 
@@ -149,7 +149,7 @@ public:
     }
 };
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 
 template <>
 class SAXEventHandler<std::nullptr_t> : public BaseSAXEventHandler<SAXEventHandler<std::nullptr_t> > {
@@ -493,7 +493,7 @@ struct Serializer<Writer, int> {
     }
 };
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 
 template <class Writer>
 struct Serializer<Writer, std::nullptr_t> {

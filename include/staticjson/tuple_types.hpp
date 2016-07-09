@@ -20,17 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_TUPLE_TYPES_HPP_29A4C106C1B1
-#define AUTOJSONCXX_TUPLE_TYPES_HPP_29A4C106C1B1
+#ifndef STATICJSON_TUPLE_TYPES_HPP_29A4C106C1B1
+#define STATICJSON_TUPLE_TYPES_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
-#include <autojsoncxx/base.hpp>
-#include <autojsoncxx/error.hpp>
+#include <staticjson/utility.hpp>
+#include <staticjson/base.hpp>
+#include <staticjson/error.hpp>
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES && AUTOJSONCXX_HAS_VARIADIC_TEMPLATE
+#if STATICJSON_HAS_MODERN_TYPES && STATICJSON_HAS_VARIADIC_TEMPLATE
 #include <tuple>
 
-namespace autojsoncxx {
+namespace staticjson {
 
 template <class Writer, class Tuple, std::size_t i>
 struct TupleSerializer {

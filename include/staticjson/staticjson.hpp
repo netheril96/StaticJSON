@@ -20,21 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_AUTOJSONCXX_HPP_29A4C106C1B1
-#define AUTOJSONCXX_AUTOJSONCXX_HPP_29A4C106C1B1
+#ifndef STATICJSON_STATICJSON_HPP_29A4C106C1B1
+#define STATICJSON_STATICJSON_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
-#include <autojsoncxx/base.hpp>
-#include <autojsoncxx/error.hpp>
-#include <autojsoncxx/array_types.hpp>
-#include <autojsoncxx/nullable_types.hpp>
-#include <autojsoncxx/tuple_types.hpp>
-#include <autojsoncxx/map_types.hpp>
-#include <autojsoncxx/to_json.hpp>
-#include <autojsoncxx/from_json.hpp>
-#include <autojsoncxx/dom.hpp>
-#ifdef AUTOJSONCXX_ENABLE_BOOST_TYPES
-#include <autojsoncxx/boost_types.hpp>
+#include <staticjson/utility.hpp>
+#include <staticjson/base.hpp>
+#include <staticjson/error.hpp>
+#include <staticjson/array_types.hpp>
+#include <staticjson/nullable_types.hpp>
+#include <staticjson/tuple_types.hpp>
+#include <staticjson/map_types.hpp>
+#include <staticjson/to_json.hpp>
+#include <staticjson/from_json.hpp>
+#include <staticjson/dom.hpp>
+#ifdef STATICJSON_ENABLE_BOOST_TYPES
+#include <staticjson/boost_types.hpp>
 #endif
 
 #endif

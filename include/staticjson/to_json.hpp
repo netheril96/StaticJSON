@@ -20,12 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_TO_JSON_HPP_29A4C106C1B1
-#define AUTOJSONCXX_TO_JSON_HPP_29A4C106C1B1
+#ifndef STATICJSON_TO_JSON_HPP_29A4C106C1B1
+#define STATICJSON_TO_JSON_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
-#include <autojsoncxx/base.hpp>
-#include <autojsoncxx/error.hpp>
+#include <staticjson/utility.hpp>
+#include <staticjson/base.hpp>
+#include <staticjson/error.hpp>
 
 #include <rapidjson/writer.h>
 #include <rapidjson/filewritestream.h>
@@ -33,7 +33,7 @@
 
 #include <cstdio>
 
-namespace autojsoncxx {
+namespace staticjson {
 
 template <class Writer, class ValueType>
 inline void write_json(Writer& w, const ValueType& v)

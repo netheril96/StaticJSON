@@ -20,17 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_DOM_HPP_29A4C106C1B1
-#define AUTOJSONCXX_DOM_HPP_29A4C106C1B1
+#ifndef STATICJSON_DOM_HPP_29A4C106C1B1
+#define STATICJSON_DOM_HPP_29A4C106C1B1
 
-#include <autojsoncxx/base.hpp>
-#include <autojsoncxx/error.hpp>
+#include <staticjson/base.hpp>
+#include <staticjson/error.hpp>
 
 #include <rapidjson/document.h>
 
 #include <cassert>
 
-namespace autojsoncxx {
+namespace staticjson {
 template <class Encoding, class Allocator, class StackAllocator>
 class SAXEventHandler<rapidjson::GenericDocument<Encoding, Allocator, StackAllocator> > {
 public:

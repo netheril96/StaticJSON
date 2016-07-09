@@ -20,11 +20,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_ARRAY_TYPES_HPP_29A4C106C1B1
-#define AUTOJSONCXX_ARRAY_TYPES_HPP_29A4C106C1B1
+#ifndef STATICJSON_ARRAY_TYPES_HPP_29A4C106C1B1
+#define STATICJSON_ARRAY_TYPES_HPP_29A4C106C1B1
 
-#include <autojsoncxx/base.hpp>
-#include <autojsoncxx/error.hpp>
+#include <staticjson/base.hpp>
+#include <staticjson/error.hpp>
 
 #include <vector>
 #include <deque>
@@ -32,11 +32,11 @@
 #include <cassert>
 #include <iterator>
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 #include <array>
 #endif
 
-namespace autojsoncxx {
+namespace staticjson {
 
 template <class ElementType, class Derived>
 class VectorBaseSAXEventHandler {
@@ -53,7 +53,7 @@ private:
     void push_when_time_is_right()
     {
         if (state.size() == 1 && state.top() == internal::ARRAY) {
-            static_cast<Derived*>(this)->Push(AUTOJSONCXX_MOVE_IF_NOEXCEPT(current));
+            static_cast<Derived*>(this)->Push(STATICJSON_MOVE_IF_NOEXCEPT(current));
             current = ElementType();
             internal_handler.PrepareForReuse();
         }
@@ -237,11 +237,11 @@ public:
         m_value->push_back(c);
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     void Push(T&& c)
     {
-        m_value->push_back(AUTOJSONCXX_MOVE(c));
+        m_value->push_back(STATICJSON_MOVE(c));
     }
 
 #endif
@@ -284,11 +284,11 @@ public:
         m_value->push_back(c);
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     void Push(T&& c)
     {
-        m_value->push_back(AUTOJSONCXX_MOVE(c));
+        m_value->push_back(STATICJSON_MOVE(c));
     }
 
 #endif
@@ -334,7 +334,7 @@ struct Serializer<Writer, std::deque<T, Allocator> >
                                  typename std::deque<T, Allocator>::const_iterator> {
 };
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 template <class T, size_t N>
 class SAXEventHandler<std::array<T, N> >
     : public VectorBaseSAXEventHandler<T, SAXEventHandler<std::array<T, N> > > {
@@ -360,11 +360,11 @@ public:
         index = (index + 1) % N;
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     void Push(T&& c)
     {
-        (*m_value)[index] = AUTOJSONCXX_MOVE(c);
+        (*m_value)[index] = STATICJSON_MOVE(c);
         index = (index + 1) % N;
     }
 

@@ -20,23 +20,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_MAP_TYPES_HPP_29A4C106C1B1
-#define AUTOJSONCXX_MAP_TYPES_HPP_29A4C106C1B1
+#ifndef STATICJSON_MAP_TYPES_HPP_29A4C106C1B1
+#define STATICJSON_MAP_TYPES_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
-#include <autojsoncxx/base.hpp>
-#include <autojsoncxx/error.hpp>
+#include <staticjson/utility.hpp>
+#include <staticjson/base.hpp>
+#include <staticjson/error.hpp>
 
 #include <map>
 #include <stack>
 #include <cassert>
 #include <string>
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 #include <unordered_map>
 #endif
 
-namespace autojsoncxx {
+namespace staticjson {
 
 template <class ElementType, class Derived>
 class MapBaseSAXEventHandler {
@@ -55,8 +55,8 @@ private:
     bool emplace_when_time_is_right()
     {
         if (state.size() == 1 && state.top() == internal::OBJECT) {
-            if (!static_cast<Derived*>(this)->Emplace(key, AUTOJSONCXX_MOVE_IF_NOEXCEPT(value))) {
-                the_error.reset(new error::DuplicateKeyError(AUTOJSONCXX_MOVE(key)));
+            if (!static_cast<Derived*>(this)->Emplace(key, STATICJSON_MOVE_IF_NOEXCEPT(value))) {
+                the_error.reset(new error::DuplicateKeyError(STATICJSON_MOVE(key)));
                 return false;
             }
 
@@ -237,11 +237,11 @@ public:
         return m_value->insert(std::make_pair(key, value)).second;
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     bool Emplace(const std::string& key, ElementType&& value)
     {
-        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+        return m_value->insert(std::make_pair(STATICJSON_MOVE(key), STATICJSON_MOVE(value))).second;
     }
 
 #endif
@@ -274,11 +274,11 @@ public:
         return m_value->insert(std::make_pair(key, value)).second;
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     bool Emplace(const std::string& key, ElementType&& value)
     {
-        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+        return m_value->insert(std::make_pair(STATICJSON_MOVE(key), STATICJSON_MOVE(value))).second;
     }
 
 #endif
@@ -290,7 +290,7 @@ struct Serializer<Writer, std::multimap<std::string, ElementType, Compare, Alloc
                            ElementType, typename std::multimap<std::string, ElementType, Compare, Allocator>::const_iterator> {
 };
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 
 template <class ElementType, class Hash, class Equal, class Allocator>
 class SAXEventHandler<std::unordered_map<std::string, ElementType, Hash, Equal, Allocator> >
@@ -312,11 +312,11 @@ public:
         return m_value->insert(std::make_pair(key, value)).second;
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     bool Emplace(const std::string& key, ElementType&& value)
     {
-        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+        return m_value->insert(std::make_pair(STATICJSON_MOVE(key), STATICJSON_MOVE(value))).second;
     }
 
 #endif
@@ -347,11 +347,11 @@ public:
         return m_value->insert(std::make_pair(key, value)).second;
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     bool Emplace(const std::string& key, ElementType&& value)
     {
-        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+        return m_value->insert(std::make_pair(STATICJSON_MOVE(key), STATICJSON_MOVE(value))).second;
     }
 
 #endif

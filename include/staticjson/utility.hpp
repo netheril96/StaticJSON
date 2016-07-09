@@ -20,8 +20,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_UTILITY_HPP_29A4C106C1B1
-#define AUTOJSONCXX_UTILITY_HPP_29A4C106C1B1
+#ifndef STATICJSON_UTILITY_HPP_29A4C106C1B1
+#define STATICJSON_UTILITY_HPP_29A4C106C1B1
 
 #include <string>
 #include <cstring>
@@ -32,29 +32,29 @@
 #include <cctype>
 #include <cassert>
 
-#if AUTOJSONCXX_MODERN_COMPILER
-#define AUTOJSONCXX_HAS_MODERN_TYPES 1
-#define AUTOJSONCXX_HAS_RVALUE 1
-#define AUTOJSONCXX_HAS_NOEXCEPT 1
-#define AUTOJSONCXX_HAS_VARIADIC_TEMPLATE 1
-#define AUTOJSONCXX_HAS_EXPLICIT_OPERATOR 1
+#if STATICJSON_MODERN_COMPILER
+#define STATICJSON_HAS_MODERN_TYPES 1
+#define STATICJSON_HAS_RVALUE 1
+#define STATICJSON_HAS_NOEXCEPT 1
+#define STATICJSON_HAS_VARIADIC_TEMPLATE 1
+#define STATICJSON_HAS_EXPLICIT_OPERATOR 1
 #endif
 
-#if AUTOJSONCXX_HAS_RVALUE
-#define AUTOJSONCXX_MOVE(x) std::move(x)
+#if STATICJSON_HAS_RVALUE
+#define STATICJSON_MOVE(x) std::move(x)
 #else
-#define AUTOJSONCXX_MOVE(x) (x)
+#define STATICJSON_MOVE(x) (x)
 #endif
 
-#if AUTOJSONCXX_HAS_NOEXCEPT
-#define AUTOJSONCXX_NOEXCEPT noexcept
-#define AUTOJSONCXX_MOVE_IF_NOEXCEPT(x) std::move_if_noexcept(x)
+#if STATICJSON_HAS_NOEXCEPT
+#define STATICJSON_NOEXCEPT noexcept
+#define STATICJSON_MOVE_IF_NOEXCEPT(x) std::move_if_noexcept(x)
 #else
-#define AUTOJSONCXX_NOEXCEPT
-#define AUTOJSONCXX_MOVE_IF_NOEXCEPT(x) AUTOJSONCXX_MOVE(x)
+#define STATICJSON_NOEXCEPT
+#define STATICJSON_MOVE_IF_NOEXCEPT(x) STATICJSON_MOVE(x)
 #endif
 
-namespace autojsoncxx {
+namespace staticjson {
 namespace utility {
 
     typedef unsigned int SizeType;
@@ -129,7 +129,7 @@ namespace utility {
         scoped_ptr(const scoped_ptr&);
         scoped_ptr& operator=(const scoped_ptr&);
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
         scoped_ptr(scoped_ptr&&);
         scoped_ptr& operator==(scoped_ptr&&);
 #endif
@@ -154,17 +154,17 @@ namespace utility {
             Deleter()(ptr);
         }
 
-        pointer_type get() const AUTOJSONCXX_NOEXCEPT
+        pointer_type get() const STATICJSON_NOEXCEPT
         {
             return ptr;
         }
 
-        pointer_type operator->() const AUTOJSONCXX_NOEXCEPT
+        pointer_type operator->() const STATICJSON_NOEXCEPT
         {
             return ptr;
         }
 
-        pointer_type release() AUTOJSONCXX_NOEXCEPT
+        pointer_type release() STATICJSON_NOEXCEPT
         {
             T* result = ptr;
             ptr = 0;
@@ -182,12 +182,12 @@ namespace utility {
             ptr = p;
         }
 
-        void swap(scoped_ptr& that) AUTOJSONCXX_NOEXCEPT
+        void swap(scoped_ptr& that) STATICJSON_NOEXCEPT
         {
             std::swap(ptr, that.ptr);
         }
 
-        bool empty() const AUTOJSONCXX_NOEXCEPT
+        bool empty() const STATICJSON_NOEXCEPT
         {
             return ptr == 0;
         }
@@ -431,12 +431,12 @@ namespace utility {
             head = 0;
         }
 
-        bool empty() const AUTOJSONCXX_NOEXCEPT
+        bool empty() const STATICJSON_NOEXCEPT
         {
             return total_size == 0;
         }
 
-        std::size_t size() const AUTOJSONCXX_NOEXCEPT
+        std::size_t size() const STATICJSON_NOEXCEPT
         {
             return total_size;
         }

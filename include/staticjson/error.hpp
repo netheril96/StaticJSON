@@ -20,13 +20,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_ERROR_HPP_29A4C106C1B1
-#define AUTOJSONCXX_ERROR_HPP_29A4C106C1B1
+#ifndef STATICJSON_ERROR_HPP_29A4C106C1B1
+#define STATICJSON_ERROR_HPP_29A4C106C1B1
 
 #define RAPIDJSON_NAMESPACE_BEGIN namespace rapidjson {
 #define RAPIDJSON_NAMESPACE_END }
 
-#include <autojsoncxx/utility.hpp>
+#include <staticjson/utility.hpp>
 #include <rapidjson/error/error.h>
 #include <rapidjson/error/en.h>
 
@@ -38,7 +38,7 @@
 #include <utility>
 #include <sstream>
 
-namespace autojsoncxx {
+namespace staticjson {
 namespace error {
 
     typedef int error_type;
@@ -277,10 +277,10 @@ namespace error {
         {
         }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
         explicit DuplicateKeyError(std::string&& name)
-            : key_name(AUTOJSONCXX_MOVE(name))
+            : key_name(STATICJSON_MOVE(name))
         {
         }
 #endif
@@ -443,12 +443,12 @@ namespace error {
         {
         }
 
-        const_iterator begin() const AUTOJSONCXX_NOEXCEPT
+        const_iterator begin() const STATICJSON_NOEXCEPT
         {
             return const_iterator(head);
         }
 
-        const_iterator end() const AUTOJSONCXX_NOEXCEPT
+        const_iterator end() const STATICJSON_NOEXCEPT
         {
             return const_iterator(0);
         }
@@ -477,12 +477,12 @@ namespace error {
             return 0;
         }
 
-        bool empty() const AUTOJSONCXX_NOEXCEPT
+        bool empty() const STATICJSON_NOEXCEPT
         {
             return head == 0;
         }
 
-        std::size_t size() const AUTOJSONCXX_NOEXCEPT
+        std::size_t size() const STATICJSON_NOEXCEPT
         {
             return m_size;
         }
@@ -496,13 +496,13 @@ namespace error {
             }
         }
 
-        void swap(ErrorStack& other) AUTOJSONCXX_NOEXCEPT
+        void swap(ErrorStack& other) STATICJSON_NOEXCEPT
         {
             std::swap(head, other.head);
             std::swap(m_size, other.m_size);
         }
 
-#if AUTOJSONCXX_HAS_RAVLUE
+#if STATICJSON_HAS_RAVLUE
 
         ErrorStack(ErrorStack&& other)
             : head(other.head)
@@ -512,7 +512,7 @@ namespace error {
             other.m_size = 0;
         }
 
-        ErrorStack& operator==(ErrorStack&& other) AUTOJSONCXX_NOEXCEPT
+        ErrorStack& operator==(ErrorStack&& other) STATICJSON_NOEXCEPT
         {
             swap(other);
         }
@@ -566,12 +566,12 @@ namespace error {
             result = rapidjson::ParseResult(err, offset);
         }
 
-        ParseErrorCode error_code() const AUTOJSONCXX_NOEXCEPT
+        ParseErrorCode error_code() const STATICJSON_NOEXCEPT
         {
             return result.Code();
         }
 
-        std::size_t offset() const AUTOJSONCXX_NOEXCEPT
+        std::size_t offset() const STATICJSON_NOEXCEPT
         {
             return result.Offset();
         }
@@ -593,17 +593,17 @@ namespace error {
 
         typedef ErrorStack::const_iterator const_iterator;
 
-        const_iterator begin() const AUTOJSONCXX_NOEXCEPT
+        const_iterator begin() const STATICJSON_NOEXCEPT
         {
             return stack.begin();
         }
 
-        const_iterator end() const AUTOJSONCXX_NOEXCEPT
+        const_iterator end() const STATICJSON_NOEXCEPT
         {
             return stack.end();
         }
 
-        bool has_error() const AUTOJSONCXX_NOEXCEPT
+        bool has_error() const STATICJSON_NOEXCEPT
         {
             return result.IsError() || !stack.empty();
         }
@@ -615,27 +615,27 @@ namespace error {
             return ss.str();
         }
 
-        void swap(ParsingResult& other) AUTOJSONCXX_NOEXCEPT
+        void swap(ParsingResult& other) STATICJSON_NOEXCEPT
         {
             std::swap(result, other.result);
             stack.swap(other.stack);
         }
 
-        bool operator!() const AUTOJSONCXX_NOEXCEPT
+        bool operator!() const STATICJSON_NOEXCEPT
         {
             return has_error();
         }
 
-#if AUTOJSONCXX_HAS_EXPLICIT_OPERATOR
+#if STATICJSON_HAS_EXPLICIT_OPERATOR
 
-        explicit operator bool() const AUTOJSONCXX_NOEXCEPT
+        explicit operator bool() const STATICJSON_NOEXCEPT
         {
             return !has_error();
         }
 
 #endif
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
         ParsingResult(ParsingResult&& other)
             : result()
@@ -644,7 +644,7 @@ namespace error {
             swap(other);
         }
 
-        ParsingResult& operator==(ParsingResult&& other) AUTOJSONCXX_NOEXCEPT
+        ParsingResult& operator==(ParsingResult&& other) STATICJSON_NOEXCEPT
         {
             swap(other);
             return *this;

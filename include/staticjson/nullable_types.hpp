@@ -20,18 +20,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_NULLABLE_TYPES_HPP_29A4C106C1B1
-#define AUTOJSONCXX_NULLABLE_TYPES_HPP_29A4C106C1B1
+#ifndef STATICJSON_NULLABLE_TYPES_HPP_29A4C106C1B1
+#define STATICJSON_NULLABLE_TYPES_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
-#include <autojsoncxx/base.hpp>
-#include <autojsoncxx/error.hpp>
+#include <staticjson/utility.hpp>
+#include <staticjson/base.hpp>
+#include <staticjson/error.hpp>
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 #include <memory>
 #endif
 
-namespace autojsoncxx {
+namespace staticjson {
 
 template <class ValueType, class Derived>
 class NullableBaseSAXEventHandler {
@@ -166,7 +166,7 @@ public:
     }
 };
 
-#if AUTOJSONCXX_HAS_MODERN_TYPES
+#if STATICJSON_HAS_MODERN_TYPES
 template <class T>
 class SAXEventHandler<std::shared_ptr<T> >
     : public NullableBaseSAXEventHandler<T, SAXEventHandler<std::shared_ptr<T> > > {

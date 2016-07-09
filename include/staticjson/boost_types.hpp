@@ -20,10 +20,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#ifndef AUTOJSONCXX_BOOST_TYPES_HPP_29A4C106C1B1
-#define AUTOJSONCXX_BOOST_TYPES_HPP_29A4C106C1B1
+#ifndef STATICJSON_BOOST_TYPES_HPP_29A4C106C1B1
+#define STATICJSON_BOOST_TYPES_HPP_29A4C106C1B1
 
-#include <autojsoncxx/autojsoncxx.hpp>
+#include <staticjson/staticjson.hpp>
 
 #include <boost/container/vector.hpp>
 #include <boost/container/deque.hpp>
@@ -33,7 +33,7 @@
 #include <boost/utility/in_place_factory.hpp>
 #include <boost/unordered_map.hpp>
 
-namespace autojsoncxx {
+namespace staticjson {
 template <class T, class Allocator>
 class SAXEventHandler<boost::container::vector<T, Allocator> >
     : public VectorBaseSAXEventHandler<T, SAXEventHandler<boost::container::vector<T, Allocator> > > {
@@ -56,11 +56,11 @@ public:
         m_value->push_back(c);
     }
 
-#ifdef AUTOJSONCXX_HAS_RVALUE
+#ifdef STATICJSON_HAS_RVALUE
 
     void Push(T&& c)
     {
-        m_value->push_back(AUTOJSONCXX_MOVE(c));
+        m_value->push_back(STATICJSON_MOVE(c));
     }
 
 #endif
@@ -110,11 +110,11 @@ public:
         m_value->push_back(c);
     }
 
-#ifdef AUTOJSONCXX_HAS_RVALUE
+#ifdef STATICJSON_HAS_RVALUE
 
     void Push(T&& c)
     {
-        m_value->push_back(AUTOJSONCXX_MOVE(c));
+        m_value->push_back(STATICJSON_MOVE(c));
     }
 
 #endif
@@ -167,11 +167,11 @@ public:
         index = (index + 1) % N;
     }
 
-#ifdef AUTOJSONCXX_HAS_RVALUE
+#ifdef STATICJSON_HAS_RVALUE
 
     void Push(T&& c)
     {
-        (*m_value)[index] = AUTOJSONCXX_MOVE(c);
+        (*m_value)[index] = STATICJSON_MOVE(c);
         index = (index + 1) % N;
     }
 
@@ -421,11 +421,11 @@ public:
         return m_value->insert(std::make_pair(key, value)).second;
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     bool Emplace(const std::string& key, ElementType&& value)
     {
-        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+        return m_value->insert(std::make_pair(STATICJSON_MOVE(key), STATICJSON_MOVE(value))).second;
     }
 
 #endif
@@ -456,11 +456,11 @@ public:
         return m_value->insert(std::make_pair(key, value)).second;
     }
 
-#if AUTOJSONCXX_HAS_RVALUE
+#if STATICJSON_HAS_RVALUE
 
     bool Emplace(const std::string& key, ElementType&& value)
     {
-        return m_value->insert(std::make_pair(AUTOJSONCXX_MOVE(key), AUTOJSONCXX_MOVE(value))).second;
+        return m_value->insert(std::make_pair(STATICJSON_MOVE(key), STATICJSON_MOVE(value))).second;
     }
 
 #endif
