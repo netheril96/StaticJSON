@@ -23,14 +23,14 @@
 #ifndef STATICJSON_UTILITY_HPP_29A4C106C1B1
 #define STATICJSON_UTILITY_HPP_29A4C106C1B1
 
-#include <string>
-#include <cstring>
-#include <cstddef>
-#include <utility>
 #include <algorithm>
-#include <cstdio>
-#include <cctype>
 #include <cassert>
+#include <cctype>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <utility>
 
 #if STATICJSON_MODERN_COMPILER
 #define STATICJSON_HAS_MODERN_TYPES 1
@@ -42,6 +42,7 @@
 
 #if STATICJSON_HAS_RVALUE
 #define STATICJSON_MOVE(x) std::move(x)
+#define DISABLE_COPY_MOVE(cls) private
 #else
 #define STATICJSON_MOVE(x) (x)
 #endif
@@ -54,8 +55,19 @@
 #define STATICJSON_MOVE_IF_NOEXCEPT(x) STATICJSON_MOVE(x)
 #endif
 
-namespace staticjson {
-namespace utility {
+namespace staticjson
+{
+namespace utility
+{
+    struct NonMobile
+    {
+        NonMobile() {}
+        ~NonMobile() {}
+        NonMobile(const NonMobile&) = delete;
+        NonMobile(NonMobile&&) = delete;
+        NonMobile& operator=(const NonMobile&) = delete;
+        NonMobile& operator=(NonMobile&&) = delete;
+    };
 
     typedef unsigned int SizeType;
     typedef long long int64_t;
@@ -63,57 +75,67 @@ namespace utility {
 
     const std::size_t default_buffer_size = 256;
 
-    namespace traits {
-        struct true_type {
+    namespace traits
+    {
+        struct true_type
+        {
             static const bool value = true;
         };
 
-        struct false_type {
+        struct false_type
+        {
             static const bool value = false;
         };
 
         template <class T>
-        struct is_simple_type : public false_type {
+        struct is_simple_type : public false_type
+        {
         };
 
         template <>
-        struct is_simple_type<bool> : public true_type {
+        struct is_simple_type<bool> : public true_type
+        {
         };
 
         template <>
-        struct is_simple_type<char> : public true_type {
+        struct is_simple_type<char> : public true_type
+        {
         };
 
         template <>
-        struct is_simple_type<int> : public true_type {
+        struct is_simple_type<int> : public true_type
+        {
         };
 
         template <>
-        struct is_simple_type<unsigned> : public true_type {
+        struct is_simple_type<unsigned> : public true_type
+        {
         };
 
         template <>
-        struct is_simple_type<utility::int64_t> : public true_type {
+        struct is_simple_type<utility::int64_t> : public true_type
+        {
         };
 
         template <>
-        struct is_simple_type<utility::uint64_t> : public true_type {
+        struct is_simple_type<utility::uint64_t> : public true_type
+        {
         };
 
         template <>
-        struct is_simple_type<std::string> : public true_type {
+        struct is_simple_type<std::string> : public true_type
+        {
         };
     }
 
     template <class T>
-    struct default_deleter {
-        void operator()(T* ptr) const
-        {
-            delete ptr;
-        }
+    struct default_deleter
+    {
+        void operator()(T* ptr) const { delete ptr; }
     };
 
-    struct file_closer {
+    struct file_closer
+    {
         void operator()(std::FILE* fp) const
         {
             if (fp)
@@ -121,8 +143,9 @@ namespace utility {
         }
     };
 
-    template <class T, class Deleter = default_deleter<T> >
-    class scoped_ptr {
+    template <class T, class Deleter = default_deleter<T>>
+    class scoped_ptr
+    {
     private:
         T* ptr;
 
@@ -139,30 +162,15 @@ namespace utility {
         typedef T* pointer_type;
         typedef T& reference_type;
 
-        explicit scoped_ptr()
-            : ptr(0)
-        {
-        }
+        explicit scoped_ptr() : ptr(0) {}
 
-        explicit scoped_ptr(pointer_type t)
-            : ptr(t)
-        {
-        }
+        explicit scoped_ptr(pointer_type t) : ptr(t) {}
 
-        ~scoped_ptr()
-        {
-            Deleter()(ptr);
-        }
+        ~scoped_ptr() { Deleter()(ptr); }
 
-        pointer_type get() const STATICJSON_NOEXCEPT
-        {
-            return ptr;
-        }
+        pointer_type get() const STATICJSON_NOEXCEPT { return ptr; }
 
-        pointer_type operator->() const STATICJSON_NOEXCEPT
-        {
-            return ptr;
-        }
+        pointer_type operator->() const STATICJSON_NOEXCEPT { return ptr; }
 
         pointer_type release() STATICJSON_NOEXCEPT
         {
@@ -171,10 +179,7 @@ namespace utility {
             return result;
         }
 
-        reference_type operator*() const
-        {
-            return *ptr;
-        }
+        reference_type operator*() const { return *ptr; }
 
         void reset(pointer_type p = 0)
         {
@@ -182,15 +187,9 @@ namespace utility {
             ptr = p;
         }
 
-        void swap(scoped_ptr& that) STATICJSON_NOEXCEPT
-        {
-            std::swap(ptr, that.ptr);
-        }
+        void swap(scoped_ptr& that) STATICJSON_NOEXCEPT { std::swap(ptr, that.ptr); }
 
-        bool empty() const STATICJSON_NOEXCEPT
-        {
-            return ptr == 0;
-        }
+        bool empty() const STATICJSON_NOEXCEPT { return ptr == 0; }
     };
 
     inline bool string_equal(const char* str1, std::size_t len1, const char* str2, std::size_t len2)
@@ -222,9 +221,11 @@ namespace utility {
 
         typedef std::string::const_iterator iterator;
 
-        for (iterator it = str.begin(), end = str.end(); it != end; ++it) {
+        for (iterator it = str.begin(), end = str.end(); it != end; ++it)
+        {
             char c = *it;
-            switch (c) {
+            switch (c)
+            {
             case '\\':
             case '"':
                 sb += '\\';
@@ -336,10 +337,12 @@ namespace utility {
 
     // The standard std::stack is insufficient because it cannot handle noncopyable types in c++03
     template <class T, std::size_t num_elements_per_node>
-    class stack {
+    class stack
+    {
     private:
         // The node is always allocated with new, so no need for alignment tuning
-        struct node {
+        struct node
+        {
             char raw_storage[sizeof(T) * num_elements_per_node];
             node* next;
         };
@@ -365,16 +368,12 @@ namespace utility {
         stack& operator=(const stack&);
 
     public:
-        explicit stack()
-            : head(0)
-            , current_size(num_elements_per_node)
-            , total_size(0)
-        {
-        }
+        explicit stack() : head(0), current_size(num_elements_per_node), total_size(0) {}
 
         T& emplace()
         {
-            if (current_size == num_elements_per_node) {
+            if (current_size == num_elements_per_node)
+            {
                 // operator new always return memory maximumly aligned
                 node* new_node = static_cast<node*>(operator new(sizeof(*new_node)));
                 new_node->next = head;
@@ -387,15 +386,9 @@ namespace utility {
             return *result;
         }
 
-        void push(const T& value)
-        {
-            emplace() = value;
-        }
+        void push(const T& value) { emplace() = value; }
 
-        void push(T& value)
-        {
-            emplace() = value;
-        }
+        void push(T& value) { emplace() = value; }
 
         T& top()
         {
@@ -411,7 +404,8 @@ namespace utility {
             if (current_size > 0)
                 return *reinterpret_cast<T*>(head->raw_storage + sizeof(T) * (current_size - 1));
             else
-                return *reinterpret_cast<T*>(head->next->raw_storage + sizeof(T) * (num_elements_per_node - 1));
+                return *reinterpret_cast<T*>(head->next->raw_storage
+                                             + sizeof(T) * (num_elements_per_node - 1));
         }
 
         void pop()
@@ -431,24 +425,16 @@ namespace utility {
             head = 0;
         }
 
-        bool empty() const STATICJSON_NOEXCEPT
-        {
-            return total_size == 0;
-        }
+        bool empty() const STATICJSON_NOEXCEPT { return total_size == 0; }
 
-        std::size_t size() const STATICJSON_NOEXCEPT
-        {
-            return total_size;
-        }
+        std::size_t size() const STATICJSON_NOEXCEPT { return total_size; }
 
-        ~stack()
-        {
-            clear();
-        }
+        ~stack() { clear(); }
     };
 }
 
-namespace internal {
+namespace internal
+{
     const signed char ARRAY = 0;
     const signed char OBJECT = -1;
 }

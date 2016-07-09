@@ -23,16 +23,17 @@
 #ifndef STATICJSON_BASE_HPP_29A4C106C1B1
 #define STATICJSON_BASE_HPP_29A4C106C1B1
 
-#include <staticjson/utility.hpp>
 #include <staticjson/error.hpp>
+#include <staticjson/utility.hpp>
 
-#include <string>
+#include <algorithm>
 #include <cstring>
 #include <limits>
-#include <algorithm>
+#include <string>
 #include <utility>
 
-namespace staticjson {
+namespace staticjson
+{
 
 using utility::SizeType;
 
@@ -40,16 +41,10 @@ using utility::SizeType;
 template <class T>
 class SAXEventHandler;
 
-template <class Derived, class Ch = char>
-class BaseSAXEventHandler {
+class BaseSAXEventHandler : utility::NonMobile
+{
 protected:
     utility::scoped_ptr<error::ErrorBase> the_error;
-
-public:
-    static const char* type_name()
-    {
-        return Derived::type_name();
-    }
 
 protected:
     bool set_out_of_range(const char* actual_type)
@@ -65,75 +60,36 @@ protected:
     }
 
 public:
-    bool Null()
-    {
-        return set_type_mismatch("null");
-    }
+    BaseSAXEventHandler() {}
+    virtual ~BaseSAXEventHandler() {}
 
-    bool Bool(bool)
-    {
-        return set_type_mismatch("bool");
-    }
+    virtual bool Null() { return set_type_mismatch("null"); }
 
-    bool Int(int)
-    {
-        return set_type_mismatch("int");
-    }
+    virtual bool Bool(bool) { return set_type_mismatch("bool"); }
 
-    bool Uint(unsigned)
-    {
-        return set_type_mismatch("unsigned");
-    }
+    virtual bool Int(int) { return set_type_mismatch("int"); }
 
-    bool Int64(utility::int64_t)
-    {
-        return set_type_mismatch("int64_t");
-    }
+    virtual bool Uint(unsigned) { return set_type_mismatch("unsigned"); }
 
-    bool Uint64(utility::uint64_t)
-    {
-        return set_type_mismatch("uint64_t");
-    }
+    virtual bool Int64(utility::int64_t) { return set_type_mismatch("int64_t"); }
 
-    bool Double(double)
-    {
-        return set_type_mismatch("double");
-    }
+    virtual bool Uint64(utility::uint64_t) { return set_type_mismatch("uint64_t"); }
 
-    bool String(const Ch*, SizeType, bool)
-    {
-        return set_type_mismatch("string");
-    }
+    virtual bool Double(double) { return set_type_mismatch("double"); }
 
-    bool StartObject()
-    {
-        return set_type_mismatch("object");
-    }
+    virtual bool String(const Ch*, SizeType, bool) { return set_type_mismatch("string"); }
 
-    bool Key(const Ch*, SizeType, bool)
-    {
-        return set_type_mismatch("object");
-    }
+    virtual bool StartObject() { return set_type_mismatch("object"); }
 
-    bool EndObject(SizeType)
-    {
-        return set_type_mismatch("object");
-    }
+    virtual bool Key(const Ch*, SizeType, bool) { return set_type_mismatch("object"); }
 
-    bool StartArray()
-    {
-        return set_type_mismatch("array");
-    }
+    virtual bool EndObject(SizeType) { return set_type_mismatch("object"); }
 
-    bool EndArray(SizeType)
-    {
-        return set_type_mismatch("array");
-    }
+    virtual bool StartArray() { return set_type_mismatch("array"); }
 
-    bool HasError() const
-    {
-        return !the_error.empty();
-    }
+    virtual bool EndArray(SizeType) { return set_type_mismatch("array"); }
+
+    bool HasError() const { return !the_error.empty(); }
 
     bool ReapError(error::ErrorStack& errs)
     {
@@ -143,50 +99,37 @@ public:
         return true;
     }
 
-    void PrepareForReuse()
-    {
-        the_error.reset();
-    }
+    bool RawNumber() const { return true; }
+
+    virtual void PrepareForReuse() { the_error.reset(); }
 };
 
 #if STATICJSON_HAS_MODERN_TYPES
 
 template <>
-class SAXEventHandler<std::nullptr_t> : public BaseSAXEventHandler<SAXEventHandler<std::nullptr_t> > {
+class SAXEventHandler<std::nullptr_t> : public BaseSAXEventHandler<SAXEventHandler<std::nullptr_t>>
+{
 private:
 public:
-    static const char* type_name()
-    {
-        return "null";
-    }
+    static const char* type_name() { return "null"; }
 
-    explicit SAXEventHandler(std::nullptr_t*)
-    {
-    }
+    explicit SAXEventHandler(std::nullptr_t*) {}
 
-    bool Null()
-    {
-        return true;
-    }
+    bool Null() { return true; }
 };
 
 #endif
 
 template <>
-class SAXEventHandler<bool> : public BaseSAXEventHandler<SAXEventHandler<bool> > {
+class SAXEventHandler<bool> : public BaseSAXEventHandler<SAXEventHandler<bool>>
+{
 private:
     bool* m_value;
 
 public:
-    static const char* type_name()
-    {
-        return "bool";
-    }
+    static const char* type_name() { return "bool"; }
 
-    explicit SAXEventHandler(bool* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(bool* v) : m_value(v) {}
 
     bool Bool(bool v)
     {
@@ -197,20 +140,15 @@ public:
 
 // This is mostly an alias for `bool` type so that the ugly `std::vector<bool>` can be avoided
 template <>
-class SAXEventHandler<char> : public BaseSAXEventHandler<SAXEventHandler<char> > {
+class SAXEventHandler<char> : public BaseSAXEventHandler<SAXEventHandler<char>>
+{
 private:
     char* m_value;
 
 public:
-    explicit SAXEventHandler(char* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(char* v) : m_value(v) {}
 
-    static const char* type_name()
-    {
-        return "bool";
-    }
+    static const char* type_name() { return "bool"; }
 
     bool Bool(bool v)
     {
@@ -220,15 +158,13 @@ public:
 };
 
 template <>
-class SAXEventHandler<int> : public BaseSAXEventHandler<SAXEventHandler<int> > {
+class SAXEventHandler<int> : public BaseSAXEventHandler<SAXEventHandler<int>>
+{
 private:
     int* m_value;
 
 public:
-    explicit SAXEventHandler(int* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(int* v) : m_value(v) {}
 
     bool Int(int i)
     {
@@ -261,22 +197,17 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "int";
-    }
+    static const char* type_name() { return "int"; }
 };
 
 template <>
-class SAXEventHandler<unsigned> : public BaseSAXEventHandler<SAXEventHandler<unsigned> > {
+class SAXEventHandler<unsigned> : public BaseSAXEventHandler<SAXEventHandler<unsigned>>
+{
 private:
     unsigned* m_value;
 
 public:
-    explicit SAXEventHandler(unsigned* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(unsigned* v) : m_value(v) {}
 
     bool Int(int i)
     {
@@ -309,22 +240,18 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "unsigned";
-    }
+    static const char* type_name() { return "unsigned"; }
 };
 
 template <>
-class SAXEventHandler<utility::int64_t> : public BaseSAXEventHandler<SAXEventHandler<utility::int64_t> > {
+class SAXEventHandler<utility::int64_t>
+    : public BaseSAXEventHandler<SAXEventHandler<utility::int64_t>>
+{
 private:
     utility::int64_t* m_value;
 
 public:
-    explicit SAXEventHandler(utility::int64_t* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(utility::int64_t* v) : m_value(v) {}
 
     bool Int(int i)
     {
@@ -352,22 +279,18 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "int64_t";
-    }
+    static const char* type_name() { return "int64_t"; }
 };
 
 template <>
-class SAXEventHandler<utility::uint64_t> : public BaseSAXEventHandler<SAXEventHandler<utility::uint64_t> > {
+class SAXEventHandler<utility::uint64_t>
+    : public BaseSAXEventHandler<SAXEventHandler<utility::uint64_t>>
+{
 private:
     utility::uint64_t* m_value;
 
 public:
-    explicit SAXEventHandler(utility::uint64_t* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(utility::uint64_t* v) : m_value(v) {}
 
     bool Int(int i)
     {
@@ -397,22 +320,17 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "uint64_t";
-    }
+    static const char* type_name() { return "uint64_t"; }
 };
 
 template <>
-class SAXEventHandler<double> : public BaseSAXEventHandler<SAXEventHandler<double> > {
+class SAXEventHandler<double> : public BaseSAXEventHandler<SAXEventHandler<double>>
+{
 private:
     double* m_value;
 
 public:
-    explicit SAXEventHandler(double* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(double* v) : m_value(v) {}
 
     bool Int(int i)
     {
@@ -453,22 +371,17 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "double";
-    }
+    static const char* type_name() { return "double"; }
 };
 
 template <>
-class SAXEventHandler<std::string> : public BaseSAXEventHandler<SAXEventHandler<std::string> > {
+class SAXEventHandler<std::string> : public BaseSAXEventHandler<SAXEventHandler<std::string>>
+{
 private:
     std::string* m_value;
 
 public:
-    explicit SAXEventHandler(std::string* v)
-        : m_value(v)
-    {
-    }
+    explicit SAXEventHandler(std::string* v) : m_value(v) {}
 
     bool String(const char* str, SizeType length, bool)
     {
@@ -476,85 +389,67 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "string";
-    }
+    static const char* type_name() { return "string"; }
 };
 
 template <class Writer, class T>
 struct Serializer;
 
 template <class Writer>
-struct Serializer<Writer, int> {
-    void operator()(Writer& w, int i) const
-    {
-        w.Int(i);
-    }
+struct Serializer<Writer, int>
+{
+    void operator()(Writer& w, int i) const { w.Int(i); }
 };
 
 #if STATICJSON_HAS_MODERN_TYPES
 
 template <class Writer>
-struct Serializer<Writer, std::nullptr_t> {
-    void operator()(Writer& w, std::nullptr_t) const
-    {
-        w.Null();
-    }
+struct Serializer<Writer, std::nullptr_t>
+{
+    void operator()(Writer& w, std::nullptr_t) const { w.Null(); }
 };
 
 #endif
 
 template <class Writer>
-struct Serializer<Writer, bool> {
-    void operator()(Writer& w, bool b) const
-    {
-        w.Bool(b);
-    }
+struct Serializer<Writer, bool>
+{
+    void operator()(Writer& w, bool b) const { w.Bool(b); }
 };
 
 template <class Writer>
-struct Serializer<Writer, char> {
-    void operator()(Writer& w, char c) const
-    {
-        w.Bool(c);
-    }
+struct Serializer<Writer, char>
+{
+    void operator()(Writer& w, char c) const { w.Bool(c); }
 };
 
 template <class Writer>
-struct Serializer<Writer, unsigned> {
-    void operator()(Writer& w, unsigned i) const
-    {
-        w.Uint(i);
-    }
+struct Serializer<Writer, unsigned>
+{
+    void operator()(Writer& w, unsigned i) const { w.Uint(i); }
 };
 
 template <class Writer>
-struct Serializer<Writer, utility::int64_t> {
-    void operator()(Writer& w, utility::int64_t i) const
-    {
-        w.Int64(i);
-    }
+struct Serializer<Writer, utility::int64_t>
+{
+    void operator()(Writer& w, utility::int64_t i) const { w.Int64(i); }
 };
 
 template <class Writer>
-struct Serializer<Writer, utility::uint64_t> {
-    void operator()(Writer& w, utility::uint64_t i) const
-    {
-        w.Uint64(i);
-    }
+struct Serializer<Writer, utility::uint64_t>
+{
+    void operator()(Writer& w, utility::uint64_t i) const { w.Uint64(i); }
 };
 
 template <class Writer>
-struct Serializer<Writer, double> {
-    void operator()(Writer& w, double d) const
-    {
-        w.Double(d);
-    }
+struct Serializer<Writer, double>
+{
+    void operator()(Writer& w, double d) const { w.Double(d); }
 };
 
 template <class Writer>
-struct Serializer<Writer, std::string> {
+struct Serializer<Writer, std::string>
+{
     void operator()(Writer& w, const std::string& str) const
     {
         w.String(str.c_str(), static_cast<SizeType>(str.size()), true);
