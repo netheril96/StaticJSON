@@ -124,14 +124,14 @@ public:
         return post_processing();
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(std::int64_t i)
     {
         pre_processing();
         top_value()->SetInt64(i);
         return post_processing();
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(std::uint64_t i)
     {
         pre_processing();
         top_value()->SetUint64(i);

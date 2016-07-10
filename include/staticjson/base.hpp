@@ -71,9 +71,9 @@ public:
 
     virtual bool Uint(unsigned) { return set_type_mismatch("unsigned"); }
 
-    virtual bool Int64(utility::int64_t) { return set_type_mismatch("int64_t"); }
+    virtual bool Int64(std::int64_t) { return set_type_mismatch("int64_t"); }
 
-    virtual bool Uint64(utility::uint64_t) { return set_type_mismatch("uint64_t"); }
+    virtual bool Uint64(std::uint64_t) { return set_type_mismatch("uint64_t"); }
 
     virtual bool Double(double) { return set_type_mismatch("double"); }
 
@@ -180,18 +180,18 @@ public:
         return true;
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(std::int64_t i)
     {
-        if (i > static_cast<utility::int64_t>(std::numeric_limits<int>::max())
-            || i < static_cast<utility::int64_t>(std::numeric_limits<int>::min()))
+        if (i > static_cast<std::int64_t>(std::numeric_limits<int>::max())
+            || i < static_cast<std::int64_t>(std::numeric_limits<int>::min()))
             return set_out_of_range("int64_t");
         *m_value = static_cast<int>(i);
         return true;
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(std::uint64_t i)
     {
-        if (i > static_cast<utility::uint64_t>(std::numeric_limits<int>::max()))
+        if (i > static_cast<std::uint64_t>(std::numeric_limits<int>::max()))
             return set_out_of_range("uint64_t");
         *m_value = static_cast<int>(i);
         return true;
@@ -224,17 +224,17 @@ public:
         return true;
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(std::int64_t i)
     {
-        if (i < 0 || i > static_cast<utility::int64_t>(std::numeric_limits<unsigned>::max()))
+        if (i < 0 || i > static_cast<std::int64_t>(std::numeric_limits<unsigned>::max()))
             return set_out_of_range("int64_t");
         *m_value = static_cast<unsigned>(i);
         return true;
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(std::uint64_t i)
     {
-        if (i > static_cast<utility::uint64_t>(std::numeric_limits<unsigned>::max()))
+        if (i > static_cast<std::uint64_t>(std::numeric_limits<unsigned>::max()))
             return set_out_of_range("uint64_t");
         *m_value = static_cast<unsigned>(i);
         return true;
@@ -244,14 +244,14 @@ public:
 };
 
 template <>
-class SAXEventHandler<utility::int64_t>
-    : public BaseSAXEventHandler<SAXEventHandler<utility::int64_t>>
+class SAXEventHandler<std::int64_t>
+    : public BaseSAXEventHandler<SAXEventHandler<std::int64_t>>
 {
 private:
-    utility::int64_t* m_value;
+    std::int64_t* m_value;
 
 public:
-    explicit SAXEventHandler(utility::int64_t* v) : m_value(v) {}
+    explicit SAXEventHandler(std::int64_t* v) : m_value(v) {}
 
     bool Int(int i)
     {
@@ -265,17 +265,17 @@ public:
         return true;
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(std::int64_t i)
     {
         *m_value = i;
         return true;
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(std::uint64_t i)
     {
-        if (i > static_cast<utility::uint64_t>(std::numeric_limits<utility::int64_t>::max()))
+        if (i > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
             return set_out_of_range("uint64_t");
-        *m_value = static_cast<utility::int64_t>(i);
+        *m_value = static_cast<std::int64_t>(i);
         return true;
     }
 
@@ -283,20 +283,20 @@ public:
 };
 
 template <>
-class SAXEventHandler<utility::uint64_t>
-    : public BaseSAXEventHandler<SAXEventHandler<utility::uint64_t>>
+class SAXEventHandler<std::uint64_t>
+    : public BaseSAXEventHandler<SAXEventHandler<std::uint64_t>>
 {
 private:
-    utility::uint64_t* m_value;
+    std::uint64_t* m_value;
 
 public:
-    explicit SAXEventHandler(utility::uint64_t* v) : m_value(v) {}
+    explicit SAXEventHandler(std::uint64_t* v) : m_value(v) {}
 
     bool Int(int i)
     {
         if (i < 0)
             return set_out_of_range("int");
-        *m_value = static_cast<utility::uint64_t>(i);
+        *m_value = static_cast<std::uint64_t>(i);
         return true;
     }
 
@@ -306,15 +306,15 @@ public:
         return true;
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(std::int64_t i)
     {
         if (i < 0)
             return set_out_of_range("int64_t");
-        *m_value = static_cast<utility::uint64_t>(i);
+        *m_value = static_cast<std::uint64_t>(i);
         return true;
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(std::uint64_t i)
     {
         *m_value = i;
         return true;
@@ -344,9 +344,9 @@ public:
         return true;
     }
 
-    bool Int64(utility::int64_t i)
+    bool Int64(std::int64_t i)
     {
-        const utility::int64_t threshold = 1LL << 53;
+        const std::int64_t threshold = 1LL << 53;
         if (i > threshold || i < -threshold)
             return this->set_out_of_range("int64_t");
         // the maximum value of double is much larger, but we want to prevent precision loss
@@ -355,9 +355,9 @@ public:
         return true;
     }
 
-    bool Uint64(utility::uint64_t i)
+    bool Uint64(std::uint64_t i)
     {
-        const utility::uint64_t threshold = 1ULL << 53;
+        const std::uint64_t threshold = 1ULL << 53;
         if (i > threshold)
             return this->set_out_of_range("uint64_t");
 
@@ -430,15 +430,15 @@ struct Serializer<Writer, unsigned>
 };
 
 template <class Writer>
-struct Serializer<Writer, utility::int64_t>
+struct Serializer<Writer, std::int64_t>
 {
-    void operator()(Writer& w, utility::int64_t i) const { w.Int64(i); }
+    void operator()(Writer& w, std::int64_t i) const { w.Int64(i); }
 };
 
 template <class Writer>
-struct Serializer<Writer, utility::uint64_t>
+struct Serializer<Writer, std::uint64_t>
 {
-    void operator()(Writer& w, utility::uint64_t i) const { w.Uint64(i); }
+    void operator()(Writer& w, std::uint64_t i) const { w.Uint64(i); }
 };
 
 template <class Writer>
