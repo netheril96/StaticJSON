@@ -1,5 +1,7 @@
 .DS_Store
 ._*
+xcode/
+*.backup
 # Prerequisites
 *.d
 
