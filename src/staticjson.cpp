@@ -452,6 +452,8 @@ bool ObjectHandler::write(IHandler* output) const
     {
         if (!pair.second.handler || (pair.second.flags & Flags::IgnoreWrite))
             continue;
+        if (!output->Key(pair.first.data(), pair.first.size(), true))
+            return false;
         if (!pair.second.handler->write(output))
             return false;
         ++count;
@@ -506,26 +508,29 @@ namespace nonpublic
     };
 
     template <class InputStream>
-    static bool read_json(InputStream& is, BaseHandler* h, ParseStatus& result)
+    static bool read_json(InputStream& is, BaseHandler* h, ParseStatus* status)
     {
         rapidjson::Reader r;
         rapidjson::ParseResult rc = r.Parse(is, *h);
-        result.set_result(rc.Code(), rc.Offset());
-        h->reap_error(result.error_stack());
-        return !result.has_error();
+        if (status)
+        {
+            status->set_result(rc.Code(), rc.Offset());
+            h->reap_error(status->error_stack());
+        }
+        return rc.Code() == 0;
     }
 
-    bool parse_json_string(const char* str, BaseHandler* handler, ParseStatus& result)
+    bool parse_json_string(const char* str, BaseHandler* handler, ParseStatus* status)
     {
         rapidjson::StringStream is(str);
-        return read_json(is, handler, result);
+        return read_json(is, handler, status);
     }
 
-    bool parse_json_file(std::FILE* fp, BaseHandler* handler, ParseStatus& result)
+    bool parse_json_file(std::FILE* fp, BaseHandler* handler, ParseStatus* status)
     {
         char buffer[1000];
         rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));
-        return read_json(is, handler, result);
+        return read_json(is, handler, status);
     }
 
     struct StringOutputStream : private NonMobile

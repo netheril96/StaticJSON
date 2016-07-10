@@ -23,9 +23,7 @@ TEST_CASE("Basic test")
 {
     MyObject obj;
     const char* input = "{\"i\": -980008}";
-    ParseStatus res;
-    REQUIRE(from_json_string(input, obj, res));
-    CAPTURE(res.description());
+    REQUIRE(from_json_string(input, &obj, nullptr));
     REQUIRE(obj.i == -980008);
 }
 
@@ -34,16 +32,23 @@ TEST_CASE("Failure test")
     MyObject obj;
     const char* input = ("{\"i\": -980008, \"j\": 42}");
     ParseStatus res;
-    REQUIRE(!from_json_string(input, obj, res));
+    REQUIRE(!from_json_string(input, &obj, &res));
     CAPTURE(res.description());
-    REQUIRE(obj.i != -980008);
+    REQUIRE(obj.i == -980008);
 }
 
 TEST_CASE("Vector test")
 {
     std::vector<int> integers;
     const char* input = ("[1,2,3,4,5,6]");
-    ParseStatus res;
-    REQUIRE(from_json_string(input, integers, res));
+    REQUIRE(from_json_string(input, &integers, nullptr));
     REQUIRE(integers.size() == 6);
+}
+
+TEST_CASE("Serial")
+{
+    REQUIRE(to_json_string(123) == "123");
+    MyObject obj;
+    obj.i = 999;
+    REQUIRE(to_pretty_json_string(obj) == "");
 }
