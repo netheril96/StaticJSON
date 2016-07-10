@@ -10,17 +10,17 @@ private:
     int* m_value;
 
 public:
-    void set_data(void* p) noexcept override { m_value = static_cast<int*>(p); }
+    explicit Handler(int* i) : m_value(i) {}
 
     std::string type_name() override { return "int"; }
 
-    bool Int(int i) noexcept override
+    bool Int(int i) override
     {
         *m_value = i;
         return true;
     }
 
-    bool Uint(unsigned i) noexcept override
+    bool Uint(unsigned i) override
     {
         if (i > static_cast<unsigned>(std::numeric_limits<int>::max()))
             return set_out_of_range("unsigned");
@@ -28,7 +28,7 @@ public:
         return true;
     }
 
-    bool Int64(std::int64_t i) noexcept override
+    bool Int64(std::int64_t i) override
     {
         if (i > static_cast<std::int64_t>(std::numeric_limits<int>::max())
             || i < static_cast<std::int64_t>(std::numeric_limits<int>::min()))
@@ -37,7 +37,7 @@ public:
         return true;
     }
 
-    bool Uint64(std::uint64_t i) noexcept override
+    bool Uint64(std::uint64_t i) override
     {
         if (i > static_cast<std::uint64_t>(std::numeric_limits<int>::max()))
             return set_out_of_range("uint64_t");
@@ -45,6 +45,6 @@ public:
         return true;
     }
 
-    bool write(IHandler* output) const noexcept override { return output->Int(*m_value); }
+    bool write(IHandler* output) const override { return output->Int(*m_value); }
 };
 }

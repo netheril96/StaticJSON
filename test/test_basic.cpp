@@ -7,9 +7,8 @@ using namespace staticjson;
 
 TEST_CASE("Basic test")
 {
-    Handler<int> h;
     int i;
-    h.set_data(&i);
+    Handler<int> h(&i);
     rapidjson::StringStream ss("123");
     rapidjson::Reader r;
     REQUIRE(r.Parse<0>(ss, h));

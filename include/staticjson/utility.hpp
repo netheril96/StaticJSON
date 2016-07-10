@@ -48,7 +48,7 @@
 #endif
 
 #if STATICJSON_HAS_NOEXCEPT
-#define STATICJSON_NOEXCEPT noexcept
+#define STATICJSON_NOEXCEPT
 #define STATICJSON_MOVE_IF_NOEXCEPT(x) std::move_if_noexcept(x)
 #else
 #define STATICJSON_NOEXCEPT
