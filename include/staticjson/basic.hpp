@@ -76,7 +76,7 @@ public:
 
     virtual ~BaseHandler();
 
-    virtual std::string type_name() = 0;
+    virtual std::string type_name() const = 0;
 
     virtual bool Null() override { return set_type_mismatch("null"); }
 
@@ -168,7 +168,7 @@ public:
 
     ~ObjectHandler();
 
-    std::string type_name() override;
+    std::string type_name() const override;
 
     virtual bool Null() override;
 

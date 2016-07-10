@@ -22,7 +22,7 @@ ObjectHandler::ObjectHandler() {}
 
 ObjectHandler::~ObjectHandler() {}
 
-std::string ObjectHandler::type_name() { return "object"; }
+std::string ObjectHandler::type_name() const { return "object"; }
 
 bool ObjectHandler::precheck(const char* actual_type)
 {
@@ -185,6 +185,7 @@ bool ObjectHandler::EndObject(SizeType sz)
     {
         return POSTCHECK(current->handler->EndObject(sz));
     }
+    this->parsed = true;
     for (auto&& pair : internals)
     {
         if (pair.second.handler && (pair.second.flags & Flags::Required)
@@ -217,7 +218,6 @@ bool ObjectHandler::reap_error(error::ErrorStack& stack)
 bool ObjectHandler::write(IHandler* output) const
 {
     SizeType count = 0;
-    bool rc = false;
     if (!output->StartObject())
         return false;
 
@@ -226,11 +226,9 @@ bool ObjectHandler::write(IHandler* output) const
         if (!pair.second.handler || (pair.second.flags & Flags::IgnoreWrite))
             continue;
         if (!pair.second.handler->write(output))
-            goto END;
+            return false;
         ++count;
     }
-    rc = true;
-END:
-    return output->EndObject(count) && rc;
+    return output->EndObject(count);
 }
 }

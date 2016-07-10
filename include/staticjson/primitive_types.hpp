@@ -14,11 +14,12 @@ private:
 public:
     explicit Handler(int* i) : m_value(i) {}
 
-    std::string type_name() override { return "int"; }
+    std::string type_name() const override { return "int"; }
 
     bool Int(int i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
@@ -26,6 +27,7 @@ public:
     {
         if (i > static_cast<unsigned>(std::numeric_limits<int>::max()))
             return set_out_of_range("unsigned");
+        this->parsed = true;
         *m_value = static_cast<int>(i);
         return true;
     }
@@ -35,6 +37,7 @@ public:
         if (i > static_cast<std::int64_t>(std::numeric_limits<int>::max())
             || i < static_cast<std::int64_t>(std::numeric_limits<int>::min()))
             return set_out_of_range("int64_t");
+        this->parsed = true;
         *m_value = static_cast<int>(i);
         return true;
     }
@@ -43,6 +46,7 @@ public:
     {
         if (i > static_cast<std::uint64_t>(std::numeric_limits<int>::max()))
             return set_out_of_range("uint64_t");
+        this->parsed = true;
         *m_value = static_cast<int>(i);
         return true;
     }
@@ -63,13 +67,14 @@ public:
     {
         if (i < 0)
             return set_out_of_range("int");
-
+        this->parsed = true;
         *m_value = static_cast<unsigned>(i);
         return true;
     }
 
     bool Uint(unsigned i) override
     {
+        this->parsed = true;
         *m_value = i;
         return true;
     }
@@ -78,6 +83,7 @@ public:
     {
         if (i < 0 || i > static_cast<std::int64_t>(std::numeric_limits<unsigned>::max()))
             return set_out_of_range("int64_t");
+        this->parsed = true;
         *m_value = static_cast<unsigned>(i);
         return true;
     }
@@ -86,11 +92,12 @@ public:
     {
         if (i > static_cast<std::uint64_t>(std::numeric_limits<unsigned>::max()))
             return set_out_of_range("uint64_t");
+        this->parsed = true;
         *m_value = static_cast<unsigned>(i);
         return true;
     }
 
-    std::string type_name() override { return "unsigned"; }
+    std::string type_name() const override { return "unsigned"; }
 
     bool write(IHandler* out) const override { return out->Uint(*m_value); }
 };
@@ -107,18 +114,21 @@ public:
     bool Int(int i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
     bool Uint(unsigned i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
     bool Int64(std::int64_t i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
@@ -127,10 +137,11 @@ public:
         if (i > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
             return set_out_of_range("uint64_t");
         *m_value = static_cast<std::int64_t>(i);
+        this->parsed = true;
         return true;
     }
 
-    std::string type_name() override { return "int64_t"; }
+    std::string type_name() const override { return "int64_t"; }
 
     bool write(IHandler* out) const override { return out->Int64(*m_value); }
 };
@@ -149,12 +160,14 @@ public:
         if (i < 0)
             return set_out_of_range("int");
         *m_value = static_cast<std::uint64_t>(i);
+        this->parsed = true;
         return true;
     }
 
     bool Uint(unsigned i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
@@ -163,16 +176,18 @@ public:
         if (i < 0)
             return set_out_of_range("int64_t");
         *m_value = static_cast<std::uint64_t>(i);
+        this->parsed = true;
         return true;
     }
 
     bool Uint64(std::uint64_t i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
-    std::string type_name() override { return "uint64_t"; }
+    std::string type_name() const override { return "uint64_t"; }
 
     bool write(IHandler* out) const override { return out->Uint64(*m_value); }
 };
@@ -189,12 +204,14 @@ public:
     bool Int(int i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
     bool Uint(unsigned i) override
     {
         *m_value = i;
+        this->parsed = true;
         return true;
     }
 
@@ -206,6 +223,7 @@ public:
         // the maximum value of double is much larger, but we want to prevent precision loss
 
         *m_value = static_cast<double>(i);
+        this->parsed = true;
         return true;
     }
 
@@ -216,16 +234,18 @@ public:
             return this->set_out_of_range("uint64_t");
 
         *m_value = static_cast<double>(i);
+        this->parsed = true;
         return true;
     }
 
     bool Double(double d) override
     {
         *m_value = d;
+        this->parsed = true;
         return true;
     }
 
-    std::string type_name() override { return "double"; }
+    std::string type_name() const override { return "double"; }
 
     bool write(IHandler* out) const override { return out->Double(*m_value); }
 };
@@ -242,10 +262,11 @@ public:
     bool String(const char* str, SizeType length, bool) override
     {
         m_value->assign(str, length);
+        this->parsed = true;
         return true;
     }
 
-    std::string type_name() override { return "string"; }
+    std::string type_name() const override { return "string"; }
 
     bool write(IHandler* out) const override
     {

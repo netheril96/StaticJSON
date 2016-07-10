@@ -1,5 +1,6 @@
 #include <rapidjson/reader.h>
 #include <staticjson/primitive_types.hpp>
+#include <staticjson/stl_types.hpp>
 
 #include "catch.hpp"
 
@@ -38,4 +39,14 @@ TEST_CASE("Failure test")
     error::ErrorStack stk;
     REQUIRE(h.reap_error(stk));
     std::cerr << stk;
+}
+
+TEST_CASE("Vector test")
+{
+    std::vector<int> integers;
+    Handler<decltype(integers)> h(&integers);
+    rapidjson::StringStream ss("[1,2,3,4,5,6]");
+    rapidjson::Reader r;
+    REQUIRE(r.Parse<0>(ss, h));
+    REQUIRE(integers.size() == 6);
 }
