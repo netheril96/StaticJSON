@@ -1,4 +1,13 @@
 #include <staticjson/basic.hpp>
+#include <staticjson/io.hpp>
+
+#include <rapidjson/filereadstream.h>
+#include <rapidjson/filewritestream.h>
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/reader.h>
+#include <rapidjson/writer.h>
+
+#include <cstdio>
 
 namespace staticjson
 {
@@ -230,5 +239,123 @@ bool ObjectHandler::write(IHandler* output) const
         ++count;
     }
     return output->EndObject(count);
+}
+
+namespace nonpublic
+{
+    template <class T>
+    class IHandlerAdapter : public IHandler
+    {
+    private:
+        T* t;
+
+    public:
+        explicit IHandlerAdapter(T* t) : t(t) {}
+
+        virtual bool Null() override { return t->Null(); }
+
+        virtual bool Bool(bool v) override { return t->Bool(v); }
+
+        virtual bool Int(int v) override { return t->Int(v); }
+
+        virtual bool Uint(unsigned v) override { return t->Uint(v); }
+
+        virtual bool Int64(std::int64_t v) override { return t->Int64(v); }
+
+        virtual bool Uint64(std::uint64_t v) override { return t->Uint64(v); }
+
+        virtual bool Double(double v) override { return t->Double(v); }
+
+        virtual bool String(const char* str, SizeType sz, bool copy) override
+        {
+            return t->String(str, sz, copy);
+        }
+
+        virtual bool StartObject() override { return t->StartObject(); }
+
+        virtual bool Key(const char* str, SizeType sz, bool copy) override
+        {
+            return t->Key(str, sz, copy);
+        }
+
+        virtual bool EndObject(SizeType sz) override { return t->EndObject(sz); }
+
+        virtual bool StartArray() override { return t->StartArray(); }
+
+        virtual bool EndArray(SizeType sz) override { return t->EndArray(sz); }
+
+        virtual void prepare_for_reuse() override { std::abort(); }
+    };
+
+    template <class InputStream>
+    static bool read_json(InputStream& is, BaseHandler* h, ParsingResult& result)
+    {
+        rapidjson::Reader r;
+        result.set_result(r.Parse(is, *h));
+        h->reap_error(result.error_stack());
+        return !result.has_error();
+    }
+
+    bool parse_json_string(const char* str, BaseHandler* handler, ParsingResult& result)
+    {
+        rapidjson::StringStream is(str);
+        return read_json(is, handler, result);
+    }
+
+    bool parse_json_file(std::FILE* fp, BaseHandler* handler, ParsingResult& result)
+    {
+        char buffer[1000];
+        rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));
+        return read_json(is, handler, result);
+    }
+
+    struct StringOutputStream : private NonMobile
+    {
+        std::string* str;
+
+        void Put(char c) { str->push_back(c); }
+
+        void Flush() {}
+    };
+
+    std::string serialize_json_string(const BaseHandler* handler)
+    {
+        std::string result;
+        StringOutputStream os;
+        os.str = &result;
+        rapidjson::Writer<StringOutputStream> writer(os);
+        IHandlerAdapter<decltype(writer)> adapter(&writer);
+        handler->write(&adapter);
+        return result;
+    }
+
+    bool serialize_json_file(std::FILE* fp, const BaseHandler* handler)
+    {
+        char buffer[1000];
+        rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
+        rapidjson::Writer<rapidjson::FileWriteStream> writer(os);
+        IHandlerAdapter<decltype(writer)> adapter(&writer);
+        return handler->write(&adapter);
+    }
+
+    std::string serialize_pretty_json_string(const BaseHandler* handler)
+    {
+        std::string result;
+        StringOutputStream os;
+        os.str = &result;
+        rapidjson::PrettyWriter<StringOutputStream> writer(os);
+        IHandlerAdapter<decltype(writer)> adapter(&writer);
+        handler->write(&adapter);
+        return result;
+    }
+
+    bool serialize_pretty_json_file(std::FILE* fp, const BaseHandler* handler)
+    {
+        char buffer[1000];
+        rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
+        rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
+        IHandlerAdapter<decltype(writer)> adapter(&writer);
+        return handler->write(&adapter);
+    }
 }
 }

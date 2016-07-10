@@ -54,7 +54,7 @@ public:
 
     virtual bool EndArray(SizeType) = 0;
 
-    virtual bool RawNumber() = 0;
+    virtual bool RawNumber() { return true; }
 
     virtual void prepare_for_reuse() = 0;
 };
@@ -118,8 +118,6 @@ public:
     }
 
     bool is_parsed() const { return parsed; }
-
-    bool RawNumber() override { return true; }
 
     void prepare_for_reuse() override
     {
