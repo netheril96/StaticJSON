@@ -182,33 +182,33 @@ public:
         return finish_when_depth_is_right(internal_handler.EndArray(len));
     }
 
-    bool HasError() const
+    bool has_error() const
     {
         if (finished)
-            return static_cast<base_type*>(this)->HasError();
-        return internal_handler.HasError();
+            return static_cast<base_type*>(this)->has_error();
+        return internal_handler.has_error();
     }
 
-    bool ReapError(error::ErrorStack& errs)
+    bool reap_error(error::ErrorStack& errs)
     {
         if (finished)
-            return static_cast<base_type*>(this)->ReapError(errs);
+            return static_cast<base_type*>(this)->reap_error(errs);
 
-        if (internal_handler.HasError()) {
+        if (internal_handler.has_error()) {
             utility::scoped_ptr<error::ErrorBase> guard(new error::ArrayElementError(index));
             errs.push(guard.release());
-            internal_handler.ReapError(errs);
+            internal_handler.reap_error(errs);
             return true;
         }
         return false;
     }
 
-    void PrepareForReuse()
+    void prepare_for_reuse()
     {
         total_depth = 0;
         finished = false;
-        internal_handler.PrepareForReuse();
-        static_cast<base_type*>(this)->PrepareForReuse();
+        internal_handler.prepare_for_reuse();
+        static_cast<base_type*>(this)->prepare_for_reuse();
     }
 };
 
@@ -285,17 +285,17 @@ public:
         return true;
     }
 
-    bool HasError() const
+    bool has_error() const
     {
         return false;
     }
 
-    bool ReapError(error::ErrorStack&)
+    bool reap_error(error::ErrorStack&)
     {
         return false;
     }
 
-    void PrepareForReuse()
+    void prepare_for_reuse()
     {
     }
 };
@@ -330,10 +330,10 @@ public:
         return true;
     }
 
-    void PrepareForReuse()
+    void prepare_for_reuse()
     {
         array_depth = 0;
-        static_cast<base_type*>(this)->PrepareForReuse();
+        static_cast<base_type*>(this)->prepare_for_reuse();
     }
 };
 }

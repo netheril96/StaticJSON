@@ -56,7 +56,7 @@ public:
 
     virtual bool RawNumber() = 0;
 
-    virtual void PrepareForReuse() = 0;
+    virtual void prepare_for_reuse() = 0;
 };
 
 class BaseHandler : public IHandler, private NonMobile
@@ -107,9 +107,9 @@ public:
 
     virtual bool EndArray(SizeType) override { return set_type_mismatch("array"); }
 
-    bool HasError() const { return bool(the_error); }
+    bool has_error() const { return bool(the_error); }
 
-    virtual bool ReapError(error::ErrorStack& errs)
+    virtual bool reap_error(error::ErrorStack& errs)
     {
         if (!the_error)
             return false;
@@ -121,7 +121,7 @@ public:
 
     bool RawNumber() override { return true; }
 
-    void PrepareForReuse() override
+    void prepare_for_reuse() override
     {
         the_error.reset();
         parsed = false;
@@ -130,6 +130,16 @@ public:
 
     virtual bool write(IHandler* output) const = 0;
 };
+
+struct Flags
+{
+    static const unsigned Default = 0x0, AllowDuplicateKey = 0x1, Required = 0x2, IgnoreRead = 0x4,
+                          IgnoreWrite = 0x8, DisallowUnknownKey = 0x16;
+};
+
+// Forward declaration
+template <class T>
+class Handler;
 
 class ObjectHandler : public BaseHandler
 {
@@ -145,11 +155,13 @@ protected:
     FlaggedHandler* current = nullptr;
     std::string current_name;
     int depth = 0;
+    unsigned flags = Flags::Default;
 
 protected:
     bool precheck(const char* type);
     bool postcheck(bool success);
-    void set_missing_required(const char* name);
+    void set_missing_required(const std::string& name);
+    void reset() override;
 
 public:
     ObjectHandler();
@@ -183,15 +195,29 @@ public:
     virtual bool StartArray() override;
 
     virtual bool EndArray(SizeType) override;
+
+    virtual bool reap_error(error::ErrorStack&) override;
+
+    virtual bool write(IHandler* output) const override;
+
+    unsigned get_flags() const { return flags; }
+
+    void set_flags(unsigned f) { flags = f; }
+
+    template <class T>
+    void add_property(const std::string& name, T* pointer, unsigned flags_ = Flags::Default)
+    {
+        FlaggedHandler fh;
+        fh.handler.reset(new Handler<T>(pointer));
+        fh.flags = flags_;
+        internals.emplace(name, std::move(fh));
+    }
 };
 
 template <class T>
 class Handler : public ObjectHandler
 {
-private:
-    T* m_value;
-
 public:
-    explicit Handler(T* t) : m_value(t) {}
+    explicit Handler(T* t) { t->staticjson_init(this); }
 };
 }

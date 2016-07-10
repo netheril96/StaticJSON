@@ -55,7 +55,7 @@ private:
         if (state.size() == 1 && state.top() == internal::ARRAY) {
             static_cast<Derived*>(this)->Push(STATICJSON_MOVE_IF_NOEXCEPT(current));
             current = ElementType();
-            internal_handler.PrepareForReuse();
+            internal_handler.prepare_for_reuse();
         }
     }
 
@@ -192,26 +192,26 @@ public:
         return check_depth("object") && checked_event_forwarding(internal_handler.EndObject(length));
     }
 
-    bool HasError() const
+    bool has_error() const
     {
         return !this->the_error.empty();
     }
 
-    bool ReapError(error::ErrorStack& errs)
+    bool reap_error(error::ErrorStack& errs)
     {
         if (this->the_error.empty())
             return false;
 
         errs.push(this->the_error.release());
-        internal_handler.ReapError(errs);
+        internal_handler.reap_error(errs);
         return true;
     }
 
-    void PrepareForReuse()
+    void prepare_for_reuse()
     {
         the_error.reset();
         state.clear();
-        internal_handler.PrepareForReuse();
+        internal_handler.prepare_for_reuse();
     }
 };
 

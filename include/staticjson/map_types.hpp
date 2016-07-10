@@ -61,7 +61,7 @@ private:
             }
 
             value = ElementType();
-            internal_handler.PrepareForReuse();
+            internal_handler.prepare_for_reuse();
         }
         return true;
     }
@@ -178,26 +178,26 @@ public:
         return true;
     }
 
-    bool HasError() const
+    bool has_error() const
     {
         return !this->the_error.empty();
     }
 
-    bool ReapError(error::ErrorStack& errs)
+    bool reap_error(error::ErrorStack& errs)
     {
         if (this->the_error.empty())
             return false;
 
         errs.push(this->the_error.release());
-        internal_handler.ReapError(errs);
+        internal_handler.reap_error(errs);
         return true;
     }
 
-    void PrepareForReuse()
+    void prepare_for_reuse()
     {
         the_error.reset();
         state.clear();
-        internal_handler.PrepareForReuse();
+        internal_handler.prepare_for_reuse();
     }
 };
 

@@ -89,9 +89,9 @@ public:
 
     virtual bool EndArray(SizeType) { return set_type_mismatch("array"); }
 
-    bool HasError() const { return !the_error.empty(); }
+    bool has_error() const { return !the_error.empty(); }
 
-    bool ReapError(error::ErrorStack& errs)
+    bool reap_error(error::ErrorStack& errs)
     {
         if (the_error.empty())
             return false;
@@ -101,7 +101,7 @@ public:
 
     bool RawNumber() const { return true; }
 
-    virtual void PrepareForReuse() { the_error.reset(); }
+    virtual void prepare_for_reuse() { the_error.reset(); }
 };
 
 #if STATICJSON_HAS_MODERN_TYPES

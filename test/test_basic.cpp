@@ -3,14 +3,39 @@
 
 #include "catch.hpp"
 
+#include <iostream>
+
 using namespace staticjson;
+
+struct MyObject
+{
+    int i;
+
+    void staticjson_init(ObjectHandler* h)
+    {
+        h->set_flags(Flags::DisallowUnknownKey);
+        h->add_property("i", &i);
+    }
+};
 
 TEST_CASE("Basic test")
 {
-    int i;
-    Handler<int> h(&i);
-    rapidjson::StringStream ss("123");
+    MyObject obj;
+    Handler<MyObject> h(&obj);
+    rapidjson::StringStream ss("{\"i\": -980008}");
     rapidjson::Reader r;
     REQUIRE(r.Parse<0>(ss, h));
-    REQUIRE(i == 123);
+    REQUIRE(obj.i == -980008);
+}
+
+TEST_CASE("Failure test")
+{
+    MyObject obj;
+    Handler<MyObject> h(&obj);
+    rapidjson::StringStream ss("{\"i\": -980008, \"j\": 42}");
+    rapidjson::Reader r;
+    REQUIRE(!r.Parse<0>(ss, h));
+    error::ErrorStack stk;
+    REQUIRE(h.reap_error(stk));
+    std::cerr << stk;
 }

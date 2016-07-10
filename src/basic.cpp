@@ -31,6 +31,12 @@ bool ObjectHandler::precheck(const char* actual_type)
         the_error.reset(new error::TypeMismatchError(type_name(), actual_type));
         return false;
     }
+    if (!(flags & Flags::AllowDuplicateKey) && current && current->handler
+        && current->handler->is_parsed())
+    {
+        the_error.reset(new error::DuplicateKeyError(current_name));
+        return false;
+    }
     return true;
 }
 
@@ -41,6 +47,17 @@ bool ObjectHandler::postcheck(bool success)
         the_error.reset(new error::ObjectMemberError(current_name));
     }
     return success;
+}
+
+void ObjectHandler::set_missing_required(const std::string& name)
+{
+    if (!the_error || the_error->type() != error::MISSING_REQUIRED)
+        the_error.reset(new error::RequiredFieldMissingError());
+
+    std::vector<std::string>& missing
+        = static_cast<error::RequiredFieldMissingError*>(the_error.get())->missing_members();
+
+    missing.push_back(name);
 }
 
 #define POSTCHECK(x) (!current || !(current->handler) || postcheck(x))
@@ -129,6 +146,15 @@ bool ObjectHandler::Key(const char* str, SizeType sz, bool copy)
         if (it == internals.end())
         {
             current = nullptr;
+            if ((flags & Flags::DisallowUnknownKey))
+            {
+                the_error.reset(new error::UnknownFieldError(str, sz));
+                return false;
+            }
+        }
+        else if (it->second.flags & Flags::IgnoreRead)
+        {
+            current = nullptr;
         }
         else
         {
@@ -159,6 +185,52 @@ bool ObjectHandler::EndObject(SizeType sz)
     {
         return POSTCHECK(current->handler->EndObject(sz));
     }
-    return bool(the_error);
+    for (auto&& pair : internals)
+    {
+        if (pair.second.handler && (pair.second.flags & Flags::Required)
+            && !pair.second.handler->is_parsed())
+        {
+            set_missing_required(pair.first);
+        }
+    }
+    return !the_error;
+}
+
+void ObjectHandler::reset()
+{
+    internals.clear();
+    current = nullptr;
+    current_name.clear();
+    depth = 0;
+}
+
+bool ObjectHandler::reap_error(error::ErrorStack& stack)
+{
+    if (!the_error)
+        return false;
+    stack.push(the_error.release());
+    if (current && current->handler)
+        current->handler->reap_error(stack);
+    return true;
+}
+
+bool ObjectHandler::write(IHandler* output) const
+{
+    SizeType count = 0;
+    bool rc = false;
+    if (!output->StartObject())
+        return false;
+
+    for (auto&& pair : internals)
+    {
+        if (!pair.second.handler || (pair.second.flags & Flags::IgnoreWrite))
+            continue;
+        if (!pair.second.handler->write(output))
+            goto END;
+        ++count;
+    }
+    rc = true;
+END:
+    return output->EndObject(count) && rc;
 }
 }

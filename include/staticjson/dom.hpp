@@ -197,12 +197,12 @@ public:
         return post_processing();
     }
 
-    bool HasError() const
+    bool has_error() const
     {
         return !this->the_error.empty();
     }
 
-    bool ReapError(error::ErrorStack& errs)
+    bool reap_error(error::ErrorStack& errs)
     {
         if (this->the_error.empty())
             return false;
@@ -211,7 +211,7 @@ public:
         return true;
     }
 
-    void PrepareForReuse()
+    void prepare_for_reuse()
     {
         the_error.reset();
         working_stack.clear();
@@ -246,7 +246,7 @@ bool from_document(T& value, const rapidjson::GenericDocument<Encoding, Allocato
 
     handler_type handler(&value);
     doc.template Accept<handler_type>(handler);
-    handler.ReapError(errs);
+    handler.reap_error(errs);
     return errs.empty();
 }
 }

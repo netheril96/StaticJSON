@@ -44,7 +44,7 @@ inline bool from_json(Reader& r, InputStream& is, ValueType& value, ParsingResul
     utility::scoped_ptr<handler_type> handler(new handler_type(&value));
 
     result.set_result(r.Parse(is, *handler));
-    handler->ReapError(result.error_stack());
+    handler->reap_error(result.error_stack());
     return !result.has_error();
 }
 

@@ -371,19 +371,19 @@ public:
         return checked_event_forwarding(internal_handler->EndArray(len));
     }
 
-    bool HasError() const
+    bool has_error() const
     {
-        return internal_handler.get_ptr() && internal_handler->HasError();
+        return internal_handler.get_ptr() && internal_handler->has_error();
     }
 
-    bool ReapError(error::ErrorStack& errs)
+    bool reap_error(error::ErrorStack& errs)
     {
         if (!internal_handler)
             return false;
-        return internal_handler->ReapError(errs);
+        return internal_handler->reap_error(errs);
     }
 
-    void PrepareForReuse()
+    void prepare_for_reuse()
     {
         internal_handler = boost::none;
         depth = 0;
