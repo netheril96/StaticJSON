@@ -1,6 +1,8 @@
 #include <staticjson/basic.hpp>
 #include <staticjson/io.hpp>
 
+#include <rapidjson/error/en.h>
+#include <rapidjson/error/error.h>
 #include <rapidjson/filereadstream.h>
 #include <rapidjson/filewritestream.h>
 #include <rapidjson/prettywriter.h>
@@ -11,6 +13,222 @@
 
 namespace staticjson
 {
+// Adapted from Jettison's implementation (http://jettison.codehaus.org/)
+// Original copyright (compatible with MIT):
+
+// Copyright 2006 Envoi Solutions LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+inline std::string quote(const std::string& str)
+{
+    std::string sb;
+    sb.reserve(str.size() + 8);
+    sb += '\"';
+
+    typedef std::string::const_iterator iterator;
+
+    for (iterator it = str.begin(), end = str.end(); it != end; ++it)
+    {
+        char c = *it;
+        switch (c)
+        {
+        case '\\':
+        case '"':
+            sb += '\\';
+            sb += c;
+            break;
+        case '\b':
+            sb.append("\\b", 2);
+            break;
+        case '\t':
+            sb.append("\\t", 2);
+            break;
+        case '\n':
+            sb.append("\\n", 2);
+            break;
+        case '\f':
+            sb.append("\\f", 2);
+            break;
+        case '\r':
+            sb.append("\\r", 2);
+            break;
+        case '\x00':
+            sb.append("\\x00", 4);
+            break;
+        case '\x01':
+            sb.append("\\x01", 4);
+            break;
+        case '\x02':
+            sb.append("\\x02", 4);
+            break;
+        case '\x03':
+            sb.append("\\x03", 4);
+            break;
+        case '\x04':
+            sb.append("\\x04", 4);
+            break;
+        case '\x05':
+            sb.append("\\x05", 4);
+            break;
+        case '\x06':
+            sb.append("\\x06", 4);
+            break;
+        case '\x07':
+            sb.append("\\x07", 4);
+            break;
+        case '\x0b':
+            sb.append("\\x0b", 4);
+            break;
+        case '\x0e':
+            sb.append("\\x0e", 4);
+            break;
+        case '\x0f':
+            sb.append("\\x0f", 4);
+            break;
+        case '\x10':
+            sb.append("\\x10", 4);
+            break;
+        case '\x11':
+            sb.append("\\x11", 4);
+            break;
+        case '\x12':
+            sb.append("\\x12", 4);
+            break;
+        case '\x13':
+            sb.append("\\x13", 4);
+            break;
+        case '\x14':
+            sb.append("\\x14", 4);
+            break;
+        case '\x15':
+            sb.append("\\x15", 4);
+            break;
+        case '\x16':
+            sb.append("\\x16", 4);
+            break;
+        case '\x17':
+            sb.append("\\x17", 4);
+            break;
+        case '\x18':
+            sb.append("\\x18", 4);
+            break;
+        case '\x19':
+            sb.append("\\x19", 4);
+            break;
+        case '\x1a':
+            sb.append("\\x1a", 4);
+            break;
+        case '\x1b':
+            sb.append("\\x1b", 4);
+            break;
+        case '\x1c':
+            sb.append("\\x1c", 4);
+            break;
+        case '\x1d':
+            sb.append("\\x1d", 4);
+            break;
+        case '\x1e':
+            sb.append("\\x1e", 4);
+            break;
+        case '\x1f':
+            sb.append("\\x1f", 4);
+            break;
+        default:
+            sb += c;
+        }
+    }
+    sb += '\"';
+    return sb;
+}
+
+std::string error::Success::description() const { return "No error"; }
+
+std::string error::ObjectMemberError::description() const
+{
+    return "Error at object memeber with name " + quote(member_name());
+}
+
+std::string error::ArrayElementError::description() const
+{
+    return "Error at array element at index " + std::to_string(index());
+}
+
+std::string error::RequiredFieldMissingError::description() const
+{
+    std::string result = "Missing required field(s): ";
+    bool first = true;
+    for (auto&& name : missing_members())
+    {
+        if (!first)
+        {
+            result += ", ";
+        }
+        first = false;
+        result += quote(name);
+    }
+    return result;
+}
+
+std::string error::NumberOutOfRangeError::description() const
+{
+    return "Number out of range: expected type " + quote(expected_type())
+        + " but the type needed is " + quote(actual_type());
+}
+
+std::string error::TypeMismatchError::description() const
+{
+    return "Type mismatch between expected type " + quote(expected_type()) + " and actual type "
+        + quote(actual_type());
+}
+
+std::string error::DuplicateKeyError::description() const
+{
+    return "Duplicate key in uniquely keyed map type: " + quote(key());
+}
+
+std::string error::UnknownFieldError::description() const
+{
+    return "Unknown field with name: " + quote(field_name());
+}
+
+std::string error::CorruptedDOMError::description() const { return "JSON has invalid structure"; }
+
+std::string ParseStatus::description() const
+{
+    std::string res;
+    if (has_error())
+    {
+        res = "Parsing failed at offset ";
+        res += std::to_string(m_offset);
+        res += " with error code ";
+        res += std::to_string(m_code);
+        res += ":\n";
+        res += rapidjson::GetParseError_En(static_cast<rapidjson::ParseErrorCode>(m_code));
+        res += '\n';
+
+        if (m_stack)
+            res += "\nTraceback (last call first)\n";
+
+        for (auto&& err : m_stack)
+        {
+            res += "* ";
+            res += err.description();
+            res += '\n';
+        }
+    }
+    return res;
+}
+
 IHandler::~IHandler() {}
 
 BaseHandler::~BaseHandler() {}
@@ -214,7 +432,7 @@ void ObjectHandler::reset()
     depth = 0;
 }
 
-bool ObjectHandler::reap_error(error::ErrorStack& stack)
+bool ObjectHandler::reap_error(ErrorStack& stack)
 {
     if (!the_error)
         return false;
@@ -288,21 +506,22 @@ namespace nonpublic
     };
 
     template <class InputStream>
-    static bool read_json(InputStream& is, BaseHandler* h, ParsingResult& result)
+    static bool read_json(InputStream& is, BaseHandler* h, ParseStatus& result)
     {
         rapidjson::Reader r;
-        result.set_result(r.Parse(is, *h));
+        rapidjson::ParseResult rc = r.Parse(is, *h);
+        result.set_result(rc.Code(), rc.Offset());
         h->reap_error(result.error_stack());
         return !result.has_error();
     }
 
-    bool parse_json_string(const char* str, BaseHandler* handler, ParsingResult& result)
+    bool parse_json_string(const char* str, BaseHandler* handler, ParseStatus& result)
     {
         rapidjson::StringStream is(str);
         return read_json(is, handler, result);
     }
 
-    bool parse_json_file(std::FILE* fp, BaseHandler* handler, ParsingResult& result)
+    bool parse_json_file(std::FILE* fp, BaseHandler* handler, ParseStatus& result)
     {
         char buffer[1000];
         rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));

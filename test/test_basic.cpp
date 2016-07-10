@@ -1,4 +1,4 @@
-#include <rapidjson/reader.h>
+#include <staticjson/io.hpp>
 #include <staticjson/primitive_types.hpp>
 #include <staticjson/stl_types.hpp>
 
@@ -22,31 +22,28 @@ struct MyObject
 TEST_CASE("Basic test")
 {
     MyObject obj;
-    Handler<MyObject> h(&obj);
-    rapidjson::StringStream ss("{\"i\": -980008}");
-    rapidjson::Reader r;
-    REQUIRE(r.Parse<0>(ss, h));
+    const char* input = "{\"i\": -980008}";
+    ParseStatus res;
+    REQUIRE(from_json_string(input, obj, res));
+    CAPTURE(res.description());
     REQUIRE(obj.i == -980008);
 }
 
 TEST_CASE("Failure test")
 {
     MyObject obj;
-    Handler<MyObject> h(&obj);
-    rapidjson::StringStream ss("{\"i\": -980008, \"j\": 42}");
-    rapidjson::Reader r;
-    REQUIRE(!r.Parse<0>(ss, h));
-    error::ErrorStack stk;
-    REQUIRE(h.reap_error(stk));
-    std::cerr << stk;
+    const char* input = ("{\"i\": -980008, \"j\": 42}");
+    ParseStatus res;
+    REQUIRE(!from_json_string(input, obj, res));
+    CAPTURE(res.description());
+    REQUIRE(obj.i != -980008);
 }
 
 TEST_CASE("Vector test")
 {
     std::vector<int> integers;
-    Handler<decltype(integers)> h(&integers);
-    rapidjson::StringStream ss("[1,2,3,4,5,6]");
-    rapidjson::Reader r;
-    REQUIRE(r.Parse<0>(ss, h));
+    const char* input = ("[1,2,3,4,5,6]");
+    ParseStatus res;
+    REQUIRE(from_json_string(input, integers, res));
     REQUIRE(integers.size() == 6);
 }

@@ -125,7 +125,7 @@ public:
         return true;
     }
 
-    bool reap_error(error::ErrorStack& stk) override
+    bool reap_error(ErrorStack& stk) override
     {
         if (!the_error)
             return false;
@@ -150,7 +150,7 @@ public:
 
     bool write(IHandler*) const override
     {
-        std::abort();    // Not implemented for now
+        std::terminate();    // Not implemented for now
     }
 
     std::string type_name() const override

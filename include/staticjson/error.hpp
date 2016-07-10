@@ -1,88 +1,57 @@
-// The MIT License (MIT)
-//
-// Copyright (c) 2014 Siyuan Ren (netheril96@gmail.com)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-#ifndef STATICJSON_ERROR_HPP_29A4C106C1B1
-#define STATICJSON_ERROR_HPP_29A4C106C1B1
-
-#ifndef RAPIDJSON_NAMESPACE_BEGIN
-#define RAPIDJSON_NAMESPACE_BEGIN                                                                  \
-    namespace rapidjson                                                                            \
-    {
-#define RAPIDJSON_NAMESPACE_END }
-#endif
-
-#include <rapidjson/error/en.h>
-#include <rapidjson/error/error.h>
-#include <staticjson/utility.hpp>
+#pragma once
 
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
-#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace staticjson
 {
+std::string quote(const std::string& str);
+
+class ErrorStack;
+
 namespace error
 {
+    namespace internal
+    {
+        class error_stack_const_iterator;
+    }
+}
 
+class ErrorBase
+{
+protected:
+    explicit ErrorBase() : next(0) {}
+
+private:
+    ErrorBase* next;
+
+    friend class ErrorStack;
+    friend class error::internal::error_stack_const_iterator;
+
+public:
+    virtual int type() const = 0;
+    virtual bool is_intermediate() const { return false; }
+    virtual ~ErrorBase() {}
+    virtual std::string description() const = 0;
+};
+
+namespace error
+{
     typedef int error_type;
 
     static const error_type SUCCESS = 0, OBJECT_MEMBER = 1, ARRAY_ELEMENT = 2, MISSING_REQUIRED = 3,
                             TYPE_MISMATCH = 4, NUMBER_OUT_OF_RANGE = 5, ARRAY_LENGTH_MISMATCH = 6,
                             UNKNOWN_FIELD = 7, DUPLICATE_KEYS = 8, CORRUPTED_DOM = 9;
 
-    class ErrorStack;
-
-    namespace internal
-    {
-        class error_stack_const_iterator;
-    }
-
-    class ErrorBase
-    {
-    protected:
-        explicit ErrorBase() : next(0) {}
-
-    private:
-        ErrorBase* next;
-
-        friend class ErrorStack;
-        friend class internal::error_stack_const_iterator;
-
-    public:
-        virtual error_type type() const = 0;
-        virtual bool is_intermediate() const { return false; }
-        virtual ~ErrorBase() {}
-        virtual std::string description() const = 0;
-    };
-
     class Success : public ErrorBase
     {
     public:
         explicit Success() {}
-        std::string description() const { return "No error"; }
+        std::string description() const;
         error_type type() const { return SUCCESS; }
     };
 
@@ -102,10 +71,7 @@ namespace error
 
         const std::string& member_name() const { return m_member_name; }
 
-        std::string description() const
-        {
-            return std::string("Error at object member with name ") + utility::quote(member_name());
-        }
+        std::string description() const;
 
         error_type type() const { return OBJECT_MEMBER; }
     };
@@ -120,12 +86,7 @@ namespace error
 
         std::size_t index() const { return m_index; }
 
-        std::string description() const
-        {
-            std::ostringstream ss;
-            ss << "Error at array element with index " << m_index;
-            return ss.str();
-        }
+        std::string description() const;
 
         error_type type() const { return ARRAY_ELEMENT; }
     };
@@ -142,19 +103,7 @@ namespace error
 
         const std::vector<std::string>& missing_members() const { return m_missing_members; }
 
-        std::string description() const
-        {
-            std::string result = "Missing required field(s): ";
-
-            typedef std::vector<std::string>::const_iterator iter;
-            for (iter it = m_missing_members.begin(), end = m_missing_members.end(); it != end;
-                 ++it)
-            {
-                result += utility::quote(*it);
-                result += ' ';
-            }
-            return result;
-        }
+        std::string description() const;
 
         error_type type() const { return MISSING_REQUIRED; }
     };
@@ -176,12 +125,7 @@ namespace error
 
         const std::string& actual_type() const { return m_actual_type; }
 
-        std::string description() const
-        {
-            return std::string("Type mismatch between expected type ")
-                + utility::quote(expected_type()) + " and actual type "
-                + utility::quote(actual_type());
-        }
+        std::string description() const;
 
         error_type type() const { return TYPE_MISMATCH; }
     };
@@ -202,12 +146,7 @@ namespace error
 
         const std::string& actual_type() const { return m_actual_type; }
 
-        std::string description() const
-        {
-            return std::string("Number out of range: expected type ")
-                + utility::quote(expected_type()) + " but the type needed is "
-                + utility::quote(actual_type());
-        }
+        std::string description() const;
 
         error_type type() const { return NUMBER_OUT_OF_RANGE; }
     };
@@ -218,48 +157,13 @@ namespace error
         std::string key_name;
 
     public:
-        explicit DuplicateKeyError(const std::string& name) : key_name(name) {}
-
-#if STATICJSON_HAS_RVALUE
-
-        explicit DuplicateKeyError(std::string&& name) : key_name(STATICJSON_MOVE(name)) {}
-#endif
+        explicit DuplicateKeyError(std::string name) { key_name.swap(name); }
 
         const std::string& key() const { return key_name; }
 
         error_type type() const { return DUPLICATE_KEYS; }
 
-        std::string description() const
-        {
-            return "Duplicate key in uniquely keyed map type: " + utility::quote(key());
-        }
-    };
-
-    class ArrayLengthMismatchError : public ErrorBase
-    {
-    private:
-        std::size_t m_expected_length;
-        std::size_t m_actual_length;
-
-    public:
-        explicit ArrayLengthMismatchError(std::size_t expectedLength, std::size_t actualLength)
-            : m_expected_length(expectedLength), m_actual_length(actualLength)
-        {
-        }
-
-        std::size_t expected_length() const { return m_expected_length; }
-
-        std::size_t actual_length() const { return m_actual_length; }
-
-        std::string description() const
-        {
-            std::ostringstream ss;
-            ss << "Array length mismatch between expected length " << expected_length()
-               << " and actual length " << actual_length();
-            return ss.str();
-        }
-
-        error_type type() const { return ARRAY_LENGTH_MISMATCH; }
+        std::string description() const;
     };
 
     class UnknownFieldError : public ErrorBase
@@ -274,16 +178,13 @@ namespace error
 
         error_type type() const { return UNKNOWN_FIELD; }
 
-        std::string description() const
-        {
-            return "Unknown field with name: " + utility::quote(field_name());
-        }
+        std::string description() const;
     };
 
     class CorruptedDOMError : public ErrorBase
     {
     public:
-        std::string description() const { return "The document has invalid structure"; }
+        std::string description() const;
 
         error_type type() const { return CORRUPTED_DOM; }
     };
@@ -316,202 +217,148 @@ namespace error
             bool operator!=(error_stack_const_iterator that) const { return e != that.e; }
         };
     }
-
-    class ErrorStack
-    {
-    private:
-        ErrorBase* head;
-        std::size_t m_size;
-
-        ErrorStack(const ErrorStack&);
-        ErrorStack& operator=(const ErrorStack&);
-
-    public:
-        typedef internal::error_stack_const_iterator const_iterator;
-
-        explicit ErrorStack() : head(0), m_size(0) {}
-
-        const_iterator begin() const STATICJSON_NOEXCEPT { return const_iterator(head); }
-
-        const_iterator end() const STATICJSON_NOEXCEPT { return const_iterator(0); }
-
-        // This will take the ownership of e
-        // Requires it to be dynamically allocated
-        void push(ErrorBase* e)
-        {
-            if (e)
-            {
-                e->next = head;
-                head = e;
-                ++m_size;
-            }
-        }
-
-        // The caller will take the responsibility of deleting the returned pointer
-        // Returns NULL when empty
-        ErrorBase* pop()
-        {
-            if (head)
-            {
-                ErrorBase* result = head;
-                head = head->next;
-                --m_size;
-                return result;
-            }
-            return 0;
-        }
-
-        bool empty() const STATICJSON_NOEXCEPT { return head == 0; }
-
-        std::size_t size() const STATICJSON_NOEXCEPT { return m_size; }
-
-        ~ErrorStack()
-        {
-            while (head)
-            {
-                ErrorBase* next = head->next;
-                delete head;
-                head = next;
-            }
-        }
-
-        void swap(ErrorStack& other) STATICJSON_NOEXCEPT
-        {
-            std::swap(head, other.head);
-            std::swap(m_size, other.m_size);
-        }
-
-#if STATICJSON_HAS_RAVLUE
-
-        ErrorStack(ErrorStack&& other) : head(other.head), m_size(other.m_size)
-        {
-            other.head = 0;
-            other.m_size = 0;
-        }
-
-        ErrorStack& operator==(ErrorStack&& other) STATICJSON_NOEXCEPT { swap(other); }
-
-#endif
-    };
-
-    // For argument dependent lookup
-    inline void swap(ErrorStack& s1, ErrorStack& s2) { s1.swap(s2); }
-
-    template <class CharType, class Traits>
-    std::basic_ostream<CharType, Traits>& operator<<(std::basic_ostream<CharType, Traits>& out,
-                                                     const ErrorStack& errs)
-    {
-        typedef ErrorStack::const_iterator iterator;
-        for (iterator it = errs.begin(); it != errs.end(); ++it)
-        {
-            out << "(*) " << it->description() << '\n';
-        }
-        return out;
-    }
-
-    class ParsingResult;
-
-    using rapidjson::ParseErrorCode;
-
-    template <class CharType, class Traits>
-    std::basic_ostream<CharType, Traits>& operator<<(std::basic_ostream<CharType, Traits>& out,
-                                                     const ParsingResult& result);
-
-    class ParsingResult
-    {
-    private:
-        rapidjson::ParseResult result;
-        ErrorStack stack;
-
-    public:
-        explicit ParsingResult() : result(), stack() {}
-
-        void set_result(const rapidjson::ParseResult& result_)
-        {
-            result = result_;
-            ErrorStack().swap(stack);
-        }
-
-        void set_result(ParseErrorCode err, std::size_t offset)
-        {
-            result = rapidjson::ParseResult(err, offset);
-        }
-
-        ParseErrorCode error_code() const STATICJSON_NOEXCEPT { return result.Code(); }
-
-        std::size_t offset() const STATICJSON_NOEXCEPT { return result.Offset(); }
-
-        std::string short_description() const { return rapidjson::GetParseError_En(error_code()); }
-
-        ErrorStack& error_stack() { return stack; }
-
-        const ErrorStack& error_stack() const { return stack; }
-
-        typedef ErrorStack::const_iterator const_iterator;
-
-        const_iterator begin() const STATICJSON_NOEXCEPT { return stack.begin(); }
-
-        const_iterator end() const STATICJSON_NOEXCEPT { return stack.end(); }
-
-        bool has_error() const STATICJSON_NOEXCEPT { return result.IsError() || !stack.empty(); }
-
-        std::string description() const
-        {
-            std::ostringstream ss;
-            ss << *this;
-            return ss.str();
-        }
-
-        void swap(ParsingResult& other) STATICJSON_NOEXCEPT
-        {
-            std::swap(result, other.result);
-            stack.swap(other.stack);
-        }
-
-        bool operator!() const STATICJSON_NOEXCEPT { return has_error(); }
-
-#if STATICJSON_HAS_EXPLICIT_OPERATOR
-
-        explicit operator bool() const STATICJSON_NOEXCEPT { return !has_error(); }
-
-#endif
-
-#if STATICJSON_HAS_RVALUE
-
-        ParsingResult(ParsingResult&& other) : result(), stack() { swap(other); }
-
-        ParsingResult& operator==(ParsingResult&& other) STATICJSON_NOEXCEPT
-        {
-            swap(other);
-            return *this;
-        }
-#endif
-    };
-
-    template <class CharType, class Traits>
-    std::basic_ostream<CharType, Traits>& operator<<(std::basic_ostream<CharType, Traits>& out,
-                                                     const ParsingResult& result)
-    {
-        if (result.has_error())
-        {
-            out << "Parsing failed at offset " << result.offset() << " with error code "
-                << result.error_code() << ":\n"
-                << rapidjson::GetParseError_En(result.error_code()) << '\n';
-
-            if (result.error_code() == rapidjson::kParseErrorTermination
-                || !result.error_stack().empty())
-            {
-                out << "\nTrace back (last call first):\n" << result.error_stack();
-            }
-        }
-        return out;
-    }
-
-    // For argument dependent lookup
-    inline void swap(ParsingResult& r1, ParsingResult& r2) { r1.swap(r2); }
 }
 
-using error::ParsingResult;
-}
+class ErrorStack
+{
+private:
+    ErrorBase* head;
+    std::size_t m_size;
 
-#endif
+    ErrorStack(const ErrorStack&);
+    ErrorStack& operator=(const ErrorStack&);
+
+public:
+    typedef error::internal::error_stack_const_iterator const_iterator;
+
+    explicit ErrorStack() : head(0), m_size(0) {}
+
+    const_iterator begin() const { return const_iterator(head); }
+
+    const_iterator end() const { return const_iterator(0); }
+
+    // This will take the ownership of e
+    // Requires it to be dynamically allocated
+    void push(ErrorBase* e)
+    {
+        if (e)
+        {
+            e->next = head;
+            head = e;
+            ++m_size;
+        }
+    }
+
+    // The caller will take the responsibility of deleting the returned pointer
+    // Returns NULL when empty
+    ErrorBase* pop()
+    {
+        if (head)
+        {
+            ErrorBase* result = head;
+            head = head->next;
+            --m_size;
+            return result;
+        }
+        return 0;
+    }
+
+    bool empty() const { return head == 0; }
+
+    explicit operator bool() const { return !empty(); }
+
+    bool operator!() const { return empty(); }
+
+    std::size_t size() const { return m_size; }
+
+    ~ErrorStack()
+    {
+        while (head)
+        {
+            ErrorBase* next = head->next;
+            delete head;
+            head = next;
+        }
+    }
+
+    void swap(ErrorStack& other) noexcept
+    {
+        std::swap(head, other.head);
+        std::swap(m_size, other.m_size);
+    }
+
+    ErrorStack(ErrorStack&& other) : head(other.head), m_size(other.m_size)
+    {
+        other.head = 0;
+        other.m_size = 0;
+    }
+
+    ErrorStack& operator==(ErrorStack&& other)
+    {
+        swap(other);
+        return *this;
+    }
+};
+
+// For argument dependent lookup
+inline void swap(ErrorStack& s1, ErrorStack& s2) { s1.swap(s2); }
+
+class ParseStatus
+{
+private:
+    ErrorStack m_stack;
+    std::size_t m_offset;
+    int m_code;
+
+public:
+    explicit ParseStatus() : m_stack(), m_offset(), m_code() {}
+
+    void set_result(int err, std::size_t off)
+    {
+        m_code = err;
+        m_offset = off;
+    }
+
+    int error_code() const { return m_code; }
+
+    std::size_t offset() const { return m_offset; }
+
+    std::string short_description() const;
+
+    ErrorStack& error_stack() { return m_stack; }
+
+    const ErrorStack& error_stack() const { return m_stack; }
+
+    typedef ErrorStack::const_iterator const_iterator;
+
+    const_iterator begin() const { return m_stack.begin(); }
+
+    const_iterator end() const { return m_stack.end(); }
+
+    bool has_error() const { return m_code != 0 || !m_stack.empty(); }
+
+    std::string description() const;
+
+    void swap(ParseStatus& other) noexcept
+    {
+        std::swap(m_code, other.m_code);
+        std::swap(m_offset, other.m_offset);
+        m_stack.swap(other.m_stack);
+    }
+
+    bool operator!() const { return has_error(); }
+
+    explicit operator bool() const { return !has_error(); }
+
+    ParseStatus(ParseStatus&& other) noexcept : m_stack(), m_offset(), m_code() { swap(other); }
+
+    ParseStatus& operator==(ParseStatus&& other) noexcept
+    {
+        swap(other);
+        return *this;
+    }
+};
+
+// For argument dependent lookup
+inline void swap(ParseStatus& r1, ParseStatus& r2) { r1.swap(r2); }
+}

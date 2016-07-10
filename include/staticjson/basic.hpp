@@ -62,7 +62,7 @@ public:
 class BaseHandler : public IHandler, private NonMobile
 {
 protected:
-    std::unique_ptr<error::ErrorBase> the_error;
+    std::unique_ptr<ErrorBase> the_error;
     bool parsed = false;
 
 protected:
@@ -109,7 +109,7 @@ public:
 
     bool has_error() const { return bool(the_error); }
 
-    virtual bool reap_error(error::ErrorStack& errs)
+    virtual bool reap_error(ErrorStack& errs)
     {
         if (!the_error)
             return false;
@@ -194,7 +194,7 @@ public:
 
     virtual bool EndArray(SizeType) override;
 
-    virtual bool reap_error(error::ErrorStack&) override;
+    virtual bool reap_error(ErrorStack&) override;
 
     virtual bool write(IHandler* output) const override;
 
