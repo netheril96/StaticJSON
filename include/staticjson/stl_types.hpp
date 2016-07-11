@@ -1,26 +1,28 @@
 #pragma once
 #include <staticjson/basic.hpp>
 
+#include <deque>
+#include <list>
 #include <map>
 #include <unordered_map>
 #include <vector>
 
 namespace staticjson
 {
-template <class ElementType>
-class BaseArrayHandler : public BaseHandler
+template <class ArrayType>
+class ArrayHandler : public BaseHandler
 {
-protected:
-    virtual std::size_t get_current_size() const = 0;
-    virtual void push(ElementType&&) = 0;
+public:
+    typedef typename ArrayType::value_type ElementType;
 
 protected:
     ElementType element;
     Handler<ElementType> internal;
+    ArrayType* m_value;
     int depth = 0;
 
 protected:
-    void set_element_error() { the_error.reset(new error::ArrayElementError(get_current_size())); }
+    void set_element_error() { the_error.reset(new error::ArrayElementError(m_value->size())); }
 
     bool precheck(const char* type)
     {
@@ -41,7 +43,7 @@ protected:
         }
         if (depth == 1 && internal.is_parsed())
         {
-            push(std::move(element));
+            m_value->emplace_back(std::move(element));
             element = ElementType();
             internal.prepare_for_reuse();
         }
@@ -56,7 +58,7 @@ protected:
     }
 
 public:
-    explicit BaseArrayHandler() : element(), internal(&element) {}
+    explicit ArrayHandler(ArrayType* value) : element(), internal(&element), m_value(value) {}
 
     bool Null() override { return precheck("null") && postcheck(internal.Null()); }
 
@@ -130,20 +132,6 @@ public:
         internal.reap_error(stk);
         return true;
     }
-};
-
-template <class ElementType>
-class Handler<std::vector<ElementType>> : public BaseArrayHandler<ElementType>
-{
-private:
-    std::vector<ElementType>* m_value;
-
-protected:
-    void push(ElementType&& e) override { m_value->push_back(std::move(e)); }
-    std::size_t get_current_size() const override { return m_value->size(); }
-
-public:
-    explicit Handler(std::vector<ElementType>* value) : m_value(value) {}
 
     bool write(IHandler* output) const override
     {
@@ -157,10 +145,41 @@ public:
         }
         return output->EndArray(m_value->size());
     }
+};
+
+template <class T>
+class Handler<std::vector<T>> : public ArrayHandler<std::vector<T>>
+{
+public:
+    explicit Handler(std::vector<T>* value) : ArrayHandler<std::vector<T>>(value) {}
 
     std::string type_name() const override
     {
         return "std::vector<" + this->internal.type_name() + ">";
+    }
+};
+
+template <class T>
+class Handler<std::deque<T>> : public ArrayHandler<std::deque<T>>
+{
+public:
+    explicit Handler(std::deque<T>* value) : ArrayHandler<std::deque<T>>(value) {}
+
+    std::string type_name() const override
+    {
+        return "std::deque<" + this->internal.type_name() + ">";
+    }
+};
+
+template <class T>
+class Handler<std::list<T>> : public ArrayHandler<std::list<T>>
+{
+public:
+    explicit Handler(std::list<T>* value) : ArrayHandler<std::list<T>>(value) {}
+
+    std::string type_name() const override
+    {
+        return "std::list<" + this->internal.type_name() + ">";
     }
 };
 }
