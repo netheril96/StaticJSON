@@ -182,4 +182,378 @@ public:
         return "std::list<" + this->internal.type_name() + ">";
     }
 };
+
+class NullableHandler : public BaseHandler
+{
+protected:
+    std::unique_ptr<BaseHandler> internal_handler;
+    int depth = 0;
+
+protected:
+    void initialize()
+    {
+        if (!internal_handler)
+            protected_init();
+    }
+
+    virtual void protected_init() = 0;
+    virtual void protected_clear() = 0;
+
+    void reset() override
+    {
+        depth = 0;
+        internal_handler.reset();
+        protected_clear();
+    }
+
+    bool postcheck(bool success)
+    {
+        if (!success)
+        {
+            the_error.reset(internal_handler->the_error.release());
+            return success;
+        }
+        this->parsed = internal_handler->is_parsed();
+        return true;
+    }
+
+public:
+    bool Null() override
+    {
+        if (depth == 0)
+        {
+            protected_clear();
+            this->parsed = true;
+            return true;
+        }
+        else
+        {
+            initialize();
+            return postcheck(internal_handler->Null());
+        }
+    }
+
+    bool write(IHandler* out) const override
+    {
+        if (!internal_handler)
+            return false;
+        return internal_handler->write(out);
+    }
+
+    bool Bool(bool b) override
+    {
+        initialize();
+        return postcheck(internal_handler->Bool(b));
+    }
+
+    bool Int(int i) override
+    {
+        initialize();
+        return postcheck(internal_handler->Int(i));
+    }
+
+    bool Uint(unsigned i) override
+    {
+        initialize();
+        return postcheck(internal_handler->Uint(i));
+    }
+
+    bool Int64(std::int64_t i) override
+    {
+        initialize();
+        return postcheck(internal_handler->Int64(i));
+    }
+
+    bool Uint64(std::uint64_t i) override
+    {
+        initialize();
+        return postcheck(internal_handler->Uint64(i));
+    }
+
+    bool Double(double i) override
+    {
+        initialize();
+        return postcheck(internal_handler->Double(i));
+    }
+
+    bool String(const char* str, SizeType len, bool copy) override
+    {
+        initialize();
+        return postcheck(internal_handler->String(str, len, copy));
+    }
+
+    bool Key(const char* str, SizeType len, bool copy) override
+    {
+        initialize();
+        return postcheck(internal_handler->Key(str, len, copy));
+    }
+
+    bool StartObject() override
+    {
+        initialize();
+        ++depth;
+        return internal_handler->StartObject();
+    }
+
+    bool EndObject(SizeType len) override
+    {
+        initialize();
+        --depth;
+        return postcheck(internal_handler->EndObject(len));
+    }
+
+    bool StartArray() override
+    {
+        initialize();
+        ++depth;
+        return internal_handler->StartArray();
+    }
+
+    bool EndArray(SizeType len) override
+    {
+        initialize();
+        --depth;
+        return postcheck(internal_handler->EndArray(len));
+    }
+
+    bool reap_error(ErrorStack& errs) override
+    {
+        if (!internal_handler)
+            return false;
+        return internal_handler->reap_error(errs);
+    }
+};
+
+template <class T>
+class Handler<std::unique_ptr<T>> : public NullableHandler
+{
+private:
+    std::unique_ptr<T>* m_value;
+
+protected:
+    void protected_clear() override { m_value->reset(); }
+
+    void protected_init() override
+    {
+        m_value->reset(new T());
+        internal_handler.reset(new Handler<T>(m_value->get()));
+    }
+
+public:
+    explicit Handler(std::unique_ptr<T>* value) : m_value(value) {}
+
+    std::string type_name() const override
+    {
+        if (internal_handler)
+        {
+            return "std::unique_ptr<" + internal_handler->type_name() + ">";
+        }
+        return "std::unique_ptr";
+    }
+};
+
+template <class T>
+class Handler<std::shared_ptr<T>> : public NullableHandler
+{
+private:
+    std::shared_ptr<T>* m_value;
+
+protected:
+    void protected_clear() override { m_value->reset(); }
+
+    void protected_init() override
+    {
+        m_value->reset(new T());
+        internal_handler.reset(new Handler<T>(m_value->get()));
+    }
+
+public:
+    explicit Handler(std::shared_ptr<T>* value) : m_value(value) {}
+
+    std::string type_name() const override
+    {
+        if (internal_handler)
+        {
+            return "std::shared_ptr<" + internal_handler->type_name() + ">";
+        }
+        return "std::shared_ptr";
+    }
+};
+
+template <class MapType>
+class MapHandler : public BaseHandler
+{
+protected:
+    typedef typename MapType::mapped_type ElementType;
+
+protected:
+    ElementType element;
+    Handler<ElementType> internal_handler;
+    MapType* m_value;
+    std::string current_key;
+    int depth = 0;
+
+protected:
+    void reset() override
+    {
+        element = ElementType();
+        current_key.clear();
+        internal_handler.prepare_for_reuse();
+        depth = 0;
+    }
+
+    bool precheck(const char* type)
+    {
+        if (depth <= 0)
+        {
+            set_type_mismatch(type);
+            return false;
+        }
+        return true;
+    }
+
+    bool postcheck(bool success)
+    {
+        if (!success)
+        {
+            the_error.reset(new error::ObjectMemberError(current_key));
+        }
+        else
+        {
+            if (internal_handler.is_parsed())
+            {
+                m_value->emplace(std::move(current_key), std::move(element));
+                element = ElementType();
+                internal_handler.prepare_for_reuse();
+            }
+        }
+        return success;
+    }
+
+public:
+    explicit MapHandler(MapType* value) : element(), internal_handler(&element), m_value(value) {}
+
+    bool Null() override { return precheck("null") && postcheck(internal_handler.Null()); }
+
+    bool Bool(bool b) override { return precheck("bool") && postcheck(internal_handler.Bool(b)); }
+
+    bool Int(int i) override { return precheck("int") && postcheck(internal_handler.Int(i)); }
+
+    bool Uint(unsigned i) override
+    {
+        return precheck("unsigned") && postcheck(internal_handler.Uint(i));
+    }
+
+    bool Int64(std::int64_t i) override
+    {
+        return precheck("int64_t") && postcheck(internal_handler.Int64(i));
+    }
+
+    bool Uint64(std::uint64_t i) override
+    {
+        return precheck("uint64_t") && postcheck(internal_handler.Uint64(i));
+    }
+
+    bool Double(double d) override
+    {
+        return precheck("double") && postcheck(internal_handler.Double(d));
+    }
+
+    bool String(const char* str, SizeType length, bool copy) override
+    {
+        return precheck("string") && postcheck(internal_handler.String(str, length, copy));
+    }
+
+    bool Key(const char* str, SizeType length, bool copy) override
+    {
+        if (depth > 1)
+            return postcheck(internal_handler.Key(str, length, copy));
+
+        current_key.assign(str, length);
+        return true;
+    }
+
+    bool StartArray() override
+    {
+        if (!precheck("array"))
+            return false;
+        return postcheck(internal_handler.StartArray());
+    }
+
+    bool EndArray(SizeType length) override
+    {
+        return precheck("array") && postcheck(internal_handler.EndArray(length));
+    }
+
+    bool StartObject() override
+    {
+        ++depth;
+        if (depth > 1)
+            return postcheck(internal_handler.StartObject());
+        return true;
+    }
+
+    bool EndObject(SizeType length) override
+    {
+        --depth;
+        if (depth > 0)
+            return postcheck(internal_handler.EndObject(length));
+        return true;
+    }
+
+    bool reap_error(ErrorStack& errs) override
+    {
+        if (!this->the_error)
+            return false;
+
+        errs.push(this->the_error.release());
+        internal_handler.reap_error(errs);
+        return true;
+    }
+
+    bool write(IHandler* out) const override
+    {
+        if (!out->StartObject())
+            return false;
+        for (auto&& pair : *m_value)
+        {
+            if (!out->Key(pair.first.data(), pair.first.size(), true))
+                return false;
+            Handler<ElementType> h(&pair.second);
+            if (!h.write(out))
+                return false;
+        }
+        return out->EndObject(m_value->size());
+    }
+};
+
+template <class T>
+class Handler<std::unordered_map<std::string, T>>
+    : public MapHandler<std::unordered_map<std::string, T>>
+{
+public:
+    explicit Handler(std::unordered_map<std::string, T>* value)
+        : MapHandler<std::unordered_map<std::string, T>>(value)
+    {
+    }
+
+    std::string type_name() const override
+    {
+        return "std::unordered_map<std::string, " + this->internal_handler.type_name() + ">";
+    }
+};
+
+template <class T>
+class Handler<std::map<std::string, T>> : public MapHandler<std::map<std::string, T>>
+{
+public:
+    explicit Handler(std::map<std::string, T>* value) : MapHandler<std::map<std::string, T>>(value)
+    {
+    }
+
+    std::string type_name() const override
+    {
+        return "std::map<std::string, " + this->internal_handler.type_name() + ">";
+    }
+};
 }

@@ -19,7 +19,7 @@ void instantiate_all_types()
     INSTANTIATE(std::string)
     INSTANTIATE(std::vector<float>)
     INSTANTIATE(std::vector<double>)
-    INSTANTIATE(std::deque<std::vector<std::list<std::string>>>);
+    INSTANTIATE(std::deque<std::shared_ptr<std::unique_ptr<std::vector<std::list<std::string>>>>>);
 }
 
 #undef INSTANTIATE

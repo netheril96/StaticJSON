@@ -59,8 +59,12 @@ public:
     virtual void prepare_for_reuse() = 0;
 };
 
+class NullableHandler;
+
 class BaseHandler : public IHandler, private NonMobile
 {
+    friend class NullableHandler;
+
 protected:
     std::unique_ptr<ErrorBase> the_error;
     bool parsed = false;
