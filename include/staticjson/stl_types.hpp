@@ -41,7 +41,7 @@ protected:
             set_element_error();
             return false;
         }
-        if (depth == 1 && internal.is_parsed())
+        if (internal.is_parsed())
         {
             m_value->emplace_back(std::move(element));
             element = ElementType();
@@ -113,13 +113,12 @@ public:
         --depth;
 
         // When depth > 1, this event should be forwarded to the element
-        if (depth > 1 && !internal.EndArray(length))
+        if (depth > 0 && !internal.EndArray(length))
         {
             set_element_error();
             return false;
         }
 
-        postcheck(true);
         this->parsed = true;
         return true;
     }
@@ -208,13 +207,9 @@ protected:
 
     bool postcheck(bool success)
     {
-        if (!success)
-        {
-            the_error.reset(internal_handler->the_error.release());
-            return success;
-        }
-        this->parsed = internal_handler->is_parsed();
-        return true;
+        if (success)
+            this->parsed = internal_handler->is_parsed();
+        return success;
     }
 
 public:
@@ -316,11 +311,11 @@ public:
         return postcheck(internal_handler->EndArray(len));
     }
 
-    bool reap_error(ErrorStack& errs) override
+    bool has_error() const override { return internal_handler && internal_handler->has_error(); }
+
+    bool reap_error(ErrorStack& stk) override
     {
-        if (!internal_handler)
-            return false;
-        return internal_handler->reap_error(errs);
+        return internal_handler && internal_handler->reap_error(stk);
     }
 };
 
@@ -498,6 +493,7 @@ public:
         --depth;
         if (depth > 0)
             return postcheck(internal_handler.EndObject(length));
+        this->parsed = true;
         return true;
     }
 

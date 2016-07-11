@@ -22,22 +22,24 @@ struct Date
     {
         h->add_property("year", &year);
         h->add_property("month", &month);
+        h->add_property("day", &day);
+        h->set_flags(Flags::DisallowUnknownKey);
     }
 };
 
 struct BlockEvent
 {
-    std::uint64_t serial_number, admin_ID;
+    std::uint64_t serial_number, admin_ID = 255;
     Date date;
     std::string description, details;
 
     void staticjson_init(ObjectHandler* h)
     {
         h->add_property("serial_number", &serial_number);
-        h->add_property("administrator ID", &admin_ID);
-        h->add_property("data", &date);
-        h->add_property("description", &description);
-        h->add_property("details", &details);
+        h->add_property("administrator ID", &admin_ID, Flags::Optional);
+        h->add_property("date", &date, Flags::Optional);
+        h->add_property("description", &description, Flags::Optional);
+        h->add_property("details", &details, Flags::Optional);
     }
 };
 
@@ -54,9 +56,9 @@ struct User
     {
         h->add_property("ID", &ID);
         h->add_property("nickname", &nickname);
-        h->add_property("birthday", &birthday);
-        h->add_property("block_event", &block_event);
-        h->add_property("optional_attributes", &optional_attributes);
+        h->add_property("birthday", &birthday, Flags::Optional);
+        h->add_property("block_event", &block_event, Flags::Optional);
+        h->add_property("optional_attributes", &optional_attributes, Flags::Optional);
     }
 };
 
@@ -184,12 +186,13 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
         REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
         REQUIRE(std::distance(err.begin(), err.end()) == 1);
+    }
 
-        auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
-
-        REQUIRE(e.expected_type() == "array");
-
-        REQUIRE(e.actual_type() == "object");
+    SECTION("Missing requied simple", "[missing required]")
+    {
+        Date date;
+        const char* str = "{ \"month\": 12 }";
+        REQUIRE(!from_json_string(str, &date, nullptr));
     }
 
     SECTION("Required field not present; test the path as well",

@@ -413,24 +413,32 @@ bool ObjectHandler::EndObject(SizeType sz)
     {
         return POSTCHECK(current->handler->EndObject(sz));
     }
-    this->parsed = true;
     for (auto&& pair : internals)
     {
-        if (pair.second.handler && (pair.second.flags & Flags::Required)
+        if (pair.second.handler && !(pair.second.flags & Flags::Optional)
             && !pair.second.handler->is_parsed())
         {
             set_missing_required(pair.first);
         }
     }
-    return !the_error;
+    if (!the_error)
+    {
+        this->parsed = true;
+        return true;
+    }
+    return false;
 }
 
 void ObjectHandler::reset()
 {
-    internals.clear();
     current = nullptr;
     current_name.clear();
     depth = 0;
+    for (auto&& pair : internals)
+    {
+        if (pair.second.handler)
+            pair.second.handler->prepare_for_reuse();
+    }
 }
 
 bool ObjectHandler::reap_error(ErrorStack& stack)

@@ -111,7 +111,7 @@ public:
 
     virtual bool EndArray(SizeType) override { return set_type_mismatch("array"); }
 
-    bool has_error() const { return bool(the_error); }
+    virtual bool has_error() const { return bool(the_error); }
 
     virtual bool reap_error(ErrorStack& errs)
     {
@@ -135,7 +135,7 @@ public:
 
 struct Flags
 {
-    static const unsigned Default = 0x0, AllowDuplicateKey = 0x1, Required = 0x2, IgnoreRead = 0x4,
+    static const unsigned Default = 0x0, AllowDuplicateKey = 0x1, Optional = 0x2, IgnoreRead = 0x4,
                           IgnoreWrite = 0x8, DisallowUnknownKey = 0x16;
 };
 
