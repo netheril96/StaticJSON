@@ -92,6 +92,7 @@ struct User
         h->add_property("birthday", &birthday, Flags::Optional);
         h->add_property("block_event", &block_event, Flags::Optional);
         h->add_property("optional_attributes", &optional_attributes, Flags::Optional);
+        h->add_property("dark_history", &dark_history, Flags::Optional);
     }
 };
 
@@ -274,18 +275,6 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
         REQUIRE(static_cast<const error::UnknownFieldError&>(*err.begin()).field_name() == "hour");
     }
 
-    SECTION("Duplicate key", "[parsing], [error], [duplicate key]")
-    {
-        REQUIRE(
-            !from_json_file(get_base_dir() + "/examples/failure/duplicate_key.json", &users, &err));
-        CAPTURE(err.description());
-        REQUIRE(!err.error_stack().empty());
-
-        REQUIRE(err.begin()->type() == error::DUPLICATE_KEYS);
-
-        REQUIRE(static_cast<const error::DuplicateKeyError&>(*err.begin()).key() == "Auth-Token");
-    }
-
     SECTION("Duplicate key in class User", "[parsing], [error], [duplicate key]")
     {
         REQUIRE(!from_json_file(
@@ -345,7 +334,6 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
         REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
 
         auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
-        REQUIRE(e.expected_type() == "object");
         REQUIRE(e.actual_type() == "array");
     }
 
