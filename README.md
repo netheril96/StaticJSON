@@ -26,9 +26,7 @@ Just drop the `include` and `src` directory into your own project and build alon
 int builtin_test() {
     using namespace staticjson;
     std::string a = to_json_string(std::vector<double>{1.0, 2.0, -3.1415});
-    std::string b
-        = to_pretty_json_string(std::map<std::string, 
-                 std::shared_ptr<std::list<bool>>>{});
+    std::string b = to_pretty_json_string(std::map<std::string, std::shared_ptr<std::list<bool>>>{});
 
     std::vector<std::unordered_map<std::string, std::int64_t>> data;
     const char* json_string = "[{\" hello \": 535353, \" world \": 849},"
@@ -116,8 +114,7 @@ Parsing failed at offset 1000 with error code 16:
 Terminate parsing due to Handler error.
   
 Traceback (last call first)
-* Type mismatch between expected type "unsigned long long" and actual type
-"string"
+* Type mismatch between expected type "unsigned long long" and actual type "string"
 * Error at object memeber with name "serial_number"
 * Error at array element at index 0
 * Error at object memeber with name "dark_history"
