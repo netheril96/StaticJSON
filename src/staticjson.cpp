@@ -537,6 +537,8 @@ namespace nonpublic
 
     bool parse_json_file(std::FILE* fp, BaseHandler* handler, ParseStatus* status)
     {
+        if (!fp)
+            return false;
         char buffer[1000];
         rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));
         return read_json(is, handler, status);
@@ -564,6 +566,8 @@ namespace nonpublic
 
     bool serialize_json_file(std::FILE* fp, const BaseHandler* handler)
     {
+        if (!fp)
+            return false;
         char buffer[1000];
         rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
         rapidjson::Writer<rapidjson::FileWriteStream> writer(os);
@@ -584,6 +588,8 @@ namespace nonpublic
 
     bool serialize_pretty_json_file(std::FILE* fp, const BaseHandler* handler)
     {
+        if (!fp)
+            return false;
         char buffer[1000];
         rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
         rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);

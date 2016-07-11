@@ -48,6 +48,12 @@ inline bool from_json_file(const char* filename, T* value, ParseStatus* status)
 }
 
 template <class T>
+inline bool from_json_file(const std::string& filename, T* value, ParseStatus* status)
+{
+    return from_json_file(filename.c_str(), value, status);
+}
+
+template <class T>
 inline std::string to_json_string(const T& value)
 {
     Handler<T> h(const_cast<T*>(&value));
@@ -69,6 +75,12 @@ inline bool to_json_file(const char* filename, const T& value)
 }
 
 template <class T>
+inline bool to_json_file(const std::string& filename, const T& value)
+{
+    return to_json_file(filename.c_str(), value);
+}
+
+template <class T>
 inline std::string to_pretty_json_string(const T& value)
 {
     Handler<T> h(const_cast<T*>(&value));
@@ -87,5 +99,11 @@ inline bool to_pretty_json_file(const char* filename, const T& value)
 {
     nonpublic::FileGuard fg(std::fopen(filename, "wb"));
     return to_pretty_json_file(fg.fp, value);
+}
+
+template <class T>
+inline bool to_pretty_json_file(const std::string& filename, const T& value)
+{
+    return to_pretty_json_file(filename.c_str(), value);
 }
 }

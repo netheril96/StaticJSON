@@ -2,15 +2,48 @@
 
 #include <staticjson/staticjson.hpp>
 
-// Uncomment the next line if you are adventurous
-// #define AUTOJSONCXX_HAS_VARIADIC_TEMPLATE 1
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <system_error>
 
-#ifndef AUTOJSONCXX_ROOT_DIRECTORY
-#define AUTOJSONCXX_ROOT_DIRECTORY ".."
+#ifdef WIN32
+#define stat _stat
 #endif
 
-#include <fstream>
-#include <sstream>
+const std::string& get_base_dir()
+{
+    struct Initializer
+    {
+        std::string path;
+
+        Initializer()
+        {
+            path = ".";
+            struct stat st;
+            for (int i = 0; i < 16; ++i)
+            {
+                if (::stat((path + "/examples").c_str(), &st) == 0)
+                {
+                    return;
+                }
+                else
+                {
+                    path += "/..";
+                }
+            }
+            fprintf(stderr,
+                    "%s",
+                    "No 'examples' directory found in the working directory or its ancestors\n");
+            std::abort();
+        }
+    };
+
+    static const Initializer init;
+    return init.path;
+}
 
 using namespace staticjson;
 
@@ -69,12 +102,20 @@ inline bool operator==(Date d1, Date d2)
 
 inline bool operator!=(Date d1, Date d2) { return !(d1 == d2); }
 
-inline std::string read_all(const char* file_name)
+inline std::string read_all(const std::string& file_name)
 {
-    std::ifstream input(file_name);
-    std::ostringstream buffer;
-    buffer << input.rdbuf();
-    return buffer.str();
+    nonpublic::FileGuard fg(std::fopen(file_name.c_str(), "rb"));
+    if (!fg.fp)
+        throw std::system_error(errno, std::system_category());
+    std::string result;
+    while (1)
+    {
+        int ch = getc(fg.fp);
+        if (ch == EOF)
+            break;
+        result.push_back(static_cast<unsigned char>(ch));
+    }
+    return result;
 }
 
 inline Date create_date(int year, int month, int day)
@@ -93,8 +134,8 @@ TEST_CASE("Test for correct parsing", "[parsing]")
         std::vector<User> users;
         ParseStatus err;
 
-        bool success = from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array.json", &users, &err);
+        bool success
+            = from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err);
         {
             CAPTURE(err.description());
             REQUIRE(success);
@@ -134,8 +175,8 @@ TEST_CASE("Test for correct parsing", "[parsing]")
         std::unordered_map<std::string, User> users;
         ParseStatus err;
 
-        bool success = from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_map.json", &users, &err);
+        bool success
+            = from_json_file(get_base_dir() + "/examples/success/user_map.json", &users, &err);
         {
             CAPTURE(err.description());
             REQUIRE(success);
@@ -179,8 +220,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
     SECTION("Mismatch between array and object", "[parsing], [error], [type mismatch]")
     {
-        REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/single_object.json", &users, &err));
+        REQUIRE(
+            !from_json_file(get_base_dir() + "/examples/failure/single_object.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -199,7 +240,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
             "[parsing], [error], [missing required]")
     {
         REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/missing_required.json", &users, &err));
+            get_base_dir() + "/examples/failure/missing_required.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -223,8 +264,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
     SECTION("Unknown field in strict parsed class Date", "[parsing], [error], [unknown field]")
     {
-        REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/unknown_field.json", &users, &err));
+        REQUIRE(
+            !from_json_file(get_base_dir() + "/examples/failure/unknown_field.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -235,8 +276,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
     SECTION("Duplicate key", "[parsing], [error], [duplicate key]")
     {
-        REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/duplicate_key.json", &users, &err));
+        REQUIRE(
+            !from_json_file(get_base_dir() + "/examples/failure/duplicate_key.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -248,7 +289,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
     SECTION("Duplicate key in class User", "[parsing], [error], [duplicate key]")
     {
         REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/duplicate_key_user.json", &users, &err));
+            get_base_dir() + "/examples/failure/duplicate_key_user.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -259,8 +300,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
     SECTION("Out of range", "[parsing], [error], [out of range]")
     {
-        REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/out_of_range.json", &users, &err));
+        REQUIRE(
+            !from_json_file(get_base_dir() + "/examples/failure/out_of_range.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -270,7 +311,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
     SECTION("Mismatch between integer and string", "[parsing], [error], [type mismatch]")
     {
         REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/integer_string.json", &users, &err));
+            get_base_dir() + "/examples/failure/integer_string.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -279,8 +320,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::vector<config::User
 
     SECTION("Null character in key", "[parsing], [error], [null character]")
     {
-        REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/failure/null_in_key.json", &users, &err));
+        REQUIRE(
+            !from_json_file(get_base_dir() + "/examples/failure/null_in_key.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -296,8 +337,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
 
     SECTION("Mismatch between object and array", "[parsing], [error], [type mismatch]")
     {
-        REQUIRE(!from_json_file(
-            AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array.json", &users, &err));
+        REQUIRE(
+            !from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
 
@@ -310,10 +351,8 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
 
     SECTION("Mismatch in mapped element", "[parsing], [error], [type mismatch]")
     {
-        REQUIRE(!from_json_file(AUTOJSONCXX_ROOT_DIRECTORY
-                                "/examples/failure/map_element_mismatch.json",
-                                &users,
-                                &err));
+        REQUIRE(!from_json_file(
+            get_base_dir() + "/examples/failure/map_element_mismatch.json", &users, &err));
         CAPTURE(err.description());
         REQUIRE(!err.error_stack().empty());
         {
@@ -336,8 +375,8 @@ TEST_CASE("Test for writing JSON", "[serialization]")
     std::vector<User> users;
     ParseStatus err;
 
-    bool success = from_json_file(
-        AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array.json", &users, &err);
+    bool success
+        = from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err);
     {
         CAPTURE(err.description());
         REQUIRE(success);
@@ -345,5 +384,5 @@ TEST_CASE("Test for writing JSON", "[serialization]")
     REQUIRE(users.size() == 2);
 
     REQUIRE(to_json_string(users)
-            == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
+            == read_all(get_base_dir() + "/examples/success/user_array_compact.json"));
 }
