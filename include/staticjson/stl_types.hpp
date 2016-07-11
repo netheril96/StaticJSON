@@ -4,6 +4,7 @@
 #include <deque>
 #include <list>
 #include <map>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -182,27 +183,34 @@ public:
     }
 };
 
-class NullableHandler : public BaseHandler
+template <class PointerType>
+class PointerHandler : public BaseHandler
 {
+public:
+    typedef typename std::pointer_traits<PointerType>::element_type ElementType;
+
 protected:
-    std::unique_ptr<BaseHandler> internal_handler;
+    PointerType* m_value;
+    std::unique_ptr<Handler<ElementType>> internal_handler;
     int depth = 0;
 
 protected:
+    explicit PointerHandler(PointerType* value) : m_value(value) {}
+
     void initialize()
     {
         if (!internal_handler)
-            protected_init();
+        {
+            m_value->reset(new ElementType());
+            internal_handler.reset(new Handler<ElementType>(m_value->get()));
+        }
     }
-
-    virtual void protected_init() = 0;
-    virtual void protected_clear() = 0;
 
     void reset() override
     {
         depth = 0;
         internal_handler.reset();
-        protected_clear();
+        m_value->reset();
     }
 
     bool postcheck(bool success)
@@ -217,7 +225,7 @@ public:
     {
         if (depth == 0)
         {
-            protected_clear();
+            m_value->reset();
             this->parsed = true;
             return true;
         }
@@ -319,57 +327,36 @@ public:
     }
 };
 
-template <class T>
-class Handler<std::unique_ptr<T>> : public NullableHandler
+template <class T, class Deleter>
+class Handler<std::unique_ptr<T, Deleter>> : public PointerHandler<std::unique_ptr<T, Deleter>>
 {
-private:
-    std::unique_ptr<T>* m_value;
-
-protected:
-    void protected_clear() override { m_value->reset(); }
-
-    void protected_init() override
-    {
-        m_value->reset(new T());
-        internal_handler.reset(new Handler<T>(m_value->get()));
-    }
-
 public:
-    explicit Handler(std::unique_ptr<T>* value) : m_value(value) {}
+    explicit Handler(std::unique_ptr<T, Deleter>* value)
+        : PointerHandler<std::unique_ptr<T, Deleter>>(value)
+    {
+    }
 
     std::string type_name() const override
     {
-        if (internal_handler)
+        if (this->internal_handler)
         {
-            return "std::unique_ptr<" + internal_handler->type_name() + ">";
+            return "std::unique_ptr<" + this->internal_handler->type_name() + ">";
         }
         return "std::unique_ptr";
     }
 };
 
 template <class T>
-class Handler<std::shared_ptr<T>> : public NullableHandler
+class Handler<std::shared_ptr<T>> : public PointerHandler<std::shared_ptr<T>>
 {
-private:
-    std::shared_ptr<T>* m_value;
-
-protected:
-    void protected_clear() override { m_value->reset(); }
-
-    void protected_init() override
-    {
-        m_value->reset(new T());
-        internal_handler.reset(new Handler<T>(m_value->get()));
-    }
-
 public:
-    explicit Handler(std::shared_ptr<T>* value) : m_value(value) {}
+    explicit Handler(std::shared_ptr<T>* value) : PointerHandler<std::shared_ptr<T>>(value) {}
 
     std::string type_name() const override
     {
-        if (internal_handler)
+        if (this->internal_handler)
         {
-            return "std::shared_ptr<" + internal_handler->type_name() + ">";
+            return "std::shared_ptr<" + this->internal_handler->type_name() + ">";
         }
         return "std::shared_ptr";
     }
@@ -523,13 +510,13 @@ public:
     }
 };
 
-template <class T>
-class Handler<std::unordered_map<std::string, T>>
-    : public MapHandler<std::unordered_map<std::string, T>>
+template <class T, class Hash, class Equal>
+class Handler<std::unordered_map<std::string, T, Hash, Equal>>
+    : public MapHandler<std::unordered_map<std::string, T, Hash, Equal>>
 {
 public:
-    explicit Handler(std::unordered_map<std::string, T>* value)
-        : MapHandler<std::unordered_map<std::string, T>>(value)
+    explicit Handler(std::unordered_map<std::string, T, Hash, Equal>* value)
+        : MapHandler<std::unordered_map<std::string, T, Hash, Equal>>(value)
     {
     }
 
@@ -539,17 +526,51 @@ public:
     }
 };
 
-template <class T>
-class Handler<std::map<std::string, T>> : public MapHandler<std::map<std::string, T>>
+template <class T, class Hash, class Equal>
+class Handler<std::map<std::string, T, Hash, Equal>>
+    : public MapHandler<std::map<std::string, T, Hash, Equal>>
 {
 public:
-    explicit Handler(std::map<std::string, T>* value) : MapHandler<std::map<std::string, T>>(value)
+    explicit Handler(std::map<std::string, T, Hash, Equal>* value)
+        : MapHandler<std::map<std::string, T, Hash, Equal>>(value)
     {
     }
 
     std::string type_name() const override
     {
         return "std::map<std::string, " + this->internal_handler.type_name() + ">";
+    }
+};
+
+template <class T, class Hash, class Equal>
+class Handler<std::unordered_multimap<std::string, T, Hash, Equal>>
+    : public MapHandler<std::unordered_multimap<std::string, T, Hash, Equal>>
+{
+public:
+    explicit Handler(std::unordered_multimap<std::string, T, Hash, Equal>* value)
+        : MapHandler<std::unordered_multimap<std::string, T, Hash, Equal>>(value)
+    {
+    }
+
+    std::string type_name() const override
+    {
+        return "std::unordered_mulitimap<std::string, " + this->internal_handler.type_name() + ">";
+    }
+};
+
+template <class T, class Hash, class Equal>
+class Handler<std::multimap<std::string, T, Hash, Equal>>
+    : public MapHandler<std::multimap<std::string, T, Hash, Equal>>
+{
+public:
+    explicit Handler(std::multimap<std::string, T, Hash, Equal>* value)
+        : MapHandler<std::multimap<std::string, T, Hash, Equal>>(value)
+    {
+    }
+
+    std::string type_name() const override
+    {
+        return "std::multimap<std::string, " + this->internal_handler.type_name() + ">";
     }
 };
 }
