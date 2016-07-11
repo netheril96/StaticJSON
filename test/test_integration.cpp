@@ -50,15 +50,23 @@ using namespace staticjson;
 struct Date
 {
     int year, month, day;
+};
 
-    void staticjson_init(ObjectHandler* h)
+namespace staticjson
+{
+template <>
+class Handler<Date> : public ObjectHandler
+{
+public:
+    explicit Handler(Date* d)
     {
-        h->add_property("year", &year);
-        h->add_property("month", &month);
-        h->add_property("day", &day);
-        h->set_flags(Flags::DisallowUnknownKey);
+        add_property("year", &d->year);
+        add_property("month", &d->month);
+        add_property("day", &d->day);
+        set_flags(Flags::DisallowUnknownKey);
     }
 };
+}
 
 struct BlockEvent
 {
@@ -78,23 +86,36 @@ struct BlockEvent
 
 struct User
 {
+    friend class Handler<User>;
+
     unsigned long long ID;
     std::string nickname;
     Date birthday;
     std::shared_ptr<BlockEvent> block_event;
     std::vector<BlockEvent> dark_history;
     std::unordered_map<std::string, std::string> optional_attributes;
-
-    void staticjson_init(ObjectHandler* h)
-    {
-        h->add_property("ID", &ID);
-        h->add_property("nickname", &nickname);
-        h->add_property("birthday", &birthday, Flags::Optional);
-        h->add_property("block_event", &block_event, Flags::Optional);
-        h->add_property("optional_attributes", &optional_attributes, Flags::Optional);
-        h->add_property("dark_history", &dark_history, Flags::Optional);
-    }
 };
+
+namespace staticjson
+{
+template <>
+class Handler<User> : public ObjectHandler
+{
+public:
+    explicit Handler(User* user)
+    {
+        auto h = this;
+        h->add_property("ID", &user->ID);
+        h->add_property("nickname", &user->nickname);
+        h->add_property("birthday", &user->birthday, Flags::Optional);
+        h->add_property("block_event", &user->block_event, Flags::Optional);
+        h->add_property("optional_attributes", &user->optional_attributes, Flags::Optional);
+        h->add_property("dark_history", &user->dark_history, Flags::Optional);
+    }
+
+    std::string type_name() const override { return "User"; }
+};
+}
 
 inline bool operator==(Date d1, Date d2)
 {

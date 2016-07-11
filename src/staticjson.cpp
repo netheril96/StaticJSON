@@ -594,7 +594,12 @@ namespace nonpublic
         rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
         rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
         IHandlerAdapter<decltype(writer)> adapter(&writer);
-        return handler->write(&adapter);
+        bool res = handler->write(&adapter);
+        if (res)
+        {
+            putc('\n', fp);
+        }
+        return res;
     }
 }
 }

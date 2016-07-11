@@ -1,6 +1,6 @@
-# autojsoncxx
+# StaticJSON
 
-A header-only library and a code generator to **automagically** translate between **JSON** and **C++** types.
+Fast parsing of JSON directly into C++ objects with static type checks.
 
 ## Overview
 
@@ -8,139 +8,132 @@ JSON is a popular format for data exchange. Reading and writing JSON in C++, how
 
 More importantly, manually writing such code is a violation of **DRY** principle. When manually written, the class definition, parsing and serialization code can easily become out of sync, leading to brittle code and subtle bugs.
 
-*autojsoncxx* is an attempt to solve this problem by automating such process.
+`StaticJSON` is an attempt to solve this problem by automating such process.
 
-### Dependency
+## Build
 
-* [RapidJSON](https://github.com/miloyip/rapidjson)
-* [Python](https://www.python.org) (2.7 or 3.3+)
-* (optional) [Parsimonious](https://github.com/erikrose/parsimonious)
-* (optional) [Catch](https://github.com/philsquared/Catch)
-* (optional) [Boost](http://www.boost.org)
+`StaticJSON` requires a C++11 compiler. Tested with clang++ 3.5, g++ 4.8 and MSVC 2015.
 
-## Features
-
-* The parsing/serializing code are **automagically** generated.
-* **Detailed error message**. Unlike ordinary JSON libraries, *autojsoncxx* will detect not only invalid JSON errors, but also mismatch between JSON value and C++ type specification.
-* **Ease of use**. A single function call is enough for most use cases. The library has no complicated build setup, since it's header only.
-* **Fast**. Based on the streaming API of `rapidjson` and C++ templates, this library is efficient both in space and time.
-* **Flexible**. Whenever the support of a certain class `Foo` is added to the library, all the combination of types, like `std::vector<Foo>`, `std::shared_ptr<Foo>`, `std::deque<std::map<std::string, Foo>>>` is automatically supported as well, thanks to the use of template specialization.
-* **Liberal license**. Both the library and its dependency are licensed liberally (MIT or BSD-like). Anyone is free to copy, distribute, modify or include in their own projects, be it open source or commercial.
-
-## Testing
-
-[![Build Status](https://travis-ci.org/netheril96/autojsoncxx.svg?branch=master)](https://travis-ci.org/netheril96/autojsoncxx)
-
-To build the test, you need a sufficiently new compiler because the goal is to test all the type support, including many ones only introduced in c++11.
-
-First clone the repository, and pull the dependency
-
-```bash
-git clone https://github.com/netheril96/autojsoncxx.git --recursive
-```
-
-*UNIX/Linux/Mac users*:
-
-```bash
-cmake .
-make
-make test
-```
-
-*Windows users*:
-
-Generate the `test/userdef.hpp` file from the definition `examples/userdef.json`. Then open the solution file under `test/mscvXX_test/` to build and run the test.
-
-If too many tests fail, make sure your work directory points to the `test` directory.
-
-### Currently tested compilers
-
-* Clang 3.4/3.5 on Mac OS X (11.9)
-* GCC 4.9 (Homebrew) on Mac OS X (11.9)
-* Clang 3.0 on Ubuntu 12.04 (x64)
-* GCC 4.8 on Ubuntu 14.04.1 (x86/x64)
-* MSVC 10 (x86) on Windows 7
-* MSVC 11/12 (x86/x64) on Windows 7
+Just drop the `include` and `src` directory into your own project and build along with other sources. No special build settings are needed.
 
 ## Quick start
 
-The code generator reads a JSON file that defines the class structure. An example definition is like this
-```javascript
-{
-    "name": "Person",
-    "members":
-    [
-        ["unsigned long long", "ID", {"required": true}],
-        ["std::string", "name", {"default": "anonymous"}],
-        ["double", "height"],
-        ["double", "weight"],
-        ["std::vector<unsigned long long>", "known_associates"]
-    ]
-}
-```
-
-Run the script *autojsoncxx.py* (requires Python 2.7+, including version 3+) on this definition file, and a header file will be generated. It includes a definition for `Person` as well as some helper classes.
-
-```bash
-python autojsoncxx.py --input=persondef.json --output=person.hpp
-```
-
-### Serialization
+### Builtin types
 
 ```c++
-Person p;
-autojsoncxx::to_pretty_json_file("person.json", p);
-autojsoncxx::to_json_file(stdout, p);
-autojsoncxx::to_json_string(std::make_shared<Person>(p));
+#include <staticjson/staticjson.hpp>
+
+int builtin_test() {
+    using namespace staticjson;
+    std::string a = to_json_string(std::vector<double>{1.0, 2.0, -3.1415});
+    std::string b
+        = to_pretty_json_string(std::map<std::string, 
+                 std::shared_ptr<std::list<bool>>>{});
+
+    std::vector<std::unordered_map<std::string, std::int64_t>> data;
+    const char* json_string = "[{\" hello \": 535353, \" world \": 849},"
+        " {\" k \": -548343}]";
+    assert(from_json_string(json_string, &data, nullptr));
+    assert(data.size() == 2);
+    assert(data[1][" k "] == -548343);
+    
+    to_pretty_json_file("/tmp/CC7ADBBC8ED3.json", data);
+    return 0;
+}
 ```
 
-### Parsing
+### Register custom class types
+
+For your own classes, you need to add some definitions first before you can use the `from_json` and `to_json` functions. There are two ways of doing this.
+
+#### Intrusive definition
+
+This way requires you to implement a special method in the class prototyped `void staticjson_init(staticjson::ObjectHandler* h)`. Example definition
 
 ```c++
-autojsoncxx::ParsingResult result;
-Person p;
-if (!autojsoncxx::from_json_file("person.json", p, result)) {
-    std::cerr << result << '\n';
-    return -1;
-}
-```
-
-### Error handling
-
-If the JSON file is malformed, any decent JSON library will detect it and tell you what goes wrong. But what if the JSON value is perfectly valid, but not laid out the way you expected? Usually you have to manually check the DOM tree against your specification, but this library will automatically generates the necessary code.
-
-Here is valid JSON file
-
-```javascript
+struct Date
 {
-    "name": "Mike",
-    "ID": 8940220481904,
-    "height": 1.77,
-    "weight": 70.0,
-    "known_associates": [
-        "Jack", "Mary"
-    ]
+    int year, month, day;
+
+    void staticjson_init(ObjectHandler* h)
+    {
+        h->add_property("year", &year);
+        h->add_property("month", &month);
+        h->add_property("day", &day);
+        h->set_flags(Flags::DisallowUnknownKey);
+    }
+};
+
+struct BlockEvent
+{
+    std::uint64_t serial_number, admin_ID = 255;
+    Date date;
+    std::string description, details;
+
+    void staticjson_init(ObjectHandler* h)
+    {
+        h->add_property("serial_number", &serial_number);
+        h->add_property("administrator ID", &admin_ID, Flags::Optional);
+        h->add_property("date", &date, Flags::Optional);
+        h->add_property("description", &description, Flags::Optional);
+        h->add_property("details", &details, Flags::Optional);
+    }
+};
+```
+
+### Non-intrusive definition
+
+This requires you to specialize a template for your custom class. For example, the `Date` specialization is written as
+
+```c++
+namespace staticjson
+{
+template <>
+class Handler<Date> : public ObjectHandler
+{
+public:
+    explicit Handler(Date* d)
+    {
+        add_property("year", &d->year);
+        add_property("month", &d->month);
+        add_property("day", &d->day);
+        set_flags(Flags::DisallowUnknownKey);
+    }
+};
 }
 ```
 
-Running through the parsing code, and you will get an error output:
+You may need to declare `Handler` as a friend in order to access private and protected members.
+
+## Error handling
+
+`StaticJSON` strives not to let any mismatch between the C++ type specifications and the JSON object slip. It detects and reports all kinds of errors, including type mismatch, integer out of range, floating number precision loss, required fields missing, duplicate keys etc. Many of them can be tuned on or off. It also reports an stack trace in case of error (not actual C++ exception).
+
+The third parameter of all `from_json` family of functions is a nullable pointer to `staticjson::ParseStatus` object. If present, the error information will be dumped into it. An example error message is
 
 ```
-Parsing failed at offset 127 with error code 16:
+Parsing failed at offset 1000 with error code 16:
 Terminate parsing due to Handler error.
-
-Trace back (last call first):
-(*) Type mismatch between expected type "uint64_t" and actual type "string"
-(*) Error at array element with index 0
-(*) Error at object member with name "known_associates"
+  
+Traceback (last call first)
+* Type mismatch between expected type "unsigned long long" and actual type
+"string"
+* Error at object memeber with name "serial_number"
+* Error at array element at index 0
+* Error at object memeber with name "dark_history"
+* Error at array element at index 1
 ```
 
-One can also [query the errors programmingly](https://netheril96.github.io/autojsoncxx/user_guide/error_handling/).
+## List of builtin supported types
 
-## Documentation
+* **Boolean types**: bool, char
+* **Integer types**: int, unsigned int, long, unsigned long, long long, unsigned long long
+* **Floating point types**: float, double
+* **Array types**: std::vector<∙>, std::deque<∙>, std::list<∙>
+* **Nullable types**: std::unique\_ptr<∙>, std::shared\_ptr<∙>
+* **Map types**: std::\{map, multimap, unordered\_map, unordered\_multimap\}<std::string, ∙>
 
-Read more [here](https://netheril96.github.io/autojsoncxx/tutorial).
+## Misc
 
-## Credit
+The project was originally named *autojsoncxx* and requires a code generator to run.
 
-This project is inspired by [google protobuf](https://developers.google.com/protocol-buffers/). It adopts the same approach in protobuf (compiler + definition file), and borrows various parse options from it.
