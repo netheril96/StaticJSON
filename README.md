@@ -1,6 +1,6 @@
 # StaticJSON
 
-Fast parsing of JSON directly into C++ objects with static type checks.
+Fast, direct and static typed parsing of JSON with C++.
 
 ## Overview
 
@@ -133,4 +133,3 @@ Traceback (last call first)
 ## Misc
 
 The project was originally named *autojsoncxx* and requires a code generator to run.
-
