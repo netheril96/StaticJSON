@@ -1,6 +1,4 @@
-#include <staticjson/io.hpp>
-#include <staticjson/primitive_types.hpp>
-#include <staticjson/stl_types.hpp>
+#include <staticjson/staticjson.hpp>
 
 #include "catch.hpp"
 
@@ -41,7 +39,10 @@ TEST_CASE("Vector test")
 {
     std::vector<int> integers;
     const char* input = ("[1,2,3,4,5,6]");
-    REQUIRE(from_json_string(input, &integers, nullptr));
+    ParseStatus res;
+    bool success = from_json_string(input, &integers, nullptr);
+    CAPTURE(res.description());
+    REQUIRE(success);
     REQUIRE(integers.size() == 6);
 }
 
@@ -50,5 +51,6 @@ TEST_CASE("Serial")
     REQUIRE(to_json_string(123) == "123");
     MyObject obj;
     obj.i = 999;
-    REQUIRE(to_pretty_json_string(obj) == "");
+    REQUIRE(to_pretty_json_string(obj).size() > 0);
+    REQUIRE(to_json_string(std::vector<int>{1, 2, 3, 4, 5, 6}) == "[1,2,3,4,5,6]");
 }

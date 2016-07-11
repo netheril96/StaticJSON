@@ -1,23 +1,45 @@
 #pragma once
 #include <staticjson/basic.hpp>
 
+#include <limits>
 #include <string>
+#include <type_traits>
 
 namespace staticjson
 {
-template <>
-class Handler<int> : public BaseHandler
+
+template <class IntType>
+class IntegerHandler : public BaseHandler
 {
-private:
-    int* m_value;
+    static_assert(std::is_arithmetic<IntType>::value, "Only arithmetic types are allowed");
+
+protected:
+    IntType* m_value;
+
+    template <class AnotherIntType>
+    bool is_out_of_range(AnotherIntType a)
+    {
+        typedef typename std::common_type<IntType, AnotherIntType>::type CommonType;
+        bool this_signed = std::numeric_limits<IntType>::is_signed,
+             that_signed = std::numeric_limits<AnotherIntType>::is_signed;
+
+        if (this_signed == that_signed)
+            return CommonType(a) < CommonType(std::numeric_limits<IntType>::min())
+                || CommonType(a) > CommonType(std::numeric_limits<IntType>::max());
+
+        if (this_signed)
+            return CommonType(a) > CommonType(std::numeric_limits<IntType>::max());
+
+        return a < 0 || CommonType(a) > CommonType(std::numeric_limits<IntType>::max());
+    }
 
 public:
-    explicit Handler(int* i) : m_value(i) {}
-
-    std::string type_name() const override { return "int"; }
+    explicit IntegerHandler(IntType* value) : m_value(value) {}
 
     bool Int(int i) override
     {
+        if (is_out_of_range(i))
+            return set_out_of_range("int");
         *m_value = i;
         this->parsed = true;
         return true;
@@ -25,171 +47,161 @@ public:
 
     bool Uint(unsigned i) override
     {
-        if (i > static_cast<unsigned>(std::numeric_limits<int>::max()))
-            return set_out_of_range("unsigned");
+        if (is_out_of_range(i))
+            return set_out_of_range("unsigned int");
+        *m_value = i;
         this->parsed = true;
-        *m_value = static_cast<int>(i);
         return true;
     }
 
     bool Int64(std::int64_t i) override
     {
-        if (i > static_cast<std::int64_t>(std::numeric_limits<int>::max())
-            || i < static_cast<std::int64_t>(std::numeric_limits<int>::min()))
-            return set_out_of_range("int64_t");
+        if (is_out_of_range(i))
+            return set_out_of_range("std::int64_t");
+        *m_value = i;
         this->parsed = true;
-        *m_value = static_cast<int>(i);
         return true;
     }
 
     bool Uint64(std::uint64_t i) override
     {
-        if (i > static_cast<std::uint64_t>(std::numeric_limits<int>::max()))
-            return set_out_of_range("uint64_t");
+        if (is_out_of_range(i))
+            return set_out_of_range("std::uint64_t");
+        *m_value = i;
         this->parsed = true;
-        *m_value = static_cast<int>(i);
         return true;
     }
+
+    bool write(IHandler* output) const override
+    {
+        if (std::numeric_limits<IntType>::is_signed)
+        {
+            return output->Int64(*m_value);
+        }
+        else
+        {
+            return output->Uint64(*m_value);
+        }
+    }
+};
+
+template <>
+class Handler<bool> : public BaseHandler
+{
+private:
+    bool* m_value;
+
+public:
+    explicit Handler(bool* value) : m_value(value) {}
+
+    bool Bool(bool v) override
+    {
+        *m_value = v;
+        this->parsed = true;
+        return true;
+    }
+
+    std::string type_name() const override { return "bool"; }
+
+    bool write(IHandler* output) const override { return output->Bool(*m_value); }
+};
+
+template <>
+class Handler<int> : public IntegerHandler<int>
+{
+public:
+    explicit Handler(int* i) : IntegerHandler<int>(i) {}
+
+    std::string type_name() const override { return "int"; }
 
     bool write(IHandler* output) const override { return output->Int(*m_value); }
 };
 
 template <>
-class Handler<unsigned> : public BaseHandler
+class Handler<unsigned int> : public IntegerHandler<unsigned int>
 {
-private:
-    unsigned* m_value;
-
 public:
-    explicit Handler(unsigned* v) : m_value(v) {}
+    explicit Handler(unsigned* i) : IntegerHandler<unsigned int>(i) {}
 
-    bool Int(int i) override
-    {
-        if (i < 0)
-            return set_out_of_range("int");
-        this->parsed = true;
-        *m_value = static_cast<unsigned>(i);
-        return true;
-    }
+    std::string type_name() const override { return "unsigned int"; }
 
-    bool Uint(unsigned i) override
-    {
-        this->parsed = true;
-        *m_value = i;
-        return true;
-    }
-
-    bool Int64(std::int64_t i) override
-    {
-        if (i < 0 || i > static_cast<std::int64_t>(std::numeric_limits<unsigned>::max()))
-            return set_out_of_range("int64_t");
-        this->parsed = true;
-        *m_value = static_cast<unsigned>(i);
-        return true;
-    }
-
-    bool Uint64(std::uint64_t i) override
-    {
-        if (i > static_cast<std::uint64_t>(std::numeric_limits<unsigned>::max()))
-            return set_out_of_range("uint64_t");
-        this->parsed = true;
-        *m_value = static_cast<unsigned>(i);
-        return true;
-    }
-
-    std::string type_name() const override { return "unsigned"; }
-
-    bool write(IHandler* out) const override { return out->Uint(*m_value); }
+    bool write(IHandler* output) const override { return output->Uint(*m_value); }
 };
 
 template <>
-class Handler<std::int64_t> : public BaseHandler
+class Handler<long> : public IntegerHandler<long>
 {
-private:
-    std::int64_t* m_value;
-
 public:
-    explicit Handler(std::int64_t* v) : m_value(v) {}
+    explicit Handler(long* i) : IntegerHandler<long>(i) {}
 
-    bool Int(int i) override
-    {
-        *m_value = i;
-        this->parsed = true;
-        return true;
-    }
-
-    bool Uint(unsigned i) override
-    {
-        *m_value = i;
-        this->parsed = true;
-        return true;
-    }
-
-    bool Int64(std::int64_t i) override
-    {
-        *m_value = i;
-        this->parsed = true;
-        return true;
-    }
-
-    bool Uint64(std::uint64_t i) override
-    {
-        if (i > static_cast<std::uint64_t>(std::numeric_limits<std::int64_t>::max()))
-            return set_out_of_range("uint64_t");
-        *m_value = static_cast<std::int64_t>(i);
-        this->parsed = true;
-        return true;
-    }
-
-    std::string type_name() const override { return "int64_t"; }
-
-    bool write(IHandler* out) const override { return out->Int64(*m_value); }
+    std::string type_name() const override { return "long"; }
 };
 
 template <>
-class Handler<std::uint64_t> : public BaseHandler
+class Handler<unsigned long> : public IntegerHandler<unsigned long>
+{
+public:
+    explicit Handler(unsigned long* i) : IntegerHandler<unsigned long>(i) {}
+
+    std::string type_name() const override { return "unsigned long"; }
+};
+
+template <>
+class Handler<long long> : public IntegerHandler<long long>
+{
+public:
+    explicit Handler(long long* i) : IntegerHandler<long long>(i) {}
+
+    std::string type_name() const override { return "long long"; }
+};
+
+template <>
+class Handler<unsigned long long> : public IntegerHandler<unsigned long long>
+{
+public:
+    explicit Handler(unsigned long long* i) : IntegerHandler<unsigned long long>(i) {}
+
+    std::string type_name() const override { return "unsigned long long"; }
+};
+
+// char is an alias for bool to work around the stupid `std::vector<bool>`
+template <>
+class Handler<char> : public BaseHandler
 {
 private:
-    std::uint64_t* m_value;
+    char* m_value;
 
 public:
-    explicit Handler(std::uint64_t* v) : m_value(v) {}
+    explicit Handler(char* i) : m_value(i) {}
 
-    bool Int(int i) override
+    std::string type_name() const override { return "bool"; }
+
+    bool Bool(bool v) override
     {
-        if (i < 0)
-            return set_out_of_range("int");
-        *m_value = static_cast<std::uint64_t>(i);
+        *this->m_value = v;
         this->parsed = true;
         return true;
     }
 
-    bool Uint(unsigned i) override
-    {
-        *m_value = i;
-        this->parsed = true;
-        return true;
-    }
+    bool write(IHandler* out) const override { return out->Bool(*m_value); }
+};
 
-    bool Int64(std::int64_t i) override
-    {
-        if (i < 0)
-            return set_out_of_range("int64_t");
-        *m_value = static_cast<std::uint64_t>(i);
-        this->parsed = true;
-        return true;
-    }
+template <>
+class Handler<unsigned char> : public IntegerHandler<unsigned char>
+{
+public:
+    explicit Handler(unsigned char* i) : IntegerHandler<unsigned char>(i) {}
 
-    bool Uint64(std::uint64_t i) override
-    {
-        *m_value = i;
-        this->parsed = true;
-        return true;
-    }
+    std::string type_name() const override { return "unsigned char"; }
+};
 
-    std::string type_name() const override { return "uint64_t"; }
+template <>
+class Handler<signed char> : public IntegerHandler<signed char>
+{
+public:
+    explicit Handler(signed char* i) : IntegerHandler<signed char>(i) {}
 
-    bool write(IHandler* out) const override { return out->Uint64(*m_value); }
+    std::string type_name() const override { return "signed char"; }
 };
 
 template <>
@@ -217,23 +229,18 @@ public:
 
     bool Int64(std::int64_t i) override
     {
-        const std::int64_t threshold = 1LL << 53;
-        if (i > threshold || i < -threshold)
-            return this->set_out_of_range("int64_t");
-        // the maximum value of double is much larger, but we want to prevent precision loss
-
         *m_value = static_cast<double>(i);
+        if (static_cast<decltype(i)>(*m_value) != i)
+            return set_out_of_range("std::int64_t");
         this->parsed = true;
         return true;
     }
 
     bool Uint64(std::uint64_t i) override
     {
-        const std::uint64_t threshold = 1ULL << 53;
-        if (i > threshold)
-            return this->set_out_of_range("uint64_t");
-
         *m_value = static_cast<double>(i);
+        if (static_cast<decltype(i)>(*m_value) != i)
+            return set_out_of_range("std::uint64_t");
         this->parsed = true;
         return true;
     }
@@ -246,6 +253,65 @@ public:
     }
 
     std::string type_name() const override { return "double"; }
+
+    bool write(IHandler* out) const override { return out->Double(*m_value); }
+};
+
+template <>
+class Handler<float> : public BaseHandler
+{
+private:
+    float* m_value;
+
+public:
+    explicit Handler(float* v) : m_value(v) {}
+
+    bool Int(int i) override
+    {
+        *m_value = i;
+        if (static_cast<decltype(i)>(*m_value) != i)
+            return set_out_of_range("int");
+        this->parsed = true;
+        return true;
+    }
+
+    bool Uint(unsigned i) override
+    {
+        *m_value = i;
+        if (static_cast<decltype(i)>(*m_value) != i)
+            return set_out_of_range("unsigned int");
+        this->parsed = true;
+        return true;
+    }
+
+    bool Int64(std::int64_t i) override
+    {
+        *m_value = static_cast<float>(i);
+        if (static_cast<decltype(i)>(*m_value) != i)
+            return set_out_of_range("std::int64_t");
+        this->parsed = true;
+        return true;
+    }
+
+    bool Uint64(std::uint64_t i) override
+    {
+        *m_value = static_cast<float>(i);
+        if (static_cast<decltype(i)>(*m_value) != i)
+            return set_out_of_range("std::uint64_t");
+        this->parsed = true;
+        return true;
+    }
+
+    bool Double(double d) override
+    {
+        *m_value = d;
+        if (static_cast<decltype(d)>(*m_value) != d)
+            return set_out_of_range("double");
+        this->parsed = true;
+        return true;
+    }
+
+    std::string type_name() const override { return "float"; }
 
     bool write(IHandler* out) const override { return out->Double(*m_value); }
 };

@@ -1,5 +1,4 @@
-#include <staticjson/basic.hpp>
-#include <staticjson/io.hpp>
+#include <staticjson/staticjson.hpp>
 
 #include <rapidjson/error/en.h>
 #include <rapidjson/error/error.h>
@@ -217,13 +216,15 @@ std::string ParseStatus::description() const
         res += '\n';
 
         if (m_stack)
+        {
             res += "\nTraceback (last call first)\n";
 
-        for (auto&& err : m_stack)
-        {
-            res += "* ";
-            res += err.description();
-            res += '\n';
+            for (auto&& err : m_stack)
+            {
+                res += "* ";
+                res += err.description();
+                res += '\n';
+            }
         }
     }
     return res;

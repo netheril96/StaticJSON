@@ -1,10 +1,7 @@
 #pragma once
 #include <staticjson/basic.hpp>
 
-#include <deque>
-#include <list>
 #include <map>
-#include <stack>
 #include <unordered_map>
 #include <vector>
 
@@ -148,9 +145,17 @@ protected:
 public:
     explicit Handler(std::vector<ElementType>* value) : m_value(value) {}
 
-    bool write(IHandler*) const override
+    bool write(IHandler* output) const override
     {
-        std::terminate();    // Not implemented for now
+        if (!output->StartArray())
+            return false;
+        for (auto&& e : *m_value)
+        {
+            Handler<ElementType> h(&e);
+            if (!h.write(output))
+                return false;
+        }
+        return output->EndArray(m_value->size());
     }
 
     std::string type_name() const override

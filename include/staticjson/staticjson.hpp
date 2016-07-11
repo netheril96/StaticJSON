@@ -1,40 +1,5 @@
-// The MIT License (MIT)
-//
-// Copyright (c) 2014 Siyuan Ren (netheril96@gmail.com)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-#ifndef STATICJSON_STATICJSON_HPP_29A4C106C1B1
-#define STATICJSON_STATICJSON_HPP_29A4C106C1B1
-
-#include <staticjson/utility.hpp>
-#include <staticjson/base.hpp>
-#include <staticjson/error.hpp>
-#include <staticjson/array_types.hpp>
-#include <staticjson/nullable_types.hpp>
-#include <staticjson/tuple_types.hpp>
-#include <staticjson/map_types.hpp>
-#include <staticjson/to_json.hpp>
-#include <staticjson/from_json.hpp>
-#include <staticjson/dom.hpp>
-#ifdef STATICJSON_ENABLE_BOOST_TYPES
-#include <staticjson/boost_types.hpp>
-#endif
-
-#endif
+#pragma once
+#include <staticjson/basic.hpp>
+#include <staticjson/io.hpp>
+#include <staticjson/primitive_types.hpp>
+#include <staticjson/stl_types.hpp>
