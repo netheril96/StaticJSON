@@ -1,3 +1,4 @@
 language: cpp
-script: "cmake . && make && make test"
-compiler: clang
+sudo: required
+dist: trusty
+script: "cd test && cmake . && make && make test"

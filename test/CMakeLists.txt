@@ -1,23 +1,20 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+PROJECT (test_staticjson)
 
-SET(CMAKE_CXX_FLAGS "-std=c++0x -O2 -Wall -Wextra -pedantic -g")
+if (NOT MSVC)
+    SET(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -Wall -Wextra -pedantic -g")
+endif()
 
-# Generate header
-SET(PYTHON_INTERP python)
-SET(GENERATOR_SCRIPT ${CMAKE_SOURCE_DIR}/autojsoncxx.py)
-SET(DEFINITION_FILE ${CMAKE_SOURCE_DIR}/examples/userdef.json)
-SET(GENERATED_HPP ${CMAKE_SOURCE_DIR}/test/userdef.hpp)
-SET(CODE_TEMPLATE ${CMAKE_SOURCE_DIR}/code_template)
-
-EXEC_PROGRAM("${PYTHON_INTERP} ${GENERATOR_SCRIPT} --check --output=${GENERATED_HPP} --input=${DEFINITION_FILE}")
+if (NOT CMAKE_BUILD_TYPE)
+	SET (CMAKE_BUILD_TYPE Debug)
+endif()
 
 # Create a binary depending on generated header
-INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include 
-                    ${CMAKE_SOURCE_DIR}/rapidjson/include
-                    ${CMAKE_SOURCE_DIR}/catch/single_include)
-SET(TARGET autojsoncxx_catch)
-SET(SOURCES main.cpp test.cpp)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/../include)
+SET(TARGET test_staticjson)
+FILE (GLOB SOURCES ../include/staticjson/*.hpp ../src/*.cpp *.cpp)
 ADD_EXECUTABLE(${TARGET} ${SOURCES})
 
 # Perform testing
-ADD_TEST(NAME ${TARGET} COMMAND ${TARGET} --success)
+enable_testing()
+add_test(NAME ${TARGET} COMMAND ${TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
