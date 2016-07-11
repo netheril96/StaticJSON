@@ -101,11 +101,8 @@ public:
     bool StartArray() override
     {
         ++depth;
-        if (depth > 1 && !internal.StartArray())
-        {
-            set_element_error();
-            return false;
-        }
+        if (depth > 1)
+            return postcheck(internal.StartArray());
         return true;
     }
 
@@ -114,11 +111,8 @@ public:
         --depth;
 
         // When depth > 1, this event should be forwarded to the element
-        if (depth > 0 && !internal.EndArray(length))
-        {
-            set_element_error();
-            return false;
-        }
+        if (depth > 0)
+            return postcheck(internal.EndArray(length));
 
         this->parsed = true;
         return true;
@@ -315,7 +309,7 @@ public:
     {
         initialize();
         ++depth;
-        return internal_handler->StartArray();
+        return postcheck(internal_handler->StartArray());
     }
 
     bool EndArray(SizeType len) override
@@ -463,9 +457,7 @@ public:
 
     bool StartArray() override
     {
-        if (!precheck("array"))
-            return false;
-        return postcheck(internal_handler.StartArray());
+        return precheck("array") && postcheck(internal_handler.StartArray());
     }
 
     bool EndArray(SizeType length) override

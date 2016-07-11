@@ -583,6 +583,7 @@ namespace nonpublic
         rapidjson::PrettyWriter<StringOutputStream> writer(os);
         IHandlerAdapter<decltype(writer)> adapter(&writer);
         handler->write(&adapter);
+        result.push_back('\n');
         return result;
     }
 
