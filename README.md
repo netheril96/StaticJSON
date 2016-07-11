@@ -123,12 +123,12 @@ Traceback (last call first)
 
 ## List of builtin supported types
 
-* **Boolean types**: bool, char
-* **Integer types**: int, unsigned int, long, unsigned long, long long, unsigned long long
-* **Floating point types**: float, double
-* **Array types**: std::vector<∙>, std::deque<∙>, std::list<∙>
-* **Nullable types**: std::unique\_ptr<∙>, std::shared\_ptr<∙>
-* **Map types**: std::\{map, multimap, unordered\_map, unordered\_multimap\}<std::string, ∙>
+* **Boolean types**: `bool`, `char`
+* **Integer types**: `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`
+* **Floating point types**: `float`, `double`
+* **Array types**: `std::vector<●>`, `std::deque<●>`, `std::list<●>`
+* **Nullable types**: `std::unique_ptr<●>`, `std::shared_ptr<●>`
+* **Map types**: `std::{map, multimap, unordered_map, unordered_multimap}<std::string, ●>`
 
 ## Misc
 
