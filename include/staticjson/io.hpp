@@ -22,7 +22,7 @@ namespace nonpublic
         std::FILE* fp;
 
         explicit FileGuard(std::FILE* fp) : fp(fp) {}
-        ~FileGuard() { std::fclose(fp); }
+        ~FileGuard() { if (fp) std::fclose(fp); }
     };
 }
 
