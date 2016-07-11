@@ -191,7 +191,7 @@ public:
 
 protected:
     PointerType* m_value;
-    std::unique_ptr<Handler<ElementType>> internal_handler;
+    mutable std::unique_ptr<Handler<ElementType>> internal_handler;
     int depth = 0;
 
 protected:
@@ -238,8 +238,14 @@ public:
 
     bool write(IHandler* out) const override
     {
+        if (!m_value || !m_value->get())
+        {
+            return out->Null();
+        }
         if (!internal_handler)
-            return false;
+        {
+            internal_handler.reset(new Handler<ElementType>(m_value->get()));
+        }
         return internal_handler->write(out);
     }
 

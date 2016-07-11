@@ -103,6 +103,24 @@ inline bool operator==(Date d1, Date d2)
 
 inline bool operator!=(Date d1, Date d2) { return !(d1 == d2); }
 
+inline bool operator==(const BlockEvent& b1, const BlockEvent& b2)
+{
+    return b1.admin_ID == b2.admin_ID && b1.date == b2.date && b1.description == b2.description
+        && b1.details == b2.details;
+}
+
+inline bool operator!=(const BlockEvent& b1, const BlockEvent& b2) { return !(b1 == b2); }
+
+inline bool operator==(const User& u1, const User& u2)
+{
+    return u1.birthday == u2.birthday && u1.ID == u2.ID && u1.nickname == u2.nickname
+        && u1.dark_history == u2.dark_history && u1.optional_attributes == u2.optional_attributes
+        && ((!u1.block_event && !u2.block_event)
+            || ((u1.block_event && u2.block_event) && *u1.block_event == *u2.block_event));
+}
+
+inline bool operator!=(const User& u1, const User& u2) { return !(u1 == u2); }
+
 inline std::string read_all(const std::string& file_name)
 {
     nonpublic::FileGuard fg(std::fopen(file_name.c_str(), "rb"));
@@ -141,10 +159,10 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             CAPTURE(err.description());
             REQUIRE(success);
         }
-        REQUIRE(users.size() == 2);
+        REQUIRE(users.size() == 3);
 
         {
-            const User& u = users.front();
+            const User& u = users[0];
             REQUIRE(u.ID == 7947402710862746952ULL);
             REQUIRE(u.nickname == "bigger than bigger");
             REQUIRE(u.birthday == create_date(1984, 9, 2));
@@ -162,7 +180,7 @@ TEST_CASE("Test for correct parsing", "[parsing]")
         }
 
         {
-            const User& u = users.back();
+            const User& u = users[1];
             REQUIRE(u.ID == 13478355757133566847ULL);
             REQUIRE(u.nickname.size() == 15);
             REQUIRE(!u.block_event);
@@ -360,7 +378,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
 
 TEST_CASE("Test for writing JSON", "[serialization]")
 {
-    std::vector<User> users;
+    std::vector<User> users, reparsed_users;
     ParseStatus err;
 
     bool success
@@ -369,8 +387,16 @@ TEST_CASE("Test for writing JSON", "[serialization]")
         CAPTURE(err.description());
         REQUIRE(success);
     }
-    REQUIRE(users.size() == 2);
+    REQUIRE(users.size() == 3);
 
-    REQUIRE(to_json_string(users)
-            == read_all(get_base_dir() + "/examples/success/user_array_compact.json"));
+    std::string json_output = to_pretty_json_string(users);
+    CAPTURE(json_output);
+
+    success = from_json_string(json_output.c_str(), &reparsed_users, &err);
+    {
+        CAPTURE(err.description());
+        REQUIRE(success);
+    }
+
+    REQUIRE(users == reparsed_users);
 }

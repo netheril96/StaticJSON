@@ -6,7 +6,7 @@ if (NOT MSVC)
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)
-	SET (CMAKE_BUILD_TYPE Release)
+	SET (CMAKE_BUILD_TYPE Debug)
 endif()
 
 # Create a binary depending on generated header
@@ -16,4 +16,5 @@ FILE (GLOB SOURCES ../include/staticjson/*.hpp ../src/*.cpp *.cpp)
 ADD_EXECUTABLE(${TARGET} ${SOURCES})
 
 # Perform testing
-ADD_TEST(NAME ${TARGET} COMMAND ${TARGET})
+enable_testing()
+add_test(NAME ${TARGET} COMMAND ${TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
