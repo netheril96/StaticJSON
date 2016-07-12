@@ -154,7 +154,7 @@ std::string error::Success::description() const { return "No error"; }
 
 std::string error::ObjectMemberError::description() const
 {
-    return "Error at object memeber with name " + quote(member_name());
+    return "Error at object member with name " + quote(member_name());
 }
 
 std::string error::ArrayElementError::description() const
