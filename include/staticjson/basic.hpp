@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <unordered_map>
 
@@ -153,7 +154,7 @@ protected:
     };
 
 protected:
-    std::unordered_map<std::string, FlaggedHandler> internals;
+    std::map<std::string, FlaggedHandler> internals;
     FlaggedHandler* current = nullptr;
     std::string current_name;
     int depth = 0;

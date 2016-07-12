@@ -96,6 +96,46 @@ void benchmark_array_of_doubles(unsigned count)
     fflush(stderr);
 }
 
+struct SimpleClass
+{
+    std::string name;
+    std::uint64_t ID;
+    bool is_male;
+
+    void staticjson_init(staticjson::ObjectHandler* h)
+    {
+        h->add_property("name", &name);
+        h->add_property("ID", &ID);
+        h->add_property("IsMale", &is_male);
+    }
+};
+
+void benchmark_simple_object(unsigned rounds)
+{
+    SimpleClass object{"8F524689-441D-408C-9D74-25BA9F54ABD4", (1ll << 40) + 3, true};
+
+    auto str = staticjson::to_pretty_json_string(object);
+
+    auto l1 = [&]() {
+        SimpleClass other_object;
+        runtime_assert(staticjson::from_json_string(str.c_str(), &other_object, nullptr));
+        runtime_assert(other_object.name == object.name && other_object.ID == object.ID);
+    };
+
+    auto l2 = [&]() {
+        rapidjson::Document h;
+        h.Parse(str.c_str());
+        runtime_assert(h.IsObject() && h.HasMember("name") && h.HasMember("ID")
+                       && h["ID"].GetUint64() == object.ID);
+    };
+
+    fprintf(stderr,
+            "Parsing simple object %u rounds\n\tStaticJSON: %lld ms\n\tRapidJSON: %lld ms\n",
+            rounds,
+            how_many_milliseconds(l1, rounds),
+            how_many_milliseconds(l2, rounds));
+}
+
 struct MyClass
 {
     std::string name;
@@ -230,6 +270,6 @@ int main()
 {
     // benchmark_array_of_single_int(1000000);
     // benchmark_array_of_doubles(1000000);
-    benchmark_custom_class(1000000);
+    benchmark_simple_object(1000000);
     return 0;
 }

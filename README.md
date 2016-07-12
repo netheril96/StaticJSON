@@ -35,7 +35,7 @@ int builtin_test() {
     assert(data.size() == 2);
     assert(data[1][" k "] == -548343);
     
-    to_pretty_json_file("/tmp/CC7ADBBC8ED3.json", data);
+    to_pretty_json_file(stdout, data);
     return 0;
 }
 ```
@@ -126,6 +126,7 @@ Traceback (last call first)
 * **Boolean types**: `bool`, `char`
 * **Integer types**: `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`
 * **Floating point types**: `float`, `double`
+* **String types**: `std::string`
 * **Array types**: `std::vector<•>`, `std::deque<•>`, `std::list<•>`
 * **Nullable types**: `std::unique_ptr<•>`, `std::shared_ptr<•>`
 * **Map types**: `std::{map, multimap, unordered_map, unordered_multimap}<std::string, •>`
