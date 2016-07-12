@@ -115,9 +115,9 @@ Terminate parsing due to Handler error.
   
 Traceback (last call first)
 * Type mismatch between expected type "unsigned long long" and actual type "string"
-* Error at object memeber with name "serial_number"
+* Error at object member with name "serial_number"
 * Error at array element at index 0
-* Error at object memeber with name "dark_history"
+* Error at object member with name "dark_history"
 * Error at array element at index 1
 ```
 
