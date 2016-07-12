@@ -205,12 +205,12 @@ public:
     void set_flags(unsigned f) { flags = f; }
 
     template <class T>
-    void add_property(const std::string& name, T* pointer, unsigned flags_ = Flags::Default)
+    void add_property(std::string name, T* pointer, unsigned flags_ = Flags::Default)
     {
         FlaggedHandler fh;
         fh.handler.reset(new Handler<T>(pointer));
         fh.flags = flags_;
-        internals.emplace(name, std::move(fh));
+        internals.emplace(std::move(name), std::move(fh));
     }
 };
 
