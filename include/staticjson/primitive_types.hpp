@@ -40,7 +40,7 @@ public:
     {
         if (is_out_of_range(i))
             return set_out_of_range("int");
-        *m_value = i;
+        *m_value = static_cast<IntType>(i);
         this->parsed = true;
         return true;
     }
@@ -49,7 +49,7 @@ public:
     {
         if (is_out_of_range(i))
             return set_out_of_range("unsigned int");
-        *m_value = i;
+        *m_value = static_cast<IntType>(i);
         this->parsed = true;
         return true;
     }
@@ -58,7 +58,7 @@ public:
     {
         if (is_out_of_range(i))
             return set_out_of_range("std::int64_t");
-        *m_value = i;
+        *m_value = static_cast<IntType>(i);
         this->parsed = true;
         return true;
     }
@@ -67,7 +67,16 @@ public:
     {
         if (is_out_of_range(i))
             return set_out_of_range("std::uint64_t");
-        *m_value = i;
+        *m_value = static_cast<IntType>(i);
+        this->parsed = true;
+        return true;
+    }
+
+    bool Double(double d) override
+    {
+        *m_value = static_cast<IntType>(d);
+        if (static_cast<double>(*m_value) != d)
+            return set_out_of_range("double");
         this->parsed = true;
         return true;
     }
@@ -184,24 +193,6 @@ public:
     }
 
     bool write(IHandler* out) const override { return out->Bool(*m_value); }
-};
-
-template <>
-class Handler<unsigned char> : public IntegerHandler<unsigned char>
-{
-public:
-    explicit Handler(unsigned char* i) : IntegerHandler<unsigned char>(i) {}
-
-    std::string type_name() const override { return "unsigned char"; }
-};
-
-template <>
-class Handler<signed char> : public IntegerHandler<signed char>
-{
-public:
-    explicit Handler(signed char* i) : IntegerHandler<signed char>(i) {}
-
-    std::string type_name() const override { return "signed char"; }
 };
 
 template <>

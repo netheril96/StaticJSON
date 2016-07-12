@@ -8,8 +8,6 @@
 // Ensure that the template classes can be instantiated without compile time error
 void instantiate_all_types()
 {
-    INSTANTIATE(int8_t)
-    INSTANTIATE(uint8_t)
     INSTANTIATE(char)
     INSTANTIATE(bool)
     INSTANTIATE(int)
