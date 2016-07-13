@@ -23,21 +23,34 @@
 #ifndef AUTOJSONCXX_FROM_JSON_HPP_29A4C106C1B1
 #define AUTOJSONCXX_FROM_JSON_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
 #include <autojsoncxx/base.hpp>
 #include <autojsoncxx/error.hpp>
+#include <autojsoncxx/utility.hpp>
 
-#include <rapidjson/reader.h>
 #include <rapidjson/filereadstream.h>
+#include <rapidjson/reader.h>
 
 #include <cstdio>
 
 namespace autojsoncxx {
 
+namespace internal {
+    template <class T>
+    class WrappedHandler : public SAXEventHandler<T> {
+    public:
+        explicit WrappedHandler(T* t)
+            : SAXEventHandler<T>(t)
+        {
+        }
+
+        bool RawNumber(const char*, SizeType, bool) { return false; }
+    };
+};
+
 template <class Reader, class InputStream, class ValueType>
 inline bool from_json(Reader& r, InputStream& is, ValueType& value, ParsingResult& result)
 {
-    typedef SAXEventHandler<ValueType> handler_type;
+    typedef internal::WrappedHandler<ValueType> handler_type;
 
     // If the ValueType is extremely complicated, the handler may also be extremely complicated
     // so it is safer to allocate it on the heap
