@@ -52,12 +52,16 @@ inline bool from_json(Reader& r, InputStream& is, ValueType& value, ParsingResul
 {
     typedef internal::WrappedHandler<ValueType> handler_type;
 
-    // If the ValueType is extremely complicated, the handler may also be extremely complicated
-    // so it is safer to allocate it on the heap
-    utility::scoped_ptr<handler_type> handler(new handler_type(&value));
-
-    result.set_result(r.Parse(is, *handler));
-    handler->ReapError(result.error_stack());
+    if (sizeof(handler_type) > 4096) {
+        // Avoids too large object causing stack overflow
+        utility::scoped_ptr<handler_type> handler(new handler_type(&value));
+        result.set_result(r.Parse(is, *handler));
+        handler->ReapError(result.error_stack());
+    } else {
+        handler_type handler(&value);
+        result.set_result(r.Parse(is, handler));
+        handler.ReapError(result.error_stack());
+    }
     return !result.has_error();
 }
 
