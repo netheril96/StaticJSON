@@ -23,13 +23,13 @@
 #ifndef AUTOJSONCXX_BASE_HPP_29A4C106C1B1
 #define AUTOJSONCXX_BASE_HPP_29A4C106C1B1
 
-#include <autojsoncxx/utility.hpp>
 #include <autojsoncxx/error.hpp>
+#include <autojsoncxx/utility.hpp>
 
-#include <string>
+#include <algorithm>
 #include <cstring>
 #include <limits>
-#include <algorithm>
+#include <string>
 #include <utility>
 
 namespace autojsoncxx {
@@ -46,10 +46,7 @@ protected:
     utility::scoped_ptr<error::ErrorBase> the_error;
 
 public:
-    static const char* type_name()
-    {
-        return Derived::type_name();
-    }
+    static const char* type_name() { return Derived::type_name(); }
 
 protected:
     bool set_out_of_range(const char* actual_type)
@@ -65,75 +62,33 @@ protected:
     }
 
 public:
-    bool Null()
-    {
-        return set_type_mismatch("null");
-    }
+    bool Null() { return set_type_mismatch("null"); }
 
-    bool Bool(bool)
-    {
-        return set_type_mismatch("bool");
-    }
+    bool Bool(bool) { return set_type_mismatch("bool"); }
 
-    bool Int(int)
-    {
-        return set_type_mismatch("int");
-    }
+    bool Int(int) { return set_type_mismatch("int"); }
 
-    bool Uint(unsigned)
-    {
-        return set_type_mismatch("unsigned");
-    }
+    bool Uint(unsigned) { return set_type_mismatch("unsigned"); }
 
-    bool Int64(utility::int64_t)
-    {
-        return set_type_mismatch("int64_t");
-    }
+    bool Int64(utility::int64_t) { return set_type_mismatch("int64_t"); }
 
-    bool Uint64(utility::uint64_t)
-    {
-        return set_type_mismatch("uint64_t");
-    }
+    bool Uint64(utility::uint64_t) { return set_type_mismatch("uint64_t"); }
 
-    bool Double(double)
-    {
-        return set_type_mismatch("double");
-    }
+    bool Double(double) { return set_type_mismatch("double"); }
 
-    bool String(const Ch*, SizeType, bool)
-    {
-        return set_type_mismatch("string");
-    }
+    bool String(const Ch*, SizeType, bool) { return set_type_mismatch("string"); }
 
-    bool StartObject()
-    {
-        return set_type_mismatch("object");
-    }
+    bool StartObject() { return set_type_mismatch("object"); }
 
-    bool Key(const Ch*, SizeType, bool)
-    {
-        return set_type_mismatch("object");
-    }
+    bool Key(const Ch*, SizeType, bool) { return set_type_mismatch("object"); }
 
-    bool EndObject(SizeType)
-    {
-        return set_type_mismatch("object");
-    }
+    bool EndObject(SizeType) { return set_type_mismatch("object"); }
 
-    bool StartArray()
-    {
-        return set_type_mismatch("array");
-    }
+    bool StartArray() { return set_type_mismatch("array"); }
 
-    bool EndArray(SizeType)
-    {
-        return set_type_mismatch("array");
-    }
+    bool EndArray(SizeType) { return set_type_mismatch("array"); }
 
-    bool HasError() const
-    {
-        return !the_error.empty();
-    }
+    bool HasError() const { return !the_error.empty(); }
 
     bool ReapError(error::ErrorStack& errs)
     {
@@ -143,31 +98,21 @@ public:
         return true;
     }
 
-    void PrepareForReuse()
-    {
-        the_error.reset();
-    }
+    void PrepareForReuse() { the_error.reset(); }
 };
 
 #if AUTOJSONCXX_HAS_MODERN_TYPES
 
 template <>
-class SAXEventHandler<std::nullptr_t> : public BaseSAXEventHandler<SAXEventHandler<std::nullptr_t> > {
+class SAXEventHandler<std::nullptr_t>
+    : public BaseSAXEventHandler<SAXEventHandler<std::nullptr_t> > {
 private:
 public:
-    static const char* type_name()
-    {
-        return "null";
-    }
+    static const char* type_name() { return "null"; }
 
-    explicit SAXEventHandler(std::nullptr_t*)
-    {
-    }
+    explicit SAXEventHandler(std::nullptr_t*) {}
 
-    bool Null()
-    {
-        return true;
-    }
+    bool Null() { return true; }
 };
 
 #endif
@@ -178,10 +123,7 @@ private:
     bool* m_value;
 
 public:
-    static const char* type_name()
-    {
-        return "bool";
-    }
+    static const char* type_name() { return "bool"; }
 
     explicit SAXEventHandler(bool* v)
         : m_value(v)
@@ -207,10 +149,7 @@ public:
     {
     }
 
-    static const char* type_name()
-    {
-        return "bool";
-    }
+    static const char* type_name() { return "bool"; }
 
     bool Bool(bool v)
     {
@@ -261,10 +200,15 @@ public:
         return true;
     }
 
-    static const char* type_name()
+    bool Double(double d)
     {
-        return "int";
+        *m_value = static_cast<int>(d);
+        if (static_cast<double>(*m_value) != d)
+            return set_out_of_range("double");
+        return true;
     }
+
+    static const char* type_name() { return "int"; }
 };
 
 template <>
@@ -309,14 +253,20 @@ public:
         return true;
     }
 
-    static const char* type_name()
+    bool Double(double d)
     {
-        return "unsigned";
+        *m_value = static_cast<unsigned>(d);
+        if (static_cast<double>(*m_value) != d)
+            return set_out_of_range("double");
+        return true;
     }
+
+    static const char* type_name() { return "unsigned"; }
 };
 
 template <>
-class SAXEventHandler<utility::int64_t> : public BaseSAXEventHandler<SAXEventHandler<utility::int64_t> > {
+class SAXEventHandler<utility::int64_t>
+    : public BaseSAXEventHandler<SAXEventHandler<utility::int64_t> > {
 private:
     utility::int64_t* m_value;
 
@@ -352,14 +302,20 @@ public:
         return true;
     }
 
-    static const char* type_name()
+    bool Double(double d)
     {
-        return "int64_t";
+        *m_value = static_cast<utility::int64_t>(d);
+        if (static_cast<double>(*m_value) != d)
+            return set_out_of_range("double");
+        return true;
     }
+
+    static const char* type_name() { return "int64_t"; }
 };
 
 template <>
-class SAXEventHandler<utility::uint64_t> : public BaseSAXEventHandler<SAXEventHandler<utility::uint64_t> > {
+class SAXEventHandler<utility::uint64_t>
+    : public BaseSAXEventHandler<SAXEventHandler<utility::uint64_t> > {
 private:
     utility::uint64_t* m_value;
 
@@ -397,10 +353,15 @@ public:
         return true;
     }
 
-    static const char* type_name()
+    bool Double(double d)
     {
-        return "uint64_t";
+        *m_value = static_cast<utility::uint64_t>(d);
+        if (static_cast<double>(*m_value) != d)
+            return set_out_of_range("double");
+        return true;
     }
+
+    static const char* type_name() { return "uint64_t"; }
 };
 
 template <>
@@ -428,22 +389,17 @@ public:
 
     bool Int64(utility::int64_t i)
     {
-        const utility::int64_t threshold = 1LL << 53;
-        if (i > threshold || i < -threshold)
-            return this->set_out_of_range("int64_t");
-        // the maximum value of double is much larger, but we want to prevent precision loss
-
         *m_value = static_cast<double>(i);
+        if (static_cast<utility::int64_t>(*m_value) != i)
+            return set_out_of_range("int64_t");
         return true;
     }
 
     bool Uint64(utility::uint64_t i)
     {
-        const utility::uint64_t threshold = 1ULL << 53;
-        if (i > threshold)
-            return this->set_out_of_range("uint64_t");
-
         *m_value = static_cast<double>(i);
+        if (static_cast<utility::uint64_t>(*m_value) != i)
+            return set_out_of_range("uint64_t");
         return true;
     }
 
@@ -453,10 +409,7 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "double";
-    }
+    static const char* type_name() { return "double"; }
 };
 
 template <>
@@ -476,10 +429,7 @@ public:
         return true;
     }
 
-    static const char* type_name()
-    {
-        return "string";
-    }
+    static const char* type_name() { return "string"; }
 };
 
 template <class Writer, class T>
@@ -487,70 +437,46 @@ struct Serializer;
 
 template <class Writer>
 struct Serializer<Writer, int> {
-    void operator()(Writer& w, int i) const
-    {
-        w.Int(i);
-    }
+    void operator()(Writer& w, int i) const { w.Int(i); }
 };
 
 #if AUTOJSONCXX_HAS_MODERN_TYPES
 
 template <class Writer>
 struct Serializer<Writer, std::nullptr_t> {
-    void operator()(Writer& w, std::nullptr_t) const
-    {
-        w.Null();
-    }
+    void operator()(Writer& w, std::nullptr_t) const { w.Null(); }
 };
 
 #endif
 
 template <class Writer>
 struct Serializer<Writer, bool> {
-    void operator()(Writer& w, bool b) const
-    {
-        w.Bool(b);
-    }
+    void operator()(Writer& w, bool b) const { w.Bool(b); }
 };
 
 template <class Writer>
 struct Serializer<Writer, char> {
-    void operator()(Writer& w, char c) const
-    {
-        w.Bool(c);
-    }
+    void operator()(Writer& w, char c) const { w.Bool(c); }
 };
 
 template <class Writer>
 struct Serializer<Writer, unsigned> {
-    void operator()(Writer& w, unsigned i) const
-    {
-        w.Uint(i);
-    }
+    void operator()(Writer& w, unsigned i) const { w.Uint(i); }
 };
 
 template <class Writer>
 struct Serializer<Writer, utility::int64_t> {
-    void operator()(Writer& w, utility::int64_t i) const
-    {
-        w.Int64(i);
-    }
+    void operator()(Writer& w, utility::int64_t i) const { w.Int64(i); }
 };
 
 template <class Writer>
 struct Serializer<Writer, utility::uint64_t> {
-    void operator()(Writer& w, utility::uint64_t i) const
-    {
-        w.Uint64(i);
-    }
+    void operator()(Writer& w, utility::uint64_t i) const { w.Uint64(i); }
 };
 
 template <class Writer>
 struct Serializer<Writer, double> {
-    void operator()(Writer& w, double d) const
-    {
-        w.Double(d);
-    }
+    void operator()(Writer& w, double d) const { w.Double(d); }
 };
 
 template <class Writer>
