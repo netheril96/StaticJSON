@@ -161,6 +161,7 @@ protected:
     bool precheck(const char* type);
     bool postcheck(bool success);
     void set_missing_required(const std::string& name);
+    void add_handler(std::string&&, FlaggedHandler&&);
     void reset() override;
 
 public:
@@ -210,7 +211,7 @@ public:
         FlaggedHandler fh;
         fh.handler.reset(new Handler<T>(pointer));
         fh.flags = flags_;
-        internals.emplace(std::move(name), std::move(fh));
+        add_handler(std::move(name), std::move(fh));
     }
 };
 

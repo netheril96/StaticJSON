@@ -441,6 +441,11 @@ void ObjectHandler::reset()
     }
 }
 
+void ObjectHandler::add_handler(std::string&& name, ObjectHandler::FlaggedHandler&& fh)
+{
+    internals.emplace(std::move(name), std::move(fh));
+}
+
 bool ObjectHandler::reap_error(ErrorStack& stack)
 {
     if (!the_error)
