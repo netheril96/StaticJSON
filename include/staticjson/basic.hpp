@@ -54,7 +54,7 @@ public:
 
     virtual bool EndArray(SizeType) = 0;
 
-    virtual bool RawNumber() { return true; }
+    virtual bool RawNumber(const char*, SizeType, bool) { return true; }
 
     virtual void prepare_for_reuse() = 0;
 };

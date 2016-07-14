@@ -1,6 +1,7 @@
-#include <staticjson/staticjson.hpp>
+#undef NDEBUG
 
 #include <cassert>
+#include <staticjson/staticjson.hpp>
 
 int builtin_test()
 {
