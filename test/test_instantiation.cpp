@@ -1,3 +1,4 @@
+#include <staticjson/document.hpp>
 #include <staticjson/staticjson.hpp>
 
 #define INSTANTIATE(type)                                                                          \
@@ -18,6 +19,7 @@ void instantiate_all_types()
     INSTANTIATE(std::vector<float>)
     INSTANTIATE(std::vector<double>)
     INSTANTIATE(std::deque<std::shared_ptr<std::unique_ptr<std::vector<std::list<std::string>>>>>);
+    INSTANTIATE(staticjson::Document);
 }
 
 #undef INSTANTIATE

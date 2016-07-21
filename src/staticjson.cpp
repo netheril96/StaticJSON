@@ -1,3 +1,4 @@
+#include <staticjson/document.hpp>
 #include <staticjson/staticjson.hpp>
 
 #include <rapidjson/error/en.h>
@@ -198,6 +199,11 @@ std::string error::DuplicateKeyError::description() const
 std::string error::UnknownFieldError::description() const
 {
     return "Unknown field with name: " + quote(field_name());
+}
+
+std::string error::RecursionTooDeepError::description() const
+{
+    return "Too many levels of recursion";
 }
 
 std::string error::CorruptedDOMError::description() const { return "JSON has invalid structure"; }
@@ -608,4 +614,167 @@ namespace nonpublic
         return res;
     }
 }
+
+JSONHandler::JSONHandler(Value* v, MemoryPoolAllocator* a)
+    : m_stack(), m_value(v), m_alloc(a), m_depth(0)
+{
+}
+
+bool JSONHandler::set_corrupted_dom()
+{
+    the_error.reset(new error::CorruptedDOMError());
+    return false;
+}
+
+std::string JSONHandler::type_name() const { return "JSON"; }
+
+bool JSONHandler::stack_push()
+{
+    if (m_depth > MAX_DEPTH)
+    {
+        the_error.reset(new error::RecursionTooDeepError);
+        return false;
+    }
+
+    ++m_depth;
+    return true;
+}
+
+void JSONHandler::stack_pop() { m_depth = std::max(m_depth - 1, 0); }
+
+Value& JSONHandler::stack_top()
+{
+    if (m_depth > 0)
+        return m_stack[m_depth - 1];
+    return *m_value;
+}
+
+bool JSONHandler::postprocess()
+{
+    if (m_depth <= 0)
+    {
+        this->parsed = true;
+        return true;
+    }
+
+    Value top1(std::move(stack_top()));
+    stack_pop();
+    if (stack_top().IsArray())
+    {
+        stack_top().PushBack(top1, *m_alloc);
+        return true;
+    }
+    else if (stack_top().IsString())
+    {
+        Value key(std::move(stack_top()));
+        stack_pop();
+        if (!stack_top().IsObject())
+            return set_corrupted_dom();
+        stack_top().AddMember(key, top1, *m_alloc);
+        return true;
+    }
+    return set_corrupted_dom();
+}
+
+bool JSONHandler::Null()
+{
+    stack_top().SetNull();
+    return postprocess();
+}
+
+bool JSONHandler::Bool(bool b)
+{
+    stack_top().SetBool(b);
+    return postprocess();
+}
+
+bool JSONHandler::Double(double d)
+{
+    stack_top().SetDouble(d);
+    return postprocess();
+}
+
+bool JSONHandler::Int(int i)
+{
+    stack_top().SetInt(i);
+    return postprocess();
+}
+
+bool JSONHandler::Int64(std::int64_t i)
+{
+    stack_top().SetInt64(i);
+    return postprocess();
+}
+
+bool JSONHandler::Uint(unsigned int i)
+{
+    stack_top().SetUint(i);
+    return postprocess();
+}
+
+bool JSONHandler::Uint64(std::uint64_t i)
+{
+    stack_top().SetUint64(i);
+    return postprocess();
+}
+
+bool JSONHandler::String(const char* str, SizeType sz, bool copy)
+{
+    if (copy)
+        stack_top().SetString(str, sz, *m_alloc);
+    else
+        stack_top().SetString(str, sz);
+    return postprocess();
+}
+
+bool JSONHandler::Key(const char* str, SizeType sz, bool copy)
+{
+    if (!stack_top().IsObject())
+        return set_corrupted_dom();
+    if (!stack_push())
+        return false;
+    if (copy)
+        stack_top().SetString(str, sz, *m_alloc);
+    else
+        stack_top().SetString(str, sz);
+    return stack_push();
+}
+
+bool JSONHandler::StartArray()
+{
+    stack_top().SetArray();
+    return stack_push();
+}
+
+bool JSONHandler::EndArray(SizeType)
+{
+    if (!stack_top().IsArray())
+        return set_corrupted_dom();
+    return postprocess();
+}
+
+bool JSONHandler::StartObject()
+{
+    stack_top().SetObject();
+    return stack_push();
+}
+
+bool JSONHandler::EndObject(SizeType)
+{
+    if (!stack_top().IsObject())
+        return set_corrupted_dom();
+    return postprocess();
+}
+
+void JSONHandler::reset()
+{
+    for (Value& v : m_stack)
+    {
+        v.SetNull();
+    }
+
+    m_depth = 0;
+}
+
+bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
 }
