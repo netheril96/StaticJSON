@@ -14,7 +14,7 @@ typedef rapidjson::MemoryPoolAllocator<> MemoryPoolAllocator;
 class JSONHandler : public BaseHandler
 {
 private:
-    static const int MAX_DEPTH = 16;
+    static const int MAX_DEPTH = 32;
 
     std::array<Value, MAX_DEPTH> m_stack;
     Value* m_value;
