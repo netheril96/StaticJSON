@@ -2,8 +2,6 @@
 
 #include "catch.hpp"
 
-#include <iostream>
-
 using namespace staticjson;
 
 struct MyObject
