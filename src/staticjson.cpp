@@ -9,7 +9,10 @@
 #include <rapidjson/reader.h>
 #include <rapidjson/writer.h>
 
+#include <cerrno>
 #include <cstdio>
+#include <stdexcept>
+#include <system_error>
 
 namespace staticjson
 {
@@ -235,6 +238,24 @@ std::string ParseStatus::description() const
     }
     return res;
 }
+
+#if STATICJSON_USE_EXCEPTIONS
+const char* ParseException::what() const noexcept
+{
+    if (m_msg.empty())
+    {
+        try
+        {
+            description().swap(m_msg);
+        }
+        catch (...)
+        {
+            return "An exception occurred while handling ParseException";
+        }
+    }
+    return m_msg.c_str();
+}
+#endif
 
 IHandler::~IHandler() {}
 
@@ -528,31 +549,56 @@ namespace nonpublic
     };
 
     template <class InputStream>
-    static bool read_json(InputStream& is, BaseHandler* h, ParseStatus* status)
+    static bool read_json(InputStream& is, BaseHandler* h, ParseStatus* status, bool throw_on_error)
     {
         rapidjson::Reader r;
         rapidjson::ParseResult rc = r.Parse(is, *h);
+
         if (status)
         {
             status->set_result(rc.Code(), rc.Offset());
             h->reap_error(status->error_stack());
         }
+#if STATICJSON_USE_EXCEPTIONS
+        else if (rc.Code() && throw_on_error)
+        {
+            ParseException ex;
+            ex.set_result(rc.Code(), rc.Offset());
+            h->reap_error(ex.error_stack());
+            throw ex;
+        }
+#else
+        (void)throw_on_error;
+#endif
         return rc.Code() == 0;
     }
 
-    bool parse_json_string(const char* str, BaseHandler* handler, ParseStatus* status)
+    bool parse_json_string(const char* str,
+                           BaseHandler* handler,
+                           ParseStatus* status,
+                           bool throw_on_error)
     {
         rapidjson::StringStream is(str);
-        return read_json(is, handler, status);
+        return read_json(is, handler, status, throw_on_error);
     }
 
-    bool parse_json_file(std::FILE* fp, BaseHandler* handler, ParseStatus* status)
+    static bool on_null_file_pointer()
+    {
+#if STATICJSON_USE_EXCEPTIONS
+        throw std::system_error(errno, std::system_category());
+#else
+        return false;
+#endif
+    }
+
+    bool
+    parse_json_file(std::FILE* fp, BaseHandler* handler, ParseStatus* status, bool throw_on_error)
     {
         if (!fp)
-            return false;
+            return on_null_file_pointer();
         char buffer[1000];
         rapidjson::FileReadStream is(fp, buffer, sizeof(buffer));
-        return read_json(is, handler, status);
+        return read_json(is, handler, status, throw_on_error);
     }
 
     struct StringOutputStream : private NonMobile
@@ -578,12 +624,17 @@ namespace nonpublic
     bool serialize_json_file(std::FILE* fp, const BaseHandler* handler)
     {
         if (!fp)
-            return false;
+            return on_null_file_pointer();
         char buffer[1000];
         rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
         rapidjson::Writer<rapidjson::FileWriteStream> writer(os);
         IHandlerAdapter<decltype(writer)> adapter(&writer);
-        return handler->write(&adapter);
+        bool res = handler->write(&adapter);
+#if STATICJSON_USE_EXCEPTIONS
+        if (std::ferror(fp))
+            throw std::system_error(errno, std::system_category());
+#endif
+        return res;
     }
 
     std::string serialize_pretty_json_string(const BaseHandler* handler)
@@ -601,7 +652,7 @@ namespace nonpublic
     bool serialize_pretty_json_file(std::FILE* fp, const BaseHandler* handler)
     {
         if (!fp)
-            return false;
+            return on_null_file_pointer();
         char buffer[1000];
         rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
         rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
@@ -611,6 +662,10 @@ namespace nonpublic
         {
             putc('\n', fp);
         }
+#if STATICJSON_USE_EXCEPTIONS
+        if (std::ferror(fp))
+            throw std::system_error(errno, std::system_category());
+#endif
         return res;
     }
 

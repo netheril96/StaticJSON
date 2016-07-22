@@ -2,10 +2,19 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <exception>
 #include <iterator>
 #include <string>
 #include <utility>
 #include <vector>
+
+#ifndef STATICJSON_USE_EXCEPTIONS
+#ifdef _LIBCPP_NO_EXCEPTIONS
+#define STATICJSON_USE_EXCEPTIONS 0
+#else
+#define STATICJSON_USE_EXCEPTIONS 1
+#endif
+#endif
 
 namespace staticjson
 {
@@ -368,4 +377,15 @@ public:
 
 // For argument dependent lookup
 inline void swap(ParseStatus& r1, ParseStatus& r2) { r1.swap(r2); }
+
+#if STATICJSON_USE_EXCEPTIONS
+class ParseException : public std::exception, public ParseStatus
+{
+private:
+    mutable std::string m_msg;
+
+public:
+    const char* what() const noexcept override;
+};
+#endif
 }

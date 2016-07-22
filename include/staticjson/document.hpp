@@ -1,6 +1,7 @@
 #pragma once
-#include <rapidjson/document.h>
 #include <staticjson/basic.hpp>
+
+#include <rapidjson/document.h>
 
 #include <array>
 

@@ -458,3 +458,17 @@ TEST_CASE("Test for writing JSON", "[serialization]")
 
     REQUIRE(users == reparsed_users);
 }
+
+#if STATICJSON_USE_EXCEPTIONS
+TEST_CASE("Test exceptions", "[error handling]")
+{
+    std::vector<User> users;
+
+    REQUIRE_NOTHROW(from_json_file(get_base_dir() + "/examples/success/user_array.json", &users));
+
+    users.clear();
+
+    REQUIRE_THROWS(
+        from_json_file(get_base_dir() + "/examples/failure/integer_string.json", &users));
+}
+#endif
