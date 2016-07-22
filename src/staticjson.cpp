@@ -484,8 +484,9 @@ bool ObjectHandler::write(IHandler* output) const
 void ObjectHandler::generate_schema(Value& output, MemoryPoolAllocator& alloc) const
 {
     output.SetObject();
+    output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("object"), alloc);
 
-    Value properties(rapidjson::kArrayType);
+    Value properties(rapidjson::kObjectType);
     Value required(rapidjson::kArrayType);
     for (auto&& pair : internals)
     {
@@ -499,6 +500,7 @@ void ObjectHandler::generate_schema(Value& output, MemoryPoolAllocator& alloc) c
         properties.AddMember(key, schema, alloc);
         if (!(pair.second.flags & Flags::Optional))
         {
+            key.SetString(pair.first.c_str(), pair.first.size(), alloc);
             required.PushBack(key, alloc);
         }
     }

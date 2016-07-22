@@ -537,8 +537,8 @@ public:
         output.SetObject();
         output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("object"), alloc);
 
-        Value empty_array(rapidjson::kArrayType);
-        output.AddMember(rapidjson::StringRef("properties"), empty_array, alloc);
+        Value empty_obj(rapidjson::kObjectType);
+        output.AddMember(rapidjson::StringRef("properties"), empty_obj, alloc);
 
         output.AddMember(rapidjson::StringRef("additionalProperties"), internal_schema, alloc);
     }

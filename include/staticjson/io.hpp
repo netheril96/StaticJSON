@@ -22,7 +22,11 @@ namespace nonpublic
         std::FILE* fp;
 
         explicit FileGuard(std::FILE* fp) : fp(fp) {}
-        ~FileGuard() { if (fp) std::fclose(fp); }
+        ~FileGuard()
+        {
+            if (fp)
+                std::fclose(fp);
+        }
     };
 }
 
@@ -105,5 +109,14 @@ template <class T>
 inline bool to_pretty_json_file(const std::string& filename, const T& value)
 {
     return to_pretty_json_file(filename.c_str(), value);
+}
+
+template <class T>
+inline Document export_json_schema(T* value)
+{
+    Handler<T> h(value);
+    Document d;
+    h.generate_schema(d, d.GetAllocator());
+    return d;
 }
 }

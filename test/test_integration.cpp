@@ -458,3 +458,17 @@ TEST_CASE("Test for writing JSON", "[serialization]")
 
     REQUIRE(users == reparsed_users);
 }
+
+TEST_CASE("Schema generation")
+{
+    {
+        std::vector<User> users;
+        Document schema = export_json_schema(&users);
+        REQUIRE(to_pretty_json_file(get_base_dir() + "/test/user_array_schema.json", schema));
+    }
+    {
+        std::map<std::string, User> users;
+        Document schema = export_json_schema(&users);
+        REQUIRE(to_pretty_json_file(get_base_dir() + "/test/user_map_schema.json", schema));
+    }
+}
