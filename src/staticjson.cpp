@@ -272,11 +272,17 @@ bool ObjectHandler::precheck(const char* actual_type)
         the_error.reset(new error::TypeMismatchError(type_name(), actual_type));
         return false;
     }
-    if (!(flags & Flags::AllowDuplicateKey) && current && current->handler
-        && current->handler->is_parsed())
+    if (current && current->handler && current->handler->is_parsed())
     {
-        the_error.reset(new error::DuplicateKeyError(current_name));
-        return false;
+        if (flags & Flags::AllowDuplicateKey)
+        {
+            current->handler->prepare_for_reuse();
+        }
+        else
+        {
+            the_error.reset(new error::DuplicateKeyError(current_name));
+            return false;
+        }
     }
     return true;
 }
