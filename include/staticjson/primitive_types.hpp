@@ -95,6 +95,19 @@ public:
 };
 
 template <>
+class Handler<std::nullptr_t> : public BaseHandler
+{
+public:
+    explicit Handler(std::nullptr_t*) {}
+
+    bool Null() override { return true; }
+
+    std::string type_name() const override { return "null"; }
+
+    bool write(IHandler* output) const override { return output->Null(); }
+};
+
+template <>
 class Handler<bool> : public BaseHandler
 {
 private:

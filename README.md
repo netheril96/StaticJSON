@@ -128,7 +128,7 @@ Traceback (last call first)
 * **Floating point types**: `float`, `double`
 * **String types**: `std::string`
 * **Array types**: `std::vector<•>`, `std::deque<•>`, `std::list<•>`
-* **Nullable types**: `std::unique_ptr<•>`, `std::shared_ptr<•>`
+* **Nullable types**: `std::nullptr_t`, `std::unique_ptr<•>`, `std::shared_ptr<•>`
 * **Map types**: `std::{map, multimap, unordered_map, unordered_multimap}<std::string, •>`
 
 ## Misc
