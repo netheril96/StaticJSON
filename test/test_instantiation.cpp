@@ -20,6 +20,7 @@ void instantiate_all_types()
     INSTANTIATE(std::vector<double>)
     INSTANTIATE(std::deque<std::shared_ptr<std::unique_ptr<std::vector<std::list<std::string>>>>>);
     INSTANTIATE(staticjson::Document);
+    INSTANTIATE(decltype(nullptr));
 }
 
 #undef INSTANTIATE

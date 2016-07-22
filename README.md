@@ -97,6 +97,13 @@ public:
         add_property("day", &d->day);
         set_flags(Flags::DisallowUnknownKey);
     }
+
+    // This override is not necessary.
+    // When provided, you will have better error messages.
+    std::string type_name() const override
+    {
+        return "Date";
+    }
 };
 }
 ```
@@ -128,8 +135,17 @@ Traceback (last call first)
 * **Floating point types**: `float`, `double`
 * **String types**: `std::string`
 * **Array types**: `std::vector<•>`, `std::deque<•>`, `std::list<•>`
-* **Nullable types**: `std::unique_ptr<•>`, `std::shared_ptr<•>`
+* **Nullable types**: `std::nullptr_t`, `std::unique_ptr<•>`, `std::shared_ptr<•>`
 * **Map types**: `std::{map, multimap, unordered_map, unordered_multimap}<std::string, •>`
+
+## Dynamic typing
+
+If you need occasional escape from the rigidity of C++'s static type system, but do not want complete dynamism, you can still find the middle ground in `StaticJSON`.
+
+* You can embed a `staticjson::Document` (alias of `rapidjson::Document`) in your class/struct, which allows static typing for some class members and dynamic typing for others. Note `Document` is already nullable so do not use a pointer to `Document`.
+* You can convert a `Document` or `Value` to and from a C++ type registered in `StaticJSON`. The functions are aptly named `from_json_value`, `from_json_document`, `to_json_value`, `to_json_document`.
+
+To enable support for dynamic typing, you need to include `<staticjson/document.hpp>`. It is in a separate header to avoid namespace pollution when not needed.
 
 ## Misc
 
