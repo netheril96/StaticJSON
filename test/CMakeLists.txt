@@ -18,3 +18,4 @@ ADD_EXECUTABLE(${TARGET} ${SOURCES})
 # Perform testing
 enable_testing()
 add_test(NAME ${TARGET} COMMAND ${TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+add_test(NAME test_schema COMMAND python test_schema.py WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
