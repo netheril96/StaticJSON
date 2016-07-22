@@ -1,4 +1,4 @@
 language: cpp
 sudo: required
 dist: trusty
-script: "sudo apt-get install -y cmake python python-pip && sudo pip install -U jsonschema && cd test && cmake . && make && ctest -V"
+script: "sudo apt-get install -y cmake python python-pip && pip install -U --user jsonschema && cd test && cmake . && make && ctest -V"

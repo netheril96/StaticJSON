@@ -97,24 +97,19 @@ public:
     {
         output.SetObject();
         output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("integer"), alloc);
+        Value minimum, maximum;
         if (std::numeric_limits<IntType>::is_signed)
         {
-            output.AddMember(rapidjson::StringRef("minimum"),
-                             (std::int64_t)std::numeric_limits<IntType>::min(),
-                             alloc);
-            output.AddMember(rapidjson::StringRef("maximum"),
-                             (std::int64_t)std::numeric_limits<IntType>::max(),
-                             alloc);
+            minimum.SetInt64(std::numeric_limits<IntType>::min());
+            maximum.SetInt64(std::numeric_limits<IntType>::max());
         }
         else
         {
-            output.AddMember(rapidjson::StringRef("minimum"),
-                             (std::uint64_t)std::numeric_limits<IntType>::min(),
-                             alloc);
-            output.AddMember(rapidjson::StringRef("maximum"),
-                             (std::uint64_t)std::numeric_limits<IntType>::max(),
-                             alloc);
+            minimum.SetUint64(std::numeric_limits<IntType>::min());
+            maximum.SetUint64(std::numeric_limits<IntType>::max());
         }
+        output.AddMember(rapidjson::StringRef("minimum"), minimum, alloc);
+        output.AddMember(rapidjson::StringRef("maximum"), maximum, alloc);
     }
 };
 

@@ -20,7 +20,7 @@ def main():
             data = json.load(f)
         validate(data, user_map_schema)
 
-    for fn in ['integer_string.json', 'missing_required.json', 'map_element_mismatch.json',
+    for fn in ['out_of_range.json', 'integer_string.json', 'missing_required.json', 'map_element_mismatch.json',
                'null_in_key.json', 'single_object.json', 'unknown_field.json']:
         with open('../examples/failure/' + fn, 'rb') as f:
             data = json.load(f)

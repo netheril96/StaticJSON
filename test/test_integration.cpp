@@ -216,7 +216,8 @@ void check_array_of_user(const Document& users)
     const Value& u = users[0];
     REQUIRE(u.IsObject());
     REQUIRE(u.HasMember("ID"));
-    REQUIRE(u["ID"] == 7947402710862746952ULL);
+    REQUIRE(u["ID"].IsUint64());
+    REQUIRE(u["ID"].GetUint64() == 7947402710862746952ULL);
     REQUIRE(u.HasMember("nickname"));
     REQUIRE(u["nickname"].IsString());
     REQUIRE(std::strcmp(u["nickname"].GetString(), "bigger than bigger") == 0);
