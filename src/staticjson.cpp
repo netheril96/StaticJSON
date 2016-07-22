@@ -10,6 +10,7 @@
 #include <rapidjson/writer.h>
 
 #include <cstdio>
+#include <exception>
 
 namespace staticjson
 {
@@ -250,6 +251,12 @@ bool BaseHandler::set_type_mismatch(const char* actual_type)
 {
     the_error.reset(new error::TypeMismatchError(type_name(), actual_type));
     return false;
+}
+
+bool IHandler::RawNumber(const char*, SizeType, bool)
+{
+    fprintf(stderr, "%s", "Calling non-overridden IHandler::RawNumber() is a programming bug!\n");
+    std::terminate();
 }
 
 ObjectHandler::ObjectHandler() {}
@@ -524,7 +531,7 @@ namespace nonpublic
 
         virtual bool EndArray(SizeType sz) override { return t->EndArray(sz); }
 
-        virtual void prepare_for_reuse() override { std::abort(); }
+        virtual void prepare_for_reuse() override { std::terminate(); }
     };
 
     template <class InputStream>
