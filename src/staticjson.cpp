@@ -481,6 +481,37 @@ bool ObjectHandler::write(IHandler* output) const
     return output->EndObject(count);
 }
 
+void ObjectHandler::generate_schema(Value& output, MemoryPoolAllocator& alloc) const
+{
+    output.SetObject();
+
+    Value properties(rapidjson::kArrayType);
+    Value required(rapidjson::kArrayType);
+    for (auto&& pair : internals)
+    {
+        Value schema;
+        if (pair.second.handler)
+            pair.second.handler->generate_schema(schema, alloc);
+        else
+            std::abort();
+        Value key;
+        key.SetString(pair.first.c_str(), pair.first.size(), alloc);
+        properties.AddMember(key, schema, alloc);
+        if (!(pair.second.flags & Flags::Optional))
+        {
+            required.PushBack(key, alloc);
+        }
+    }
+    output.AddMember(rapidjson::StringRef("properties"), properties, alloc);
+    if (!required.Empty())
+    {
+        output.AddMember(rapidjson::StringRef("required"), required, alloc);
+    }
+    output.AddMember(rapidjson::StringRef("additionalProperties"),
+                     !(get_flags() & Flags::DisallowUnknownKey),
+                     alloc);
+}
+
 namespace nonpublic
 {
     template <class T>

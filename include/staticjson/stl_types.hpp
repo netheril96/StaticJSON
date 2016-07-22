@@ -139,6 +139,15 @@ public:
         }
         return output->EndArray(m_value->size());
     }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("array"), alloc);
+        Value items;
+        internal.generate_schema(items, alloc);
+        output.AddMember(rapidjson::StringRef("items"), items, alloc);
+    }
 };
 
 template <class T>
@@ -184,7 +193,7 @@ public:
     typedef typename std::pointer_traits<PointerType>::element_type ElementType;
 
 protected:
-    PointerType* m_value;
+    mutable PointerType* m_value;
     mutable std::unique_ptr<Handler<ElementType>> internal_handler;
     int depth = 0;
 
@@ -241,6 +250,20 @@ public:
             internal_handler.reset(new Handler<ElementType>(m_value->get()));
         }
         return internal_handler->write(out);
+    }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        const_cast<PointerHandler<PointerType>*>(this)->initialize();
+        output.SetObject();
+        Value anyOf(rapidjson::kArrayType);
+        Value nullDescriptor(rapidjson::kObjectType);
+        nullDescriptor.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("null"), alloc);
+        Value descriptor;
+        internal_handler->generate_schema(descriptor, alloc);
+        anyOf.PushBack(nullDescriptor, alloc);
+        anyOf.PushBack(descriptor, alloc);
+        output.AddMember(rapidjson::StringRef("anyOf"), anyOf, alloc);
     }
 
     bool Bool(bool b) override
@@ -505,6 +528,19 @@ public:
                 return false;
         }
         return out->EndObject(m_value->size());
+    }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        Value internal_schema;
+        internal_handler.generate_schema(internal_schema, alloc);
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("object"), alloc);
+
+        Value empty_array(rapidjson::kArrayType);
+        output.AddMember(rapidjson::StringRef("properties"), empty_array, alloc);
+
+        output.AddMember(rapidjson::StringRef("additionalProperties"), internal_schema, alloc);
     }
 };
 

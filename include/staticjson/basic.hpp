@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rapidjson/document.h>
 #include <staticjson/error.hpp>
 
 #include <cstddef>
@@ -58,6 +59,11 @@ public:
 
     virtual void prepare_for_reuse() = 0;
 };
+
+using rapidjson::Document;
+using rapidjson::Value;
+
+typedef rapidjson::MemoryPoolAllocator<> MemoryPoolAllocator;
 
 class BaseHandler : public IHandler, private NonMobile
 {
@@ -129,6 +135,8 @@ public:
     }
 
     virtual bool write(IHandler* output) const = 0;
+
+    virtual void generate_schema(Value& output, MemoryPoolAllocator& alloc) const = 0;
 };
 
 struct Flags
@@ -200,6 +208,8 @@ public:
     virtual bool reap_error(ErrorStack&) override;
 
     virtual bool write(IHandler* output) const override;
+
+    virtual void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override;
 
     unsigned get_flags() const { return flags; }
 

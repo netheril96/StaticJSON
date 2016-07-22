@@ -92,6 +92,30 @@ public:
             return output->Uint64(*m_value);
         }
     }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("integer"), alloc);
+        if (std::numeric_limits<IntType>::is_signed)
+        {
+            output.AddMember(rapidjson::StringRef("minimum"),
+                             (std::int64_t)std::numeric_limits<IntType>::min(),
+                             alloc);
+            output.AddMember(rapidjson::StringRef("maximum"),
+                             (std::int64_t)std::numeric_limits<IntType>::max(),
+                             alloc);
+        }
+        else
+        {
+            output.AddMember(rapidjson::StringRef("minimum"),
+                             (std::uint64_t)std::numeric_limits<IntType>::min(),
+                             alloc);
+            output.AddMember(rapidjson::StringRef("maximum"),
+                             (std::uint64_t)std::numeric_limits<IntType>::max(),
+                             alloc);
+        }
+    }
 };
 
 template <>
@@ -113,6 +137,12 @@ public:
     std::string type_name() const override { return "bool"; }
 
     bool write(IHandler* output) const override { return output->Bool(*m_value); }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("boolean"), alloc);
+    }
 };
 
 template <>
@@ -193,6 +223,12 @@ public:
     }
 
     bool write(IHandler* out) const override { return out->Bool(*m_value); }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("boolean"), alloc);
+    }
 };
 
 template <>
@@ -246,6 +282,12 @@ public:
     std::string type_name() const override { return "double"; }
 
     bool write(IHandler* out) const override { return out->Double(*m_value); }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("number"), alloc);
+    }
 };
 
 template <>
@@ -305,6 +347,12 @@ public:
     std::string type_name() const override { return "float"; }
 
     bool write(IHandler* out) const override { return out->Double(*m_value); }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("number"), alloc);
+    }
 };
 
 template <>
@@ -328,6 +376,12 @@ public:
     bool write(IHandler* out) const override
     {
         return out->String(m_value->data(), SizeType(m_value->size()), true);
+    }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("string"), alloc);
     }
 };
 }

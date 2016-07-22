@@ -6,11 +6,6 @@
 
 namespace staticjson
 {
-using rapidjson::Document;
-using rapidjson::Value;
-
-typedef rapidjson::MemoryPoolAllocator<> MemoryPoolAllocator;
-
 class JSONHandler : public BaseHandler
 {
 private:
@@ -62,6 +57,8 @@ public:
     virtual bool write(IHandler* output) const override;
 
     virtual void reset() override;
+
+    void generate_schema(Value& output, MemoryPoolAllocator&) const override { output.SetObject(); }
 };
 
 template <>
