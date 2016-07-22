@@ -632,7 +632,7 @@ bool JSONHandler::stack_push()
 {
     if (m_depth > MAX_DEPTH)
     {
-        the_error.reset(new error::RecursionTooDeepError);
+        the_error.reset(new error::RecursionTooDeepError());
         return false;
     }
 
@@ -662,7 +662,7 @@ bool JSONHandler::postprocess()
     if (stack_top().IsArray())
     {
         stack_top().PushBack(top1, *m_alloc);
-        return true;
+        return stack_push();
     }
     else if (stack_top().IsString())
     {
@@ -748,6 +748,7 @@ bool JSONHandler::StartArray()
 
 bool JSONHandler::EndArray(SizeType)
 {
+    stack_pop();
     if (!stack_top().IsArray())
         return set_corrupted_dom();
     return postprocess();
@@ -756,7 +757,7 @@ bool JSONHandler::EndArray(SizeType)
 bool JSONHandler::StartObject()
 {
     stack_top().SetObject();
-    return stack_push();
+    return true;
 }
 
 bool JSONHandler::EndObject(SizeType)
@@ -777,4 +778,24 @@ void JSONHandler::reset()
 }
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
+
+bool value_to_pretty_file(std::FILE* fp, const Value& v)
+{
+    if (!fp)
+        return false;
+    char buffer[1000];
+    rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
+    rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
+    if (v.Accept(writer))
+    {
+        putc('\n', fp);
+        return true;
+    }
+    return false;
+}
+
+#ifndef NDEBUG
+// Only used for debugging purpose
+void print_json(const Value& v) { value_to_pretty_file(stderr, v); }
+#endif
 }

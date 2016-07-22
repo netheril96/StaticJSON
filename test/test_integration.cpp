@@ -1,10 +1,12 @@
 #include "catch.hpp"
 
+#include <staticjson/document.hpp>
 #include <staticjson/staticjson.hpp>
 
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <system_error>
@@ -208,6 +210,41 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             REQUIRE(u.optional_attributes.size() == 3);
             REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
         }
+    }
+
+    SECTION("Test for document", "[parsing]")
+    {
+        Document users;
+        ParseStatus err;
+
+        bool success
+            = from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err);
+        {
+            CAPTURE(err.description());
+            REQUIRE(success);
+        }
+        REQUIRE(users.IsArray());
+        REQUIRE(users.Size() == 3);
+
+        const Value& u = users[0];
+        REQUIRE(u.IsObject());
+        REQUIRE(u.HasMember("ID"));
+        REQUIRE(u["ID"] == 7947402710862746952ULL);
+        REQUIRE(u.HasMember("nickname"));
+        REQUIRE(u["nickname"].IsString());
+        REQUIRE(std::strcmp(u["nickname"].GetString(), "bigger than bigger") == 0);
+        REQUIRE(u.HasMember("birthday"));
+        REQUIRE(u["birthday"].IsObject());
+        REQUIRE(u["birthday"].HasMember("year"));
+        REQUIRE(u["birthday"]["year"] == 1984);
+
+        REQUIRE(u.HasMember("block_event"));
+        const Value& e = u["block_event"];
+        REQUIRE(e.HasMember("administrator ID"));
+        REQUIRE(e.HasMember("description"));
+        const Value& desc = e["description"];
+        REQUIRE(desc.IsString());
+        REQUIRE(std::strcmp(desc.GetString(), "advertisement") == 0);
     }
 
     SECTION("Test for a map of user", "[parsing]")

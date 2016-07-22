@@ -70,4 +70,6 @@ class Handler<Document> : public JSONHandler
 public:
     explicit Handler(Document* h) : JSONHandler(h, &h->GetAllocator()) {}
 };
+
+bool value_to_pretty_file(std::FILE* fp, const Value& v);
 }
