@@ -71,5 +71,38 @@ public:
     explicit Handler(Document* h) : JSONHandler(h, &h->GetAllocator()) {}
 };
 
-bool value_to_pretty_file(std::FILE* fp, const Value& v);
+namespace nonpublic
+{
+    bool write_value(const Value& v, BaseHandler* out, ParseStatus* status);
+    bool
+    read_value(Value* v, MemoryPoolAllocator* alloc, const BaseHandler* input, ParseStatus* status);
+}
+
+template <class T>
+bool from_json_value(const Value& v, T* t, ParseStatus* status)
+{
+    Handler<T> h(t);
+    return nonpublic::write_value(v, &h, status);
+}
+
+template <class T>
+bool from_json_document(const Document& d,
+                        T* t,
+                        ParseStatus* status)    // for consistency in API
+{
+    return from_json_value(d, t, status);
+}
+
+template <class T>
+bool to_json_value(Value* v, MemoryPoolAllocator* alloc, const T& t, ParseStatus* status)
+{
+    Handler<T> h(const_cast<T*>(&t));
+    return nonpublic::read_value(v, alloc, &h, status);
+}
+
+template <class T>
+bool to_json_document(Document* d, const T& t, ParseStatus* status)
+{
+    return to_json_value(d, &d->GetAllocator(), t, status);
+}
 }

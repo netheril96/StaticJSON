@@ -169,6 +169,67 @@ inline Date create_date(int year, int month, int day)
     return d;
 }
 
+void check_first_user(const User& u)
+{
+    REQUIRE(u.ID == 7947402710862746952ULL);
+    REQUIRE(u.nickname == "bigger than bigger");
+    REQUIRE(u.birthday == create_date(1984, 9, 2));
+
+    REQUIRE(u.block_event.get() != 0);
+    const BlockEvent& e = *u.block_event;
+
+    REQUIRE(e.admin_ID > 0ULL);
+    REQUIRE(e.date == create_date(1970, 12, 31));
+    REQUIRE(e.description == "advertisement");
+    REQUIRE(e.details.size() > 0ULL);
+
+    REQUIRE(u.dark_history.empty());
+    REQUIRE(u.optional_attributes.empty());
+}
+
+void check_second_user(const User& u)
+{
+    REQUIRE(u.ID == 13478355757133566847ULL);
+    REQUIRE(u.nickname.size() == 15);
+    REQUIRE(!u.block_event);
+    REQUIRE(u.optional_attributes.size() == 3);
+    REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
+}
+
+void check_array_of_user(const std::vector<User>& users)
+{
+    REQUIRE(users.size() == 3);
+
+    check_first_user(users[0]);
+    check_second_user(users[1]);
+}
+
+void check_array_of_user(const Document& users)
+{
+    REQUIRE(users.IsArray());
+    REQUIRE(users.Size() == 3);
+
+    const Value& u = users[0];
+    REQUIRE(u.IsObject());
+    REQUIRE(u.HasMember("ID"));
+    REQUIRE(u["ID"] == 7947402710862746952ULL);
+    REQUIRE(u.HasMember("nickname"));
+    REQUIRE(u["nickname"].IsString());
+    REQUIRE(std::strcmp(u["nickname"].GetString(), "bigger than bigger") == 0);
+    REQUIRE(u.HasMember("birthday"));
+    REQUIRE(u["birthday"].IsObject());
+    REQUIRE(u["birthday"].HasMember("year"));
+    REQUIRE(u["birthday"]["year"] == 1984);
+
+    REQUIRE(u.HasMember("block_event"));
+    const Value& e = u["block_event"];
+    REQUIRE(e.HasMember("administrator ID"));
+    REQUIRE(e.HasMember("description"));
+    const Value& desc = e["description"];
+    REQUIRE(desc.IsString());
+    REQUIRE(std::strcmp(desc.GetString(), "advertisement") == 0);
+}
+
 TEST_CASE("Test for correct parsing", "[parsing]")
 {
     SECTION("Test for an array of user", "[parsing]")
@@ -182,34 +243,11 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             CAPTURE(err.description());
             REQUIRE(success);
         }
-        REQUIRE(users.size() == 3);
+        check_array_of_user(users);
 
-        {
-            const User& u = users[0];
-            REQUIRE(u.ID == 7947402710862746952ULL);
-            REQUIRE(u.nickname == "bigger than bigger");
-            REQUIRE(u.birthday == create_date(1984, 9, 2));
-
-            REQUIRE(u.block_event.get() != 0);
-            const BlockEvent& e = *u.block_event;
-
-            REQUIRE(e.admin_ID > 0ULL);
-            REQUIRE(e.date == create_date(1970, 12, 31));
-            REQUIRE(e.description == "advertisement");
-            REQUIRE(e.details.size() > 0ULL);
-
-            REQUIRE(u.dark_history.empty());
-            REQUIRE(u.optional_attributes.empty());
-        }
-
-        {
-            const User& u = users[1];
-            REQUIRE(u.ID == 13478355757133566847ULL);
-            REQUIRE(u.nickname.size() == 15);
-            REQUIRE(!u.block_event);
-            REQUIRE(u.optional_attributes.size() == 3);
-            REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
-        }
+        Document d;
+        REQUIRE(to_json_document(&d, users, nullptr));
+        check_array_of_user(d);
     }
 
     SECTION("Test for document", "[parsing]")
@@ -223,28 +261,11 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             CAPTURE(err.description());
             REQUIRE(success);
         }
-        REQUIRE(users.IsArray());
-        REQUIRE(users.Size() == 3);
+        check_array_of_user(users);
 
-        const Value& u = users[0];
-        REQUIRE(u.IsObject());
-        REQUIRE(u.HasMember("ID"));
-        REQUIRE(u["ID"] == 7947402710862746952ULL);
-        REQUIRE(u.HasMember("nickname"));
-        REQUIRE(u["nickname"].IsString());
-        REQUIRE(std::strcmp(u["nickname"].GetString(), "bigger than bigger") == 0);
-        REQUIRE(u.HasMember("birthday"));
-        REQUIRE(u["birthday"].IsObject());
-        REQUIRE(u["birthday"].HasMember("year"));
-        REQUIRE(u["birthday"]["year"] == 1984);
-
-        REQUIRE(u.HasMember("block_event"));
-        const Value& e = u["block_event"];
-        REQUIRE(e.HasMember("administrator ID"));
-        REQUIRE(e.HasMember("description"));
-        const Value& desc = e["description"];
-        REQUIRE(desc.IsString());
-        REQUIRE(std::strcmp(desc.GetString(), "advertisement") == 0);
+        std::vector<User> vusers;
+        REQUIRE(from_json_document(users, &vusers, nullptr));
+        check_array_of_user(vusers);
     }
 
     SECTION("Test for a map of user", "[parsing]")
@@ -259,33 +280,8 @@ TEST_CASE("Test for correct parsing", "[parsing]")
             REQUIRE(success);
         }
         REQUIRE(users.size() == 2);
-
-        {
-            const User& u = users["First"];
-            REQUIRE(u.ID == 7947402710862746952ULL);
-            REQUIRE(u.nickname == "bigger than bigger");
-            REQUIRE(u.birthday == create_date(1984, 9, 2));
-
-            REQUIRE(u.block_event.get() != 0);
-            const BlockEvent& e = *u.block_event;
-
-            REQUIRE(e.admin_ID > 0ULL);
-            REQUIRE(e.date == create_date(1970, 12, 31));
-            REQUIRE(e.description == "advertisement");
-            REQUIRE(e.details.size() > 0ULL);
-
-            REQUIRE(u.dark_history.empty());
-            REQUIRE(u.optional_attributes.empty());
-        }
-
-        {
-            const User& u = users["Second"];
-            REQUIRE(u.ID == 13478355757133566847ULL);
-            REQUIRE(u.nickname.size() == 15);
-            REQUIRE(!u.block_event);
-            REQUIRE(u.optional_attributes.size() == 3);
-            REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
-        }
+        check_first_user(users["First"]);
+        check_second_user(users["Second"]);
     }
 }
 

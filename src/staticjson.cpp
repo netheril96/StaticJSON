@@ -613,6 +613,36 @@ namespace nonpublic
         }
         return res;
     }
+
+    bool write_value(const Value& v, BaseHandler* out, ParseStatus* status)
+    {
+        if (!v.Accept(*out))
+        {
+            if (status)
+            {
+                status->set_result(rapidjson::kParseErrorTermination, 0);
+                out->reap_error(status->error_stack());
+            }
+            return false;
+        }
+        return true;
+    }
+
+    bool
+    read_value(Value* v, MemoryPoolAllocator* alloc, const BaseHandler* input, ParseStatus* status)
+    {
+        JSONHandler handler(v, alloc);
+        if (!input->write(&handler))
+        {
+            if (status)
+            {
+                status->set_result(rapidjson::kParseErrorTermination, 0);
+                handler.reap_error(status->error_stack());
+            }
+            return false;
+        }
+        return true;
+    }
 }
 
 JSONHandler::JSONHandler(Value* v, MemoryPoolAllocator* a)
@@ -778,24 +808,4 @@ void JSONHandler::reset()
 }
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
-
-bool value_to_pretty_file(std::FILE* fp, const Value& v)
-{
-    if (!fp)
-        return false;
-    char buffer[1000];
-    rapidjson::FileWriteStream os(fp, buffer, sizeof(buffer));
-    rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer(os);
-    if (v.Accept(writer))
-    {
-        putc('\n', fp);
-        return true;
-    }
-    return false;
-}
-
-#ifndef NDEBUG
-// Only used for debugging purpose
-void print_json(const Value& v) { value_to_pretty_file(stderr, v); }
-#endif
 }
