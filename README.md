@@ -142,10 +142,13 @@ Traceback (last call first)
 
 If you need occasional escape from the rigidity of C++'s static type system, but do not want complete dynamism, you can still find the middle ground in `StaticJSON`.
 
-* You can embed a `staticjson::Document` (alias of `rapidjson::Document`) in your class/struct, which allows static typing for some class members and dynamic typing for others. Note `Document` is already nullable so do not use a pointer to `Document`.
+* You can embed a `staticjson::Document` (alias of `rapidjson::Document`) in your class/struct, which allows static typing for some class members and dynamic typing for others. Note `Document` is already nullable so do not use a smart pointer to `Document`.
 * You can convert a `Document` or `Value` to and from a C++ type registered in `StaticJSON`. The functions are aptly named `from_json_value`, `from_json_document`, `to_json_value`, `to_json_document`.
 
-To enable support for dynamic typing, you need to include `<staticjson/document.hpp>`. It is in a separate header to avoid namespace pollution when not needed.
+
+## Export as JSON Schema
+
+Function `export_json_schema` allows you to export the validation rules used by `StaticJSON` as JSON schema. It can then be used in other languages to do the similar validation. Note the two rules are only approximate match, because certain rules cannot be expressed in JSON schema yet, and because some languages have different treatments of numbers from C++.
 
 ## Misc
 

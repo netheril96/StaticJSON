@@ -539,7 +539,6 @@ public:
 
         Value empty_obj(rapidjson::kObjectType);
         output.AddMember(rapidjson::StringRef("properties"), empty_obj, alloc);
-
         output.AddMember(rapidjson::StringRef("additionalProperties"), internal_schema, alloc);
     }
 };

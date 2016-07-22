@@ -129,6 +129,12 @@ public:
     std::string type_name() const override { return "null"; }
 
     bool write(IHandler* output) const override { return output->Null(); }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("null"), alloc);
+    }
 };
 
 template <>
