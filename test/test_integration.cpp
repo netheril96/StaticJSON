@@ -67,6 +67,10 @@ public:
         add_property("day", &d->day);
         set_flags(Flags::DisallowUnknownKey);
     }
+
+    // This override is not necessary.
+    // When provided, you will have better error messages.
+    std::string type_name() const override { return "Date"; }
 };
 }
 
