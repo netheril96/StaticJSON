@@ -691,9 +691,9 @@ namespace nonpublic
     }
 }
 
-JSONHandler::JSONHandler(Value* v, MemoryPoolAllocator* a)
-    : m_stack(), m_value(v), m_alloc(a), m_depth(0)
+JSONHandler::JSONHandler(Value* v, MemoryPoolAllocator* a) : m_stack(), m_value(v), m_alloc(a)
 {
+    m_stack.reserve(25);
 }
 
 bool JSONHandler::set_corrupted_dom()
@@ -706,28 +706,26 @@ std::string JSONHandler::type_name() const { return "JSON"; }
 
 bool JSONHandler::stack_push()
 {
-    if (m_depth > MAX_DEPTH)
-    {
-        the_error.reset(new error::RecursionTooDeepError());
-        return false;
-    }
-
-    ++m_depth;
+    m_stack.emplace_back();
     return true;
 }
 
-void JSONHandler::stack_pop() { m_depth = std::max(m_depth - 1, 0); }
+void JSONHandler::stack_pop()
+{
+    if (!m_stack.empty())
+        m_stack.pop_back();
+}
 
 Value& JSONHandler::stack_top()
 {
-    if (m_depth > 0)
-        return m_stack[m_depth - 1];
-    return *m_value;
+    if (m_stack.empty())
+        return *m_value;
+    return m_stack.back();
 }
 
 bool JSONHandler::postprocess()
 {
-    if (m_depth <= 0)
+    if (m_stack.empty())
     {
         this->parsed = true;
         return true;
@@ -850,7 +848,7 @@ void JSONHandler::reset()
         v.SetNull();
     }
 
-    m_depth = 0;
+    m_stack.clear();
 }
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }

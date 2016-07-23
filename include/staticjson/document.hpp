@@ -1,8 +1,9 @@
 #pragma once
-#include <rapidjson/document.h>
 #include <staticjson/basic.hpp>
 
-#include <array>
+#include <rapidjson/document.h>
+
+#include <vector>
 
 namespace staticjson
 {
@@ -11,10 +12,9 @@ class JSONHandler : public BaseHandler
 private:
     static const int MAX_DEPTH = 32;
 
-    std::array<Value, MAX_DEPTH> m_stack;
+    std::vector<Value> m_stack;
     Value* m_value;
     MemoryPoolAllocator* m_alloc;
-    int m_depth;
 
 private:
     bool stack_push();
