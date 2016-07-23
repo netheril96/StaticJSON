@@ -662,7 +662,7 @@ namespace nonpublic
 
     bool write_value(const Value& v, BaseHandler* out, ParseStatus* status)
     {
-        if (!v.Accept(*out))
+        if (!v.Accept(*static_cast<IHandler*>(out)))
         {
             if (status)
             {
