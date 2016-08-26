@@ -3,6 +3,8 @@
 #include <staticjson/document.hpp>
 #include <staticjson/staticjson.hpp>
 
+#include <rapidjson/schema.h>
+
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -460,16 +462,45 @@ TEST_CASE("Test for writing JSON", "[serialization]")
     REQUIRE(users == reparsed_users);
 }
 
-TEST_CASE("Schema generation")
+static bool is_valid_json(const std::string& filename, rapidjson::SchemaValidator* validator)
 {
+    Document d;
+    REQUIRE(from_json_file(filename, &d, nullptr));
+    bool rc = d.Accept(*validator);
+    validator->Reset();
+    return rc;
+}
+
+TEST_CASE("Schema generation and validation")
+{
+    const char* invalid_json_filenames[] = {"out_of_range.json",
+                                            "integer_string.json",
+                                            "missing_required.json",
+                                            "map_element_mismatch.json",
+                                            "null_in_key.json",
+                                            "single_object.json",
+                                            "unknown_field.json"};
     {
         std::vector<User> users;
         Document schema = export_json_schema(&users);
-        REQUIRE(to_pretty_json_file(get_base_dir() + "/test/user_array_schema.json", schema));
+        rapidjson::SchemaDocument sd(schema);
+        rapidjson::SchemaValidator validator(sd);
+
+        REQUIRE(is_valid_json(get_base_dir() + "/examples/success/user_array.json", &validator));
+        REQUIRE(is_valid_json(get_base_dir() + "/examples/success/user_array_compact.json",
+                              &validator));
+
+        for (const char* fn : invalid_json_filenames)
+            REQUIRE(!is_valid_json(get_base_dir() + "/examples/failure/" + fn, &validator));
     }
     {
         std::map<std::string, User> users;
         Document schema = export_json_schema(&users);
-        REQUIRE(to_pretty_json_file(get_base_dir() + "/test/user_map_schema.json", schema));
+        rapidjson::SchemaDocument sd(schema);
+        rapidjson::SchemaValidator validator(sd);
+
+        REQUIRE(is_valid_json(get_base_dir() + "/examples/success/user_map.json", &validator));
+        for (const char* fn : invalid_json_filenames)
+            REQUIRE(!is_valid_json(get_base_dir() + "/examples/failure/" + fn, &validator));
     }
 }
