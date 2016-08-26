@@ -603,6 +603,8 @@ namespace nonpublic
 
     struct StringOutputStream : private NonMobile
     {
+        typedef char Ch;
+
         std::string* str;
 
         void Put(char c) { str->push_back(c); }
