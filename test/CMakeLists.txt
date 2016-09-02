@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT (test_staticjson)
 
 if (NOT MSVC)
-    SET(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -Wall -Wextra -pedantic -g")
+    SET(CMAKE_CXX_FLAGS "-std=c++14 -fno-rtti -Wall -Wextra -pedantic -g")
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)

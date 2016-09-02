@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <experimental/optional>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <system_error>
@@ -81,6 +82,7 @@ struct BlockEvent
     std::uint64_t serial_number, admin_ID = 255;
     Date date;
     std::string description, details;
+    std::experimental::optional<std::string> flags;
 
     void staticjson_init(ObjectHandler* h)
     {
@@ -89,6 +91,7 @@ struct BlockEvent
         h->add_property("date", &date, Flags::Optional);
         h->add_property("description", &description, Flags::Optional);
         h->add_property("details", &details, Flags::Optional);
+        h->add_property("flags", &flags, Flags::Optional);
     }
 };
 
@@ -100,8 +103,11 @@ struct User
     std::string nickname;
     Date birthday;
     std::shared_ptr<BlockEvent> block_event;
+    std::experimental::optional<BlockEvent> dark_event;
     std::vector<BlockEvent> dark_history;
     std::unordered_map<std::string, std::string> optional_attributes;
+
+    std::experimental::optional<std::vector<std::experimental::optional<BlockEvent>>> alternate_history;
 };
 
 namespace staticjson
@@ -119,6 +125,8 @@ public:
         h->add_property("block_event", &user->block_event, Flags::Optional);
         h->add_property("optional_attributes", &user->optional_attributes, Flags::Optional);
         h->add_property("dark_history", &user->dark_history, Flags::Optional);
+        h->add_property("dark_event", &user->dark_event, Flags::Optional);
+        h->add_property("alternate_history", &user->alternate_history, Flags::Optional);
     }
 
     std::string type_name() const override { return "User"; }
@@ -191,6 +199,30 @@ void check_first_user(const User& u)
 
     REQUIRE(u.dark_history.empty());
     REQUIRE(u.optional_attributes.empty());
+
+    REQUIRE(!!u.dark_event);
+    REQUIRE(u.dark_event->serial_number == 9876543210123456789ULL);
+    REQUIRE(u.dark_event->admin_ID == 11223344556677889900ULL);
+    REQUIRE(u.dark_event->date == create_date(1970, 12, 31));
+    REQUIRE(u.dark_event->description == "promote");
+    REQUIRE(u.dark_event->details == "at least like a troll");
+    REQUIRE(static_cast<bool>(u.dark_event->flags) == false);
+
+    REQUIRE(static_cast<bool>(u.alternate_history) == true);
+    REQUIRE(u.alternate_history->size() == 2);
+    REQUIRE(static_cast<bool>(u.alternate_history->at(0)) == false);
+    REQUIRE(static_cast<bool>(u.alternate_history->at(1)) == true);
+
+    {
+        const BlockEvent& e = u.alternate_history->at(1).value();
+        REQUIRE(e.serial_number == 1123581321345589ULL);
+        REQUIRE(e.admin_ID == 1123581321345589ULL);
+        REQUIRE(e.date == create_date(1970, 12, 31));
+        REQUIRE(e.description == "redacted");
+        REQUIRE(e.details == "redacted");
+        REQUIRE(static_cast<bool>(e.flags) == true);
+        REQUIRE(*e.flags == "x");
+    }
 }
 
 void check_second_user(const User& u)
@@ -237,7 +269,7 @@ void check_array_of_user(const Document& users)
     REQUIRE(std::strcmp(desc.GetString(), "advertisement") == 0);
 }
 
-TEST_CASE("Test for correct parsing", "[parsing]")
+TEST_CASE("Test for correct parsing", "[parsing],[c]")
 {
     SECTION("Test for an array of user", "[parsing]")
     {
@@ -256,7 +288,6 @@ TEST_CASE("Test for correct parsing", "[parsing]")
         REQUIRE(to_json_document(&d, users, nullptr));
         check_array_of_user(d);
     }
-
     SECTION("Test for document", "[parsing]")
     {
         Document users;
@@ -275,7 +306,7 @@ TEST_CASE("Test for correct parsing", "[parsing]")
         check_array_of_user(vusers);
     }
 
-    SECTION("Test for a map of user", "[parsing]")
+    SECTION("Test for a map of user", "[parsing], [q]")
     {
         std::unordered_map<std::string, User> users;
         ParseStatus err;
