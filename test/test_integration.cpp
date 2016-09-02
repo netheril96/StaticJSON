@@ -267,6 +267,23 @@ void check_array_of_user(const Document& users)
     const Value& desc = e["description"];
     REQUIRE(desc.IsString());
     REQUIRE(std::strcmp(desc.GetString(), "advertisement") == 0);
+
+    REQUIRE(u.HasMember("dark_event"));
+    {
+        const Value& e = u["dark_event"];
+        REQUIRE(e.HasMember("administrator ID"));
+        REQUIRE(e.HasMember("description"));
+        REQUIRE(e["flags"].IsNull());
+    }
+
+    REQUIRE(u.HasMember("alternate_history"));
+    {
+        const Value& e = u["alternate_history"];
+        REQUIRE(e.IsArray());
+        REQUIRE(e[0].IsNull());
+        REQUIRE(e[1].IsObject());
+        REQUIRE(e[1]["flags"].IsString());
+    }
 }
 
 TEST_CASE("Test for correct parsing", "[parsing],[c]")
