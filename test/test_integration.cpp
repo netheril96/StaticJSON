@@ -9,10 +9,13 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <experimental/optional>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <system_error>
+
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+#include <experimental/optional>
+#endif
 
 #ifdef WIN32
 #define stat _stat
@@ -82,7 +85,9 @@ struct BlockEvent
     std::uint64_t serial_number, admin_ID = 255;
     Date date;
     std::string description, details;
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
     std::experimental::optional<std::string> flags;
+#endif
 
     void staticjson_init(ObjectHandler* h)
     {
@@ -91,7 +96,9 @@ struct BlockEvent
         h->add_property("date", &date, Flags::Optional);
         h->add_property("description", &description, Flags::Optional);
         h->add_property("details", &details, Flags::Optional);
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
         h->add_property("flags", &flags, Flags::Optional);
+#endif
     }
 };
 
@@ -103,11 +110,13 @@ struct User
     std::string nickname;
     Date birthday;
     std::shared_ptr<BlockEvent> block_event;
-    std::experimental::optional<BlockEvent> dark_event;
     std::vector<BlockEvent> dark_history;
     std::unordered_map<std::string, std::string> optional_attributes;
 
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+    std::experimental::optional<BlockEvent> dark_event;
     std::experimental::optional<std::vector<std::experimental::optional<BlockEvent>>> alternate_history;
+#endif
 };
 
 namespace staticjson
@@ -125,8 +134,10 @@ public:
         h->add_property("block_event", &user->block_event, Flags::Optional);
         h->add_property("optional_attributes", &user->optional_attributes, Flags::Optional);
         h->add_property("dark_history", &user->dark_history, Flags::Optional);
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
         h->add_property("dark_event", &user->dark_event, Flags::Optional);
         h->add_property("alternate_history", &user->alternate_history, Flags::Optional);
+#endif
     }
 
     std::string type_name() const override { return "User"; }
@@ -200,6 +211,7 @@ void check_first_user(const User& u)
     REQUIRE(u.dark_history.empty());
     REQUIRE(u.optional_attributes.empty());
 
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
     REQUIRE(!!u.dark_event);
     REQUIRE(u.dark_event->serial_number == 9876543210123456789ULL);
     REQUIRE(u.dark_event->admin_ID == 11223344556677889900ULL);
@@ -223,6 +235,7 @@ void check_first_user(const User& u)
         REQUIRE(static_cast<bool>(e.flags) == true);
         REQUIRE(*e.flags == "x");
     }
+#endif
 }
 
 void check_second_user(const User& u)
@@ -268,6 +281,7 @@ void check_array_of_user(const Document& users)
     REQUIRE(desc.IsString());
     REQUIRE(std::strcmp(desc.GetString(), "advertisement") == 0);
 
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
     REQUIRE(u.HasMember("dark_event"));
     {
         const Value& e = u["dark_event"];
@@ -284,6 +298,7 @@ void check_array_of_user(const Document& users)
         REQUIRE(e[1].IsObject());
         REQUIRE(e[1]["flags"].IsString());
     }
+#endif
 }
 
 TEST_CASE("Test for correct parsing", "[parsing],[c]")

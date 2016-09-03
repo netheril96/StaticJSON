@@ -1,13 +1,24 @@
 #pragma once
 #include <staticjson/basic.hpp>
 
-#include <experimental/optional>
 #include <deque>
 #include <list>
 #include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
+
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+#include <experimental/optional>
+namespace staticjson {
+    namespace nonpublic {
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+        template<typename T>
+        using optional = std::experimental::optional<T>;
+#endif
+    }
+}
+#endif
 
 namespace staticjson
 {
@@ -187,6 +198,8 @@ public:
     }
 };
 
+
+#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
 template <class T>
 class Handler<std::experimental::optional<T>> : public BaseHandler
 {
@@ -360,6 +373,7 @@ public:
         return "std::optional";
     }
 };
+#endif
 
 template <class PointerType>
 class PointerHandler : public BaseHandler
