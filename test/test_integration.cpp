@@ -15,6 +15,7 @@
 
 #ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
 #include <experimental/optional>
+#include <staticjson/optional_support.hpp>
 #endif
 
 #ifdef WIN32
