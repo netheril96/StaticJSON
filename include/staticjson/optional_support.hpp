@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stl_types.hpp"
+
 #ifdef __has_include
 #  if __has_include(<optional>)
 #    include<optional>
