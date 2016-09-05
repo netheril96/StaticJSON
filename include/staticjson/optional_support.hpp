@@ -41,7 +41,7 @@ public:
 
 protected:
     mutable nonpublic::optional<T>* m_value;
-    mutable std::unique_ptr<Handler<ElementType>> internal_handler;
+    mutable nonpublic::optional<Handler<ElementType>> internal_handler;
     int depth = 0;
 
 public:
@@ -53,14 +53,14 @@ protected:
         if (!internal_handler)
         {
             *m_value = T{};
-            internal_handler.reset(new Handler<ElementType>(&(m_value->value())));
+            internal_handler.emplace(&(m_value->value()));
         }
     }
 
     void reset() override
     {
         depth = 0;
-        internal_handler.reset();
+        internal_handler = nonpublic::nullopt;
         *m_value = nonpublic::nullopt;
     }
 
@@ -95,7 +95,7 @@ public:
         }
         if (!internal_handler)
         {
-            internal_handler.reset(new Handler<ElementType>(&(m_value->value())));
+            internal_handler.emplace(&(m_value->value()));
         }
         return internal_handler->write(out);
     }
