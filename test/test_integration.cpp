@@ -227,7 +227,9 @@ void check_first_user(const User& u)
     REQUIRE(static_cast<bool>(u.alternate_history->at(1)) == true);
 
     {
-        const BlockEvent& e = u.alternate_history->at(1).value();
+        const auto& opt_e = u.alternate_history->at(1);
+		REQUIRE(opt_e);
+        const BlockEvent& e = *opt_e;
         REQUIRE(e.serial_number == 1123581321345589ULL);
         REQUIRE(e.admin_ID == 1123581321345589ULL);
         REQUIRE(e.date == create_date(1970, 12, 31));

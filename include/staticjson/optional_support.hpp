@@ -52,8 +52,8 @@ protected:
     {
         if (!internal_handler)
         {
-            *m_value = T{};
-            internal_handler.emplace(&(m_value->value()));
+            m_value->emplace();
+            internal_handler.emplace(&(**m_value));
         }
     }
 
@@ -95,7 +95,7 @@ public:
         }
         if (!internal_handler)
         {
-            internal_handler.emplace(&(m_value->value()));
+            internal_handler.emplace(&(**m_value));
         }
         return internal_handler->write(out);
     }
