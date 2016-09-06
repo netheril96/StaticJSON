@@ -18,6 +18,33 @@
             "description": "advertisement",
             "details": "most likely a troll"
         },
+        "dark_event": {
+            "serial_number": 9876543210123456789,
+            "administrator ID": 11223344556677889900,
+            "date": {
+                "year": 1970,
+                "month": 12,
+                "day": 31
+            },
+            "description": "promote",
+            "details": "at least like a troll",
+            "flags": null
+        },
+        "alternate_history": [
+            null,
+            {
+                "serial_number": 1123581321345589,
+                "administrator ID": 1123581321345589,
+                "date": {
+                    "year": 1970,
+                    "month": 12,
+                    "day": 31
+                },
+                "description": "redacted",
+                "details": "redacted",
+                "flags": "x"
+            }
+        ],
         "comment": "This field is not specified by our class; but it is silently skipped because the parse_mode of class `User` is not `strict`"
     },
     {

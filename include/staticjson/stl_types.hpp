@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <vector>
 
+
 namespace staticjson
 {
 template <class ArrayType>
@@ -185,6 +186,7 @@ public:
         return "std::list<" + this->internal.type_name() + ">";
     }
 };
+
 
 template <class PointerType>
 class PointerHandler : public BaseHandler

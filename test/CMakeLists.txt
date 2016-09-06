@@ -1,8 +1,16 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
-PROJECT (test_staticjson)
+PROJECT (test_staticjson CXX)
+include(CheckCXXCompilerFlag)
 
 if (NOT MSVC)
-    SET(CMAKE_CXX_FLAGS "-std=c++11 -fno-rtti -Wall -Wextra -pedantic -g")
+    CHECK_CXX_COMPILER_FLAG(-std=c++14 CXX14_COMPILER)
+    if ("${CXX14_COMPILER}" EQUAL "1")
+        add_compile_options(-std=c++14)
+        add_definitions(-DSTATICJSON_EXPERIMENTAL_OPTIONAL)
+    else()
+        add_compile_options(-std=c++11)
+    endif()
+    add_compile_options(-fno-rtti -Wall -Wextra -pedantic -g)
 endif()
 
 if (NOT CMAKE_BUILD_TYPE)
