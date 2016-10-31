@@ -196,6 +196,14 @@ namespace error
         error_type type() const { return CORRUPTED_DOM; }
     };
 
+    class ArrayLengthMismatchError : public ErrorBase
+    {
+    public:
+        std::string description() const;
+
+        error_type type() const { return ARRAY_LENGTH_MISMATCH; }
+    };
+
     namespace internal
     {
 

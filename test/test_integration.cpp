@@ -116,7 +116,8 @@ struct User
 
 #ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
     std::experimental::optional<BlockEvent> dark_event;
-    std::experimental::optional<std::vector<std::experimental::optional<BlockEvent>>> alternate_history;
+    std::experimental::optional<std::vector<std::experimental::optional<BlockEvent>>>
+        alternate_history;
 #endif
 };
 
@@ -228,7 +229,7 @@ void check_first_user(const User& u)
 
     {
         const auto& opt_e = u.alternate_history->at(1);
-		REQUIRE(opt_e);
+        REQUIRE(opt_e);
         const BlockEvent& e = *opt_e;
         REQUIRE(e.serial_number == 1123581321345589ULL);
         REQUIRE(e.admin_ID == 1123581321345589ULL);

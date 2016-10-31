@@ -1,13 +1,14 @@
 #pragma once
 #include <staticjson/basic.hpp>
 
+#include <array>
 #include <deque>
 #include <list>
 #include <map>
 #include <memory>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
-
 
 namespace staticjson
 {
@@ -186,7 +187,6 @@ public:
         return "std::list<" + this->internal.type_name() + ">";
     }
 };
-
 
 template <class PointerType>
 class PointerHandler : public BaseHandler
@@ -606,6 +606,169 @@ public:
     std::string type_name() const override
     {
         return "std::multimap<std::string, " + this->internal_handler.type_name() + ">";
+    }
+};
+
+template <std::size_t N>
+class TupleHander : public BaseHandler
+{
+private:
+    std::array<std::unique_ptr<BaseHandler>, N> handlers;
+    std::size_t index = 0;
+    int depth = 0;
+
+    bool postcheck(bool success)
+    {
+        if (!success)
+        {
+            the_error.reset(new error::ArrayElementError(index));
+            return false;
+        }
+        if (handlers[index]->is_parsed())
+        {
+            ++index;
+            if (index >= N)
+                this->parsed = true;
+        }
+        return true;
+    }
+
+public:
+    bool Null() override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Null());
+    }
+
+    bool Bool(bool b) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Bool(b));
+    }
+
+    bool Int(int i) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Int(i));
+    }
+
+    bool Uint(unsigned i) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Uint(i));
+    }
+
+    bool Int64(std::int64_t i) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Int64(i));
+    }
+
+    bool Uint64(std::uint64_t i) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Uint64(i));
+    }
+
+    bool Double(double d) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Double(d));
+    }
+
+    bool String(const char* str, SizeType length, bool copy) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->String(str, length, copy));
+    }
+
+    bool Key(const char* str, SizeType length, bool copy) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->Key(str, length, copy));
+    }
+
+    bool StartArray() override
+    {
+        if (++depth > 1)
+        {
+            if (index >= N)
+                return true;
+            return postcheck(handlers[index]->StartArray());
+        }
+        return true;
+    }
+
+    bool EndArray(SizeType length) override
+    {
+        if (--depth > 0)
+        {
+            if (index >= N)
+                return true;
+            return postcheck(handlers[index]->EndArray(length));
+        }
+        this->parsed = true;
+        return true;
+    }
+
+    bool StartObject() override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->StartObject());
+    }
+
+    bool EndObject(SizeType length) override
+    {
+        if (index >= N)
+            return true;
+        return postcheck(handlers[index]->EndObject(length));
+    }
+
+    bool reap_error(ErrorStack& errs) override
+    {
+        if (!this->the_error)
+            return false;
+
+        errs.push(this->the_error.release());
+        for (auto&& h : handlers)
+            h->reap_error(errs);
+        return true;
+    }
+
+    bool write(IHandler* out) const override
+    {
+        if (!out->StartArray())
+            return false;
+        for (auto&& h : handlers)
+        {
+            if (!h->write(out))
+                return false;
+        }
+        return out->EndArray(N);
+    }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("array"), alloc);
+        Value items(rapidjson::kArrayType);
+        for (auto&& h : handlers)
+        {
+            Value item;
+            h->generate_schema(item, alloc);
+            items.PushBack(item, alloc);
+        }
+        output.AddMember(rapidjson::StringRef("items"), items, alloc);
     }
 };
 }

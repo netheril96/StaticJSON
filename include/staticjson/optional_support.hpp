@@ -3,35 +3,43 @@
 #include "stl_types.hpp"
 
 #ifdef __has_include
-#  if __has_include(<optional>)
-#    include<optional>
+#if __has_include(<optional>)
+#include <optional>
 
-namespace staticjson { namespace nonpublic {
-    template<typename T>
+namespace staticjson
+{
+namespace nonpublic
+{
+    template <typename T>
     using optional = std::optional<T>;
 
     auto& nullopt = std::nullopt;
-}}
+}
+}
 
-#  elif __has_include(<experimental/optional>)
-#    include <experimental/optional>
+#elif __has_include(<experimental / optional>)
+#include <experimental/optional>
 
-namespace staticjson { namespace nonpublic {
-    template<typename T>
+namespace staticjson
+{
+namespace nonpublic
+{
+    template <typename T>
     using optional = std::experimental::optional<T>;
 
     auto& nullopt = std::experimental::nullopt;
-}}
+}
+}
 
-
-#  else
-#     error "Missing <optional>"
-#  endif
 #else
-#     error "Missing <optional>"
+#error "Missing <optional>"
+#endif
+#else
+#error "Missing <optional>"
 #endif
 
-namespace staticjson {
+namespace staticjson
+{
 
 template <class T>
 class Handler<nonpublic::optional<T>> : public BaseHandler
@@ -206,5 +214,4 @@ public:
         return "std::optional";
     }
 };
-
 }

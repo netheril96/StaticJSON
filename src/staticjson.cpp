@@ -209,6 +209,11 @@ std::string error::RecursionTooDeepError::description() const
 
 std::string error::CorruptedDOMError::description() const { return "JSON has invalid structure"; }
 
+std::string error::ArrayLengthMismatchError::description() const
+{
+    return "The JSON array has different length than the required type";
+}
+
 std::string ParseStatus::description() const
 {
     std::string res;
