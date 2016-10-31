@@ -114,6 +114,8 @@ struct User
     std::vector<BlockEvent> dark_history;
     std::unordered_map<std::string, std::string> optional_attributes;
 
+    std::tuple<int, std::vector<std::tuple<double, double>>, bool> auxiliary;
+
 #ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
     std::experimental::optional<BlockEvent> dark_event;
     std::experimental::optional<std::vector<std::experimental::optional<BlockEvent>>>
@@ -136,6 +138,7 @@ public:
         h->add_property("block_event", &user->block_event, Flags::Optional);
         h->add_property("optional_attributes", &user->optional_attributes, Flags::Optional);
         h->add_property("dark_history", &user->dark_history, Flags::Optional);
+        h->add_property("auxiliary", &user->auxiliary, Flags::Optional);
 #ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
         h->add_property("dark_event", &user->dark_event, Flags::Optional);
         h->add_property("alternate_history", &user->alternate_history, Flags::Optional);

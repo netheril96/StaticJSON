@@ -627,8 +627,6 @@ protected:
         if (handlers[index]->is_parsed())
         {
             ++index;
-            if (index >= N)
-                this->parsed = true;
         }
         return true;
     }
