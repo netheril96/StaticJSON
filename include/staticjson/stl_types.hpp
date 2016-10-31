@@ -612,7 +612,7 @@ public:
 template <std::size_t N>
 class TupleHander : public BaseHandler
 {
-private:
+protected:
     std::array<std::unique_ptr<BaseHandler>, N> handlers;
     std::size_t index = 0;
     int depth = 0;
@@ -631,6 +631,15 @@ private:
                 this->parsed = true;
         }
         return true;
+    }
+
+protected:
+    void reset() override
+    {
+        index = 0;
+        depth = 0;
+        for (auto&& h : handlers)
+            h->prepare_for_reuse();
     }
 
 public:
@@ -769,6 +778,58 @@ public:
             items.PushBack(item, alloc);
         }
         output.AddMember(rapidjson::StringRef("items"), items, alloc);
+    }
+};
+
+namespace nonpublic
+{
+    template <std::size_t index, std::size_t N, typename Tuple>
+    struct TupleIniter
+    {
+        void operator()(std::unique_ptr<BaseHandler>* handlers, Tuple& t) const
+        {
+            handlers[index].reset(
+                new Handler<typename std::tuple_element<index, Tuple>::type>(&std::get<index>(t)));
+            TupleIniter<index + 1, N, Tuple>{}(handlers, t);
+        }
+    };
+
+    template <std::size_t N, typename Tuple>
+    struct TupleIniter<N, N, Tuple>
+    {
+        void operator()(std::unique_ptr<BaseHandler>* handlers, Tuple& t) const
+        {
+            (void)handlers;
+            (void)t;
+        }
+    };
+}
+
+template <typename... Ts>
+class Handler<std::tuple<Ts...>> : public TupleHander<std::tuple_size<std::tuple<Ts...>>::value>
+{
+private:
+    static const std::size_t N = std::tuple_size<std::tuple<Ts...>>::value;
+
+public:
+    explicit Handler(std::tuple<Ts...>* t)
+    {
+        nonpublic::TupleIniter<0, N, std::tuple<Ts...>> initer;
+        initer(this->handlers.data(), *t);
+    }
+
+    std::string type_name() const override
+    {
+        std::string str = "std::tuple<";
+        for (auto&& h : this->handlers)
+        {
+            str += h->type_name();
+            str += ", ";
+        }
+        str.pop_back();
+        str.pop_back();
+        str += '>';
+        return str;
     }
 };
 }

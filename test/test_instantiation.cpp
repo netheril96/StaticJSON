@@ -21,6 +21,9 @@ void instantiate_all_types()
     INSTANTIATE(std::deque<std::shared_ptr<std::unique_ptr<std::vector<std::list<std::string>>>>>);
     INSTANTIATE(staticjson::Document);
     INSTANTIATE(decltype(nullptr));
+
+    typedef std::tuple<int, double, std::vector<std::string>> complex_tuple_type;
+    INSTANTIATE(complex_tuple_type);
 }
 
 #undef INSTANTIATE

@@ -17,7 +17,7 @@ namespace nonpublic
 }
 }
 
-#elif __has_include(<experimental / optional>)
+#elif __has_include(<experimental/optional>)
 #include <experimental/optional>
 
 namespace staticjson
