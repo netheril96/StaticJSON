@@ -37,7 +37,7 @@ protected:
                  CommonType(this_limits::max()) < CommonType(a))
             ) : (this_limits::is_signed) ? (
                 this_limits::max() < that_limits::max() &&
-                CommonType(this_limits::max()) < CommonType(a))
+                CommonType(this_limits::max()) < CommonType(a)
             ) : (
                 a < 0 || CommonType(a) > CommonType(this_limits::max())
             )
