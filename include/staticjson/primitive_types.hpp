@@ -17,24 +17,37 @@ protected:
     IntType* m_value;
 
     template <class AnotherIntType>
-    bool is_out_of_range(AnotherIntType a)
+    static constexpr typename std::enable_if<
+        std::is_integral<AnotherIntType>::value,
+        bool
+    >::type is_out_of_range(AnotherIntType a)
     {
         typedef typename std::common_type<IntType, AnotherIntType>::type CommonType;
-        bool this_signed = std::numeric_limits<IntType>::is_signed,
-             that_signed = std::numeric_limits<AnotherIntType>::is_signed;
-
-        if (this_signed == that_signed)
-            return CommonType(a) < CommonType(std::numeric_limits<IntType>::min())
-                || CommonType(a) > CommonType(std::numeric_limits<IntType>::max());
-
-        if (this_signed)
-            return CommonType(a) > CommonType(std::numeric_limits<IntType>::max());
-
-        return a < 0 || CommonType(a) > CommonType(std::numeric_limits<IntType>::max());
+        typedef typename std::numeric_limits<IntType> this_limits;
+        typedef typename std::numeric_limits<AnotherIntType> that_limits;
+        
+        return (
+            (this_limits::is_signed == that_limits::is_signed) ? (
+                CommonType(a) < CommonType(this_limits::min()) || CommonType(a) > CommonType(that_limits::max())
+            ) : (this_limits::is_signed) ? (
+                CommonType(a) > CommonType(this_limits::max())
+            ) : (
+                a < 0 || CommonType(a) > CommonType(this_limits::max())
+            )
+        );
     }
     
-    template<class ReceiveIntType>
-    bool recieve(ReceiveIntType r, const char* actual_type)
+    template <class FloatType>
+    static constexpr typename std::enable_if<
+        std::is_floating_point<FloatType>::value,
+        bool
+    >::type is_out_of_range(FloatType f)
+    {
+        return static_cast<FloatType>(static_cast<IntType>(f)) != f;
+    }   
+    
+    template <class ReceiveNumType>
+    bool receive(ReceiveIntType r, const char* actual_type)
     {
         if (is_out_of_range(r))
             return set_out_of_range(actual_type);
@@ -48,7 +61,7 @@ public:
 
     bool Int(int i) override
     {
-        return recieve(i, "int");
+        return receive(i, "int");
     }
 
     bool Uint(unsigned i) override
