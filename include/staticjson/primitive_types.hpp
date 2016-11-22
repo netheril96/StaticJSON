@@ -11,6 +11,7 @@ namespace staticjson
 template <class IntType>
 class IntegerHandler : public BaseHandler
 {
+    static_assert(false);
     static_assert(std::is_arithmetic<IntType>::value, "Only arithmetic types are allowed");
 
 protected:
