@@ -28,7 +28,8 @@ protected:
         
         return (
             (this_limits::is_signed == that_limits::is_signed) ? (
-                CommonType(a) < CommonType(this_limits::min()) || CommonType(a) > CommonType(that_limits::max())
+                CommonType(a) < CommonType(this_limits::min()) ||
+                CommonType(a) > CommonType(that_limits::max())
             ) : (this_limits::is_signed) ? (
                 CommonType(a) > CommonType(this_limits::max())
             ) : (
