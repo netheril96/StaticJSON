@@ -26,6 +26,9 @@ protected:
         typedef typename std::numeric_limits<IntType> this_limits;
         typedef typename std::numeric_limits<AnotherIntType> that_limits;
         
+        // The extra logic related to this_limits::min/max allows the compiler to
+        // short circuit this check at compile time. For instance, a `uint32_t`
+        // will NEVER be out of range for an `int64_t`
         return (
             (this_limits::is_signed == that_limits::is_signed) ? (
                 (this_limits::min() > that_limits::min()
