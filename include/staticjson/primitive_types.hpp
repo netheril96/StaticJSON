@@ -32,51 +32,46 @@ protected:
 
         return a < 0 || CommonType(a) > CommonType(std::numeric_limits<IntType>::max());
     }
+    
+    template<class ReceiveIntType>
+    bool recieve(ReceiveIntType r, const char* actual_type)
+    {
+        if (is_out_of_range(r))
+            return set_out_of_range(actual_type);
+        *m_value = static_cast<IntType>(r);
+        this->parsed = true;
+        return true;
+    }
 
 public:
     explicit IntegerHandler(IntType* value) : m_value(value) {}
 
     bool Int(int i) override
     {
-        if (is_out_of_range(i))
-            return set_out_of_range("int");
-        *m_value = static_cast<IntType>(i);
-        this->parsed = true;
-        return true;
+        return recieve(i, "int");
     }
 
     bool Uint(unsigned i) override
     {
-        if (is_out_of_range(i))
-            return set_out_of_range("unsigned int");
-        *m_value = static_cast<IntType>(i);
-        this->parsed = true;
-        return true;
+        return receive(i, "unsigned int");
     }
 
     bool Int64(std::int64_t i) override
     {
-        if (is_out_of_range(i))
-            return set_out_of_range("std::int64_t");
-        *m_value = static_cast<IntType>(i);
-        this->parsed = true;
-        return true;
+        return receive(i, "std::int64_t");
     }
 
     bool Uint64(std::uint64_t i) override
     {
-        if (is_out_of_range(i))
-            return set_out_of_range("std::uint64_t");
-        *m_value = static_cast<IntType>(i);
-        this->parsed = true;
-        return true;
+        return receive(i, "std::uint64_t");
     }
 
     bool Double(double d) override
     {
-        *m_value = static_cast<IntType>(d);
-        if (static_cast<double>(*m_value) != d)
+        IntType val = static_cast<IntType>(d);
+        if (static_cast<double>(val) != d)
             return set_out_of_range("double");
+        *m_value = val;
         this->parsed = true;
         return true;
     }
