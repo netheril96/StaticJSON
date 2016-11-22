@@ -88,12 +88,7 @@ public:
 
     bool Double(double d) override
     {
-        IntType val = static_cast<IntType>(d);
-        if (static_cast<double>(val) != d)
-            return set_out_of_range("double");
-        *m_value = val;
-        this->parsed = true;
-        return true;
+        return receive(d, "double");
     }
 
     bool write(IHandler* output) const override
