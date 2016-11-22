@@ -11,15 +11,46 @@ namespace staticjson
 template <class IntType>
 class IntegerHandler : public BaseHandler
 {
-    static_assert(false);
     static_assert(std::is_arithmetic<IntType>::value, "Only arithmetic types are allowed");
 
 protected:
     IntType* m_value;
+    
+    template<class NumericType>
+    static constexpr bool is_integral() {
+        return std::is_integral<NumericType>::value;
+    }
+    
+    template<class AnotherIntType>
+    static constexpr bool type_fits()
+    {
+        typedef typename std::numeric_limits<IntType> this_limits;
+        typedef typename std::numeric_limits<AnotherIntType> that_limits;
+        
+        return (
+            this_limits::is_signed == that_limits::is_signed ? (
+                this_limits::min() <= that_limits::min() &&
+                this_limits::max() >= that_limits::max()
+            ) : this_limits::is_signed ? (
+                this_limits::max() >= that_limits::max()
+            ) : (
+                false
+            )   
+        );
+    }
 
     template <class AnotherIntType>
     static constexpr typename std::enable_if<
-        std::is_integral<AnotherIntType>::value,
+        is_integral<AnotherIntType>() && type_fits<AnotherIntType>(),
+        bool
+    >::type is_out_of_range(AnotherIntType)
+    {
+        return false;
+    }
+    
+    template <class AnotherIntType>
+    static constexpr typename std::enable_if<
+        is_integral<AnotherIntType> && !type_fits<AnotherIntType>(),
         bool
     >::type is_out_of_range(AnotherIntType a)
     {
