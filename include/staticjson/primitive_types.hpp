@@ -31,7 +31,7 @@ protected:
         // will NEVER be out of range for an `int64_t`
         return (
             (this_limits::is_signed == that_limits::is_signed) ? (
-                (this_limits::min() > that_limits::min()
+                (this_limits::min() > that_limits::min() ||
                  this_limits::max() < that_limits::max()) &&
                 (CommonType(this_limits::min()) > CommonType(a) ||
                  CommonType(this_limits::max()) < CommonType(a))
