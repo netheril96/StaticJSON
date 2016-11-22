@@ -54,7 +54,7 @@ protected:
     }   
     
     template <class ReceiveNumType>
-    bool receive(ReceiveIntType r, const char* actual_type)
+    bool receive(ReceiveNumType r, const char* actual_type)
     {
         if (is_out_of_range(r))
             return set_out_of_range(actual_type);
