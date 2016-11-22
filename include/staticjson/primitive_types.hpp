@@ -15,42 +15,10 @@ class IntegerHandler : public BaseHandler
 
 protected:
     IntType* m_value;
-    
-    template<class NumericType>
-    static constexpr bool is_integral() {
-        return std::is_integral<NumericType>::value;
-    }
-    
-    template<class AnotherIntType>
-    static constexpr bool type_fits()
-    {
-        typedef typename std::numeric_limits<IntType> this_limits;
-        typedef typename std::numeric_limits<AnotherIntType> that_limits;
-        
-        return (
-            this_limits::is_signed == that_limits::is_signed ? (
-                this_limits::min() <= that_limits::min() &&
-                this_limits::max() >= that_limits::max()
-            ) : this_limits::is_signed ? (
-                this_limits::max() >= that_limits::max()
-            ) : (
-                false
-            )   
-        );
-    }
 
     template <class AnotherIntType>
     static constexpr typename std::enable_if<
-        is_integral<AnotherIntType>() && type_fits<AnotherIntType>(),
-        bool
-    >::type is_out_of_range(AnotherIntType)
-    {
-        return false;
-    }
-    
-    template <class AnotherIntType>
-    static constexpr typename std::enable_if<
-        is_integral<AnotherIntType> && !type_fits<AnotherIntType>(),
+        std::is_integral<AnotherIntType>::value,
         bool
     >::type is_out_of_range(AnotherIntType a)
     {
@@ -60,10 +28,13 @@ protected:
         
         return (
             (this_limits::is_signed == that_limits::is_signed) ? (
-                CommonType(a) < CommonType(this_limits::min()) ||
-                CommonType(a) > CommonType(this_limits::max())
+                (this_limits::min() > that_limits::min()
+                 this_limits::max() < that_limits::max()) &&
+                (CommonType(this_limits::min()) > CommonType(a) ||
+                 CommonType(this_limits::max()) < CommonType(a))
             ) : (this_limits::is_signed) ? (
-                CommonType(a) > CommonType(this_limits::max())
+                this_limits::max() < that_limits::max() &&
+                CommonType(this_limits::max()) < CommonType(a))
             ) : (
                 a < 0 || CommonType(a) > CommonType(this_limits::max())
             )
