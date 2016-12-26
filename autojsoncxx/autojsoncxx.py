@@ -92,17 +92,12 @@ class UnsupportedTypeError(InvalidDefinitionError):
 
 NOESCAPE_CHARACTERS = bytes(string.digits + string.ascii_letters + ' ')
 
-# convert arbitrary byte sequence into a C++ string literal by escaping every character
-if is_python2:
-    def cstring_literal(byte_string):
-        if all(c in NOESCAPE_CHARACTERS for c in byte_string):
-            return '"' + byte_string + '"'
-        return '"' + ''.join('\\x{:02x}'.format(ord(char)) for char in byte_string) + '"'
-else:
-    def cstring_literal(byte_string):
-        if all(chr(c) in NOESCAPE_CHARACTERS for c in byte_string):
-            return '"' + byte_string + '"'
-        return '"' + ''.join('\\x{:02x}'.format(char) for char in byte_string) + '"'
+
+def cstring_literal(byte_string):
+    """convert arbitrary byte sequence into a C++ string literal by escaping every character"""
+    if all(c in NOESCAPE_CHARACTERS for c in byte_string):
+        return '"' + byte_string + '"'
+    return '"' + ''.join('\\x{:02x}'.format(ord(char)) for char in byte_string) + '"'
 
 
 def check_identifier(identifier):

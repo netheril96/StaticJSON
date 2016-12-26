@@ -119,7 +119,11 @@ class Handler<std::nullptr_t> : public BaseHandler
 public:
     explicit Handler(std::nullptr_t*) {}
 
-    bool Null() override { return true; }
+    bool Null() override
+    {
+        this->parsed = true;
+        return true;
+    }
 
     std::string type_name() const override { return "null"; }
 
