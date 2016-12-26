@@ -12,6 +12,7 @@ namespace staticjson
 std::string quote(const std::string& str);
 
 class ErrorStack;
+class ErrorBase;
 
 namespace error
 {
@@ -19,6 +20,8 @@ namespace error
     {
         class error_stack_const_iterator;
     }
+    using staticjson::ErrorStack;
+    using staticjson::ErrorBase;
 }
 
 class ErrorBase
