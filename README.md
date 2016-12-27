@@ -113,6 +113,26 @@ public:
 
 You may need to declare `Handler` as a friend in order to access private and protected members.
 
+### Register enumeration types
+
+Example
+
+```c++
+enum class CalendarType
+{
+    Gregorian,
+    Chinese,
+    Jewish,
+    Islam
+};
+
+STATICJSON_DECLARE_ENUM(CalendarType,
+                        {"Gregorian", CalendarType::Gregorian},
+                        {"Chinese", CalendarType::Chinese},
+                        {"Jewish", CalendarType::Jewish},
+                        {"Islam", CalendarType::Islam});
+```
+
 ## Error handling
 
 `StaticJSON` strives not to let any mismatch between the C++ type specifications and the JSON object slip. It detects and reports all kinds of errors, including type mismatch, integer out of range, floating number precision loss, required fields missing, duplicate keys etc. Many of them can be tuned on or off. It also reports an stack trace in case of error (not actual C++ exception).
