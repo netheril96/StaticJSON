@@ -152,7 +152,7 @@ inline std::string quote(const std::string& str)
     return sb;
 }
 
-    static std::string stringprintf(const char* format, ...)
+static std::string stringprintf(const char* format, ...)
 #ifndef WIN32
     __attribute__((format(printf, 1, 2)))
 #endif
