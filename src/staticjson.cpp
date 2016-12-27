@@ -9,6 +9,7 @@
 #include <rapidjson/reader.h>
 #include <rapidjson/writer.h>
 
+#include <cstdarg>
 #include <cstdio>
 #include <exception>
 
