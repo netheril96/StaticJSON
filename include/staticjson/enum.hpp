@@ -18,12 +18,8 @@ private:
         return Derived::get_mapping();
     };
 
-    static std::string get_enum_name() { return Derived::get_enum_name(); }
-
 public:
     explicit EnumHandler(Enum* value) : m_value(value) {}
-
-    std::string type_name() const override { return get_enum_name(); }
 
     bool String(const char* str, SizeType sz, bool) override
     {
@@ -76,7 +72,7 @@ public:
     {                                                                                              \
     public:                                                                                        \
         explicit Handler(type* value) : EnumHandler<type, Handler<type>>(value) {}                 \
-        static std::string get_enum_name() { return #type; }                                       \
+        std::string type_name() const override { return #type; }                                   \
         static const std::vector<std::pair<std::string, type>>& get_mapping()                      \
         {                                                                                          \
             static std::vector<std::pair<std::string, type>> mapping{__VA_ARGS__};                 \
