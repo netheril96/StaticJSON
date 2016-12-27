@@ -152,6 +152,29 @@ inline std::string quote(const std::string& str)
     return sb;
 }
 
+    static std::string stringprintf(const char* format, ...)
+#ifndef WIN32
+    __attribute__((format(printf, 1, 2)))
+#endif
+    ;
+
+static std::string stringprintf(const char* format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int sz = vsnprintf(nullptr, 0, format, ap);
+    va_end(ap);
+
+    if (sz < 0)
+        return std::string();
+
+    std::string result(sz, 0);
+    va_start(ap, format);
+    vsnprintf(&result[0], result.size(), format, ap);
+    va_end(ap);
+    return result;
+}
+
 std::string error::Success::description() const { return "No error"; }
 
 std::string error::ObjectMemberError::description() const
@@ -214,19 +237,21 @@ std::string error::ArrayLengthMismatchError::description() const
     return "The JSON array has different length than the required type";
 }
 
+std::string error::InvalidEnumError::description() const
+{
+    return quote(m_name) + " is an invalid enum name";
+}
+
 std::string ParseStatus::description() const
 {
     std::string res;
     if (has_error())
     {
-        res = "Parsing failed at offset ";
-        res += std::to_string(m_offset);
-        res += " with error code ";
-        res += std::to_string(m_code);
-        res += ":\n";
-        res += rapidjson::GetParseError_En(static_cast<rapidjson::ParseErrorCode>(m_code));
-        res += '\n';
-
+        res = stringprintf(
+            "Parsing failed at offset %lld with error code %d:\n%s\n",
+            static_cast<long long>(m_offset),
+            m_code,
+            rapidjson::GetParseError_En(static_cast<rapidjson::ParseErrorCode>(m_code)));
         if (m_stack)
         {
             res += "\nTraceback (last call first)\n";
