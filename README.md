@@ -130,8 +130,12 @@ STATICJSON_DECLARE_ENUM(CalendarType,
                         {"Gregorian", CalendarType::Gregorian},
                         {"Chinese", CalendarType::Chinese},
                         {"Jewish", CalendarType::Jewish},
-                        {"Islam", CalendarType::Islam});
+                        {"Islam", CalendarType::Islam})
 ```
+
+This will convert the enum type to/from strings, and signal error if the string is not in the list.
+
+Note that this macro must not be instantiated inside a namespace.
 
 ## Error handling
 

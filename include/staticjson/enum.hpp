@@ -65,18 +65,21 @@ public:
         output.AddMember(rapidjson::StringRef("enum"), enumerations, alloc);
     }
 };
+}
 
 #define STATICJSON_DECLARE_ENUM(type, ...)                                                         \
-    template <>                                                                                    \
-    class Handler<type> : public EnumHandler<type, Handler<type>>                                  \
+    namespace staticjson                                                                           \
     {                                                                                              \
-    public:                                                                                        \
-        explicit Handler(type* value) : EnumHandler<type, Handler<type>>(value) {}                 \
-        std::string type_name() const override { return #type; }                                   \
-        static const std::vector<std::pair<std::string, type>>& get_mapping()                      \
+        template <>                                                                                \
+        class Handler<type> : public EnumHandler<type, Handler<type>>                              \
         {                                                                                          \
-            static std::vector<std::pair<std::string, type>> mapping{__VA_ARGS__};                 \
-            return mapping;                                                                        \
-        }                                                                                          \
+        public:                                                                                    \
+            explicit Handler(type* value) : EnumHandler<type, Handler<type>>(value) {}             \
+            std::string type_name() const override { return #type; }                               \
+            static const std::vector<std::pair<std::string, type>>& get_mapping()                  \
+            {                                                                                      \
+                static std::vector<std::pair<std::string, type>> mapping{__VA_ARGS__};             \
+                return mapping;                                                                    \
+            }                                                                                      \
+        };                                                                                         \
     }
-}

@@ -68,7 +68,7 @@ STATICJSON_DECLARE_ENUM(CalendarType,
                         {"Gregorian", CalendarType::Gregorian},
                         {"Chinese", CalendarType::Chinese},
                         {"Jewish", CalendarType::Jewish},
-                        {"Islam", CalendarType::Islam});
+                        {"Islam", CalendarType::Islam})
 
 struct Date
 {
