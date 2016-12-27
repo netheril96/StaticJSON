@@ -1,5 +1,7 @@
 #pragma once
 
+namespace config
+{
 struct Date
 {
     int year;
@@ -18,6 +20,7 @@ struct Date
                      | staticjson::Flags::DisallowUnknownKey);
     }
 };
+}
 
 namespace config
 {

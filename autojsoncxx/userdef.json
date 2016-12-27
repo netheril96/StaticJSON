@@ -1,6 +1,7 @@
 [
 {
     "name": "Date",
+    "namespace": "config",
     "parse_mode": "strict",
     "members": [
         ["int", "year", {"required": true}],

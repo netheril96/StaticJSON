@@ -15,7 +15,7 @@ private:
 
     static const std::vector<std::pair<std::string, Enum>>& get_mapping()
     {
-        return Derived::get_mapping;
+        return Derived::get_mapping();
     };
 
     static std::string get_enum_name() { return Derived::get_enum_name(); }
@@ -55,7 +55,7 @@ public:
         return false;
     }
 
-    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
     {
         output.SetObject();
         output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("string"), alloc);
@@ -70,16 +70,17 @@ public:
     }
 };
 
-#define STATICJSON_DECLARE_ENUM(type, list)                                                        \
+#define STATICJSON_DECLARE_ENUM(type, ...)                                                         \
     template <>                                                                                    \
     class Handler<type> : public EnumHandler<type, Handler<type>>                                  \
     {                                                                                              \
     public:                                                                                        \
-        static std::string get_enum_name() { return ##type; }                                      \
+        explicit Handler(type* value) : EnumHandler<type, Handler<type>>(value) {}                 \
+        static std::string get_enum_name() { return #type; }                                       \
         static const std::vector<std::pair<std::string, type>>& get_mapping()                      \
         {                                                                                          \
-            static std::vector<std::pair<std::string, type>> mapping(list);                        \
+            static std::vector<std::pair<std::string, type>> mapping{__VA_ARGS__};                 \
             return mapping;                                                                        \
         }                                                                                          \
-    };
+    }
 }

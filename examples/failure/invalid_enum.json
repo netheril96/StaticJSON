@@ -1,12 +1,11 @@
-[
-    {
+{
+"First":    {
         "ID": 7947402710862746952,
         "nickname": "bigger than bigger",
         "birthday": {
             "year": 1984,
             "month": 9,
-            "day": 2,
-            "type": "Jewish"
+            "day": 2
         },
         "block_event": {
             "serial_number": 9097588792683265916,
@@ -14,8 +13,7 @@
             "date": {
                 "year": 1970,
                 "month": 12,
-                "day": 31,
-                "type": "Chinese"
+                "day": 31
             },
             "description": "advertisement",
             "details": "most likely a troll"
@@ -49,7 +47,7 @@
         ],
         "comment": "This field is not specified by our class; but it is silently skipped because the parse_mode of class `User` is not `strict`"
     },
-    {
+"Second": {
         "ID": 13478355757133566847,
         "nickname": "→☛∅∆ℵ",
         "birthday": {
@@ -65,7 +63,8 @@
                 "date": {
                     "year": 2013,
                     "month": 3,
-                    "day": 8
+                    "day": 8,
+                    "type": "West"
                 },
                 "description": "copyright infringement",
                 "details": ""
@@ -76,28 +75,5 @@
             "Open ID": "something@somewhere.com",
             "Auth-Token": "45F13704-A60D-4D44-B161-89BAB88E528C"
         }
-    },
-	{
-        "ID": 994851,
-        "nickname": "bigger than bigger",
-        "birthday": {
-            "year": 1984,
-            "month": 9,
-            "day": 2
-        },
-        "block_event": {
-            "serial_number": 75350019499420,
-            "administrator ID": 1072029354,
-            "date": {
-                "year": 1993,
-                "month": 9,
-                "day": 7
-            },
-            "description": "advertisement",
-            "details": "hehe"
-		},
-        "auxiliary": [
-            3, [[4.0, 5.0], [9.2, 3.3]], true
-        ]
     }
-]
+}

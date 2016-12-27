@@ -56,9 +56,26 @@ const std::string& get_base_dir()
 
 using namespace staticjson;
 
+enum class CalendarType
+{
+    Gregorian,
+    Chinese,
+    Jewish,
+    Islam
+};
+
+STATICJSON_DECLARE_ENUM(CalendarType,
+                        {"Gregorian", CalendarType::Gregorian},
+                        {"Chinese", CalendarType::Chinese},
+                        {"Jewish", CalendarType::Jewish},
+                        {"Islam", CalendarType::Islam});
+
 struct Date
 {
     int year, month, day;
+    CalendarType type;
+
+    Date() : year(0), month(0), day(0), type(CalendarType::Gregorian) {}
 };
 
 namespace staticjson
@@ -72,6 +89,7 @@ public:
         add_property("year", &d->year);
         add_property("month", &d->month);
         add_property("day", &d->day);
+        add_property("type", &d->type, Flags::Optional);
         set_flags(Flags::DisallowUnknownKey);
     }
 
@@ -310,6 +328,18 @@ void check_array_of_user(const Document& users)
 
 TEST_CASE("Test for correct parsing", "[parsing],[c]")
 {
+    SECTION("Simple date parsing", "[parsing]")
+    {
+        Date d;
+        ParseStatus err;
+        bool success = from_json_string(
+            "{\"year\": 1900, \"day\": 3, \"month\": 11, \"type\": \"Chinese\"}", &d, &err);
+        {
+            CAPTURE(err.description());
+            REQUIRE(success);
+        }
+    }
+
     SECTION("Test for an array of user", "[parsing]")
     {
         std::vector<User> users;
@@ -322,6 +352,7 @@ TEST_CASE("Test for correct parsing", "[parsing],[c]")
             REQUIRE(success);
         }
         check_array_of_user(users);
+        REQUIRE(users[0].birthday.type == CalendarType::Jewish);
 
         Document d;
         REQUIRE(to_json_document(&d, users, nullptr));
@@ -505,6 +536,18 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
             REQUIRE(e.member_name() == "Third");
         }
     }
+
+    SECTION("Invalid enum", "[parsing], [error], [enum]")
+    {
+        REQUIRE(
+            !from_json_file(get_base_dir() + "/examples/failure/invalid_enum.json", &users, &err));
+        CAPTURE(err.description());
+        REQUIRE(!err.error_stack().empty());
+
+        REQUIRE(err.begin()->type() == error::INVALID_ENUM);
+        const auto& e = static_cast<const error::InvalidEnumError&>(*err.begin());
+        REQUIRE(e.description() == "\"West\" is an invalid enum name");
+    }
 }
 
 TEST_CASE("Test for writing JSON", "[serialization]")
@@ -549,7 +592,8 @@ TEST_CASE("Schema generation and validation")
                                             "map_element_mismatch.json",
                                             "null_in_key.json",
                                             "single_object.json",
-                                            "unknown_field.json"};
+                                            "unknown_field.json",
+                                            "invalid_enum.json"};
     {
         std::vector<User> users;
         Document schema = export_json_schema(&users);
