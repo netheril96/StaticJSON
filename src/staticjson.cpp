@@ -169,9 +169,9 @@ static std::string stringprintf(const char* format, ...)
     if (sz <= 0)
         return std::string();
 
-    std::string result(sz - 1, 0);
+    std::string result(sz, 0);
     va_start(ap, format);
-    vsnprintf(&result[0], static_cast<size_t>(sz), format, ap);
+    vsnprintf(&result[0], static_cast<size_t>(sz + 1), format, ap);
     va_end(ap);
     return result;
 }
