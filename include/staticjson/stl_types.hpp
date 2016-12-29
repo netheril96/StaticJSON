@@ -139,7 +139,7 @@ public:
             if (!h.write(output))
                 return false;
         }
-        return output->EndArray(m_value->size());
+        return output->EndArray(static_cast<staticjson::SizeType>(m_value->size()));
     }
 
     void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
@@ -523,13 +523,13 @@ public:
             return false;
         for (auto&& pair : *m_value)
         {
-            if (!out->Key(pair.first.data(), pair.first.size(), true))
+            if (!out->Key(pair.first.data(), static_cast<SizeType>(pair.first.size()), true))
                 return false;
             Handler<ElementType> h(&pair.second);
             if (!h.write(out))
                 return false;
         }
-        return out->EndObject(m_value->size());
+        return out->EndObject(static_cast<SizeType>(m_value->size()));
     }
 
     void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override

@@ -44,7 +44,7 @@ public:
         {
             if (*m_value == pair.second)
             {
-                output->String(pair.first.data(), pair.first.size(), false);
+                output->String(pair.first.data(), static_cast<SizeType>(pair.first.size()), false);
                 return true;
             }
         }

@@ -31,12 +31,9 @@ protected:
         // will NEVER be out of range for an `int64_t`
         return (
             (this_limits::is_signed == that_limits::is_signed) ? (
-                (this_limits::min() > that_limits::min() ||
-                 this_limits::max() < that_limits::max()) &&
                 (CommonType(this_limits::min()) > CommonType(a) ||
                  CommonType(this_limits::max()) < CommonType(a))
             ) : (this_limits::is_signed) ? (
-                this_limits::max() < that_limits::max() &&
                 CommonType(this_limits::max()) < CommonType(a)
             ) : (
                 a < 0 || CommonType(a) > CommonType(this_limits::max())
@@ -250,7 +247,7 @@ public:
         return true;
     }
 
-    bool write(IHandler* out) const override { return out->Bool(*m_value); }
+    bool write(IHandler* out) const override { return out->Bool(*m_value != 0); }
 
     void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
     {
@@ -329,7 +326,7 @@ public:
 
     bool Int(int i) override
     {
-        *m_value = i;
+        *m_value = static_cast<float>(i);
         if (static_cast<decltype(i)>(*m_value) != i)
             return set_out_of_range("int");
         this->parsed = true;
@@ -338,7 +335,7 @@ public:
 
     bool Uint(unsigned i) override
     {
-        *m_value = i;
+		*m_value = static_cast<float>(i);
         if (static_cast<decltype(i)>(*m_value) != i)
             return set_out_of_range("unsigned int");
         this->parsed = true;
@@ -365,7 +362,7 @@ public:
 
     bool Double(double d) override
     {
-        *m_value = d;
+        *m_value = static_cast<float>(d);
         if (static_cast<decltype(d)>(*m_value) != d)
             return set_out_of_range("double");
         this->parsed = true;

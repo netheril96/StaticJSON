@@ -516,7 +516,7 @@ bool ObjectHandler::write(IHandler* output) const
     {
         if (!pair.second.handler || (pair.second.flags & Flags::IgnoreWrite))
             continue;
-        if (!output->Key(pair.first.data(), pair.first.size(), true))
+        if (!output->Key(pair.first.data(), static_cast<staticjson::SizeType>(pair.first.size()), true))
             return false;
         if (!pair.second.handler->write(output))
             return false;
@@ -540,11 +540,11 @@ void ObjectHandler::generate_schema(Value& output, MemoryPoolAllocator& alloc) c
         else
             std::abort();
         Value key;
-        key.SetString(pair.first.c_str(), pair.first.size(), alloc);
+        key.SetString(pair.first.c_str(), static_cast<SizeType>(pair.first.size()), alloc);
         properties.AddMember(key, schema, alloc);
         if (!(pair.second.flags & Flags::Optional))
         {
-            key.SetString(pair.first.c_str(), pair.first.size(), alloc);
+            key.SetString(pair.first.c_str(), static_cast<SizeType>(pair.first.size()), alloc);
             required.PushBack(key, alloc);
         }
     }

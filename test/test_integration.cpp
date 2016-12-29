@@ -223,7 +223,7 @@ void check_first_user(const User& u)
     REQUIRE(u.nickname == "bigger than bigger");
     REQUIRE(u.birthday == create_date(1984, 9, 2));
 
-    REQUIRE(u.block_event.get() != 0);
+    REQUIRE(u.block_event.get() != nullptr);
     const BlockEvent& e = *u.block_event;
 
     REQUIRE(e.admin_ID > 0ULL);
