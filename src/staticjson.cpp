@@ -154,7 +154,7 @@ inline std::string quote(const std::string& str)
 }
 
 static std::string stringprintf(const char* format, ...)
-#ifndef WIN32
+#ifndef _MSC_VER
     __attribute__((format(printf, 1, 2)))
 #endif
     ;

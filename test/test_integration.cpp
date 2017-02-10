@@ -18,7 +18,7 @@
 #include <staticjson/optional_support.hpp>
 #endif
 
-#ifdef WIN32
+#ifdef _MSC_VER
 #define stat _stat
 #endif
 
