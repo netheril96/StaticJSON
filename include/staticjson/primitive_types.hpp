@@ -363,8 +363,6 @@ public:
     bool Double(double d) override
     {
         *m_value = static_cast<float>(d);
-        if (static_cast<decltype(d)>(*m_value) != d)
-            return set_out_of_range("double");
         this->parsed = true;
         return true;
     }
