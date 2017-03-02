@@ -17,39 +17,31 @@ protected:
     IntType* m_value;
 
     template <class AnotherIntType>
-    static constexpr typename std::enable_if<
-        std::is_integral<AnotherIntType>::value,
-        bool
-    >::type is_out_of_range(AnotherIntType a)
+    static constexpr typename std::enable_if<std::is_integral<AnotherIntType>::value, bool>::type
+    is_out_of_range(AnotherIntType a)
     {
         typedef typename std::common_type<IntType, AnotherIntType>::type CommonType;
         typedef typename std::numeric_limits<IntType> this_limits;
         typedef typename std::numeric_limits<AnotherIntType> that_limits;
-        
+
         // The extra logic related to this_limits::min/max allows the compiler to
         // short circuit this check at compile time. For instance, a `uint32_t`
         // will NEVER be out of range for an `int64_t`
-        return (
-            (this_limits::is_signed == that_limits::is_signed) ? (
-                (CommonType(this_limits::min()) > CommonType(a) ||
-                 CommonType(this_limits::max()) < CommonType(a))
-            ) : (this_limits::is_signed) ? (
-                CommonType(this_limits::max()) < CommonType(a)
-            ) : (
-                a < 0 || CommonType(a) > CommonType(this_limits::max())
-            )
-        );
+        return ((this_limits::is_signed == that_limits::is_signed)
+                    ? ((CommonType(this_limits::min()) > CommonType(a)
+                        || CommonType(this_limits::max()) < CommonType(a)))
+                    : (this_limits::is_signed)
+                        ? (CommonType(this_limits::max()) < CommonType(a))
+                        : (a < 0 || CommonType(a) > CommonType(this_limits::max())));
     }
-    
+
     template <class FloatType>
-    static constexpr typename std::enable_if<
-        std::is_floating_point<FloatType>::value,
-        bool
-    >::type is_out_of_range(FloatType f)
+    static constexpr typename std::enable_if<std::is_floating_point<FloatType>::value, bool>::type
+    is_out_of_range(FloatType f)
     {
         return static_cast<FloatType>(static_cast<IntType>(f)) != f;
-    }   
-    
+    }
+
     template <class ReceiveNumType>
     bool receive(ReceiveNumType r, const char* actual_type)
     {
@@ -63,30 +55,15 @@ protected:
 public:
     explicit IntegerHandler(IntType* value) : m_value(value) {}
 
-    bool Int(int i) override
-    {
-        return receive(i, "int");
-    }
+    bool Int(int i) override { return receive(i, "int"); }
 
-    bool Uint(unsigned i) override
-    {
-        return receive(i, "unsigned int");
-    }
+    bool Uint(unsigned i) override { return receive(i, "unsigned int"); }
 
-    bool Int64(std::int64_t i) override
-    {
-        return receive(i, "std::int64_t");
-    }
+    bool Int64(std::int64_t i) override { return receive(i, "std::int64_t"); }
 
-    bool Uint64(std::uint64_t i) override
-    {
-        return receive(i, "std::uint64_t");
-    }
+    bool Uint64(std::uint64_t i) override { return receive(i, "std::uint64_t"); }
 
-    bool Double(double d) override
-    {
-        return receive(d, "double");
-    }
+    bool Double(double d) override { return receive(d, "double"); }
 
     bool write(IHandler* output) const override
     {
@@ -335,7 +312,7 @@ public:
 
     bool Uint(unsigned i) override
     {
-		*m_value = static_cast<float>(i);
+        *m_value = static_cast<float>(i);
         if (static_cast<decltype(i)>(*m_value) != i)
             return set_out_of_range("unsigned int");
         this->parsed = true;

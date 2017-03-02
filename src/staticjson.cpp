@@ -516,7 +516,8 @@ bool ObjectHandler::write(IHandler* output) const
     {
         if (!pair.second.handler || (pair.second.flags & Flags::IgnoreWrite))
             continue;
-        if (!output->Key(pair.first.data(), static_cast<staticjson::SizeType>(pair.first.size()), true))
+        if (!output->Key(
+                pair.first.data(), static_cast<staticjson::SizeType>(pair.first.size()), true))
             return false;
         if (!pair.second.handler->write(output))
             return false;
