@@ -17,7 +17,7 @@ More importantly, manually writing such code is a violation of **DRY** principle
 
 `StaticJSON` requires a C++11 compiler. Tested with clang++ 3.5, g++ 4.8 and MSVC 2015.
 
-Just drop the `include` and `src` directory into your own project and build along with other sources. No special build settings are needed.
+Just drop the `include` and `src` directory into your own project and build along with other sources. It requires you to separately install [`rapidjson`](rapidjson.org). Currently tested against version 1.1 (2016-8-25).
 
 ## Quick start
 
@@ -37,7 +37,7 @@ int builtin_test() {
     assert(from_json_string(json_string, &data, nullptr));
     assert(data.size() == 2);
     assert(data[1][" k "] == -548343);
-    
+
     to_pretty_json_file(stdout, data);
     return 0;
 }
@@ -146,7 +146,7 @@ The third parameter of all `from_json` family of functions is a nullable pointer
 ```
 Parsing failed at offset 1000 with error code 16:
 Terminate parsing due to Handler error.
-  
+
 Traceback (last call first)
 * Type mismatch between expected type "unsigned long long" and actual type "string"
 * Error at object member with name "serial_number"
