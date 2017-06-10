@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(StaticJSON)
 
-include(CheckCXXCompilerFlag)
-
 if (NOT MSVC)
+    include(CheckCXXCompilerFlag)
     CHECK_CXX_COMPILER_FLAG(-std=c++14 CXX14_COMPILER)
     if (CXX14_COMPILER)
         add_compile_options(-std=c++14)
@@ -15,8 +14,11 @@ if (NOT MSVC)
 endif ()
 
 if (NOT CMAKE_BUILD_TYPE)
-    SET(CMAKE_BUILD_TYPE Debug)
+    SET(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif ()
+
+find_path(RAPIDJSON_INCLUDE_DIR rapidjson/rapidjson.h)
+include_directories(SYSTEM ${RAPIDJSON_INCLUDE_DIR})
 
 include_directories(include autojsoncxx)
 set(SOURCE_FILES src/staticjson.cpp)
