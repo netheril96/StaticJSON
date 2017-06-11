@@ -13,11 +13,13 @@ More importantly, manually writing such code is a violation of **DRY** principle
 
 `StaticJSON` is an attempt to solve this problem by automating such process.
 
-## Build
+## Usage
 
 `StaticJSON` requires a C++11 compiler. Tested with clang++ 3.5, g++ 4.8 and MSVC 2015.
 
 Just drop the `include` and `src` directory into your own project and build along with other sources. It requires you to separately install [`rapidjson`](rapidjson.org). Currently tested against version 1.1 (2016-8-25).
+
+The cmake files are provided for building and running the integration test.
 
 ## Quick start
 
