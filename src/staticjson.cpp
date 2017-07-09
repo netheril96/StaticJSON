@@ -291,7 +291,12 @@ bool IHandler::RawNumber(const char*, SizeType, bool)
     std::terminate();
 }
 
-ObjectHandler::ObjectHandler() {}
+ObjectHandler::ObjectHandler(Arena<>* arena_)
+    : arena(arena_)
+    , current_name(ArenaAllocator<char>(arena_))
+    , internals(std::less<astring>(), decltype(internals)::allocator_type(arena_))
+{
+}
 
 ObjectHandler::~ObjectHandler() {}
 
@@ -312,7 +317,8 @@ bool ObjectHandler::precheck(const char* actual_type)
         }
         else
         {
-            the_error.reset(new error::DuplicateKeyError(current_name));
+            the_error.reset(new error::DuplicateKeyError(
+                std::string(current_name.data(), current_name.size())));
             return false;
         }
     }
@@ -323,7 +329,8 @@ bool ObjectHandler::postcheck(bool success)
 {
     if (!success)
     {
-        the_error.reset(new error::ObjectMemberError(current_name));
+        the_error.reset(
+            new error::ObjectMemberError(std::string(current_name.data(), current_name.size())));
     }
     return success;
 }
@@ -469,7 +476,7 @@ bool ObjectHandler::EndObject(SizeType sz)
         if (pair.second.handler && !(pair.second.flags & Flags::Optional)
             && !pair.second.handler->is_parsed())
         {
-            set_missing_required(pair.first);
+            set_missing_required(std::string(pair.first.data(), pair.first.size()));
         }
     }
     if (!the_error)
@@ -492,7 +499,7 @@ void ObjectHandler::reset()
     }
 }
 
-void ObjectHandler::add_handler(std::string&& name, ObjectHandler::FlaggedHandler&& fh)
+void ObjectHandler::add_handler(astring&& name, ObjectHandler::FlaggedHandler&& fh)
 {
     internals.emplace(std::move(name), std::move(fh));
 }

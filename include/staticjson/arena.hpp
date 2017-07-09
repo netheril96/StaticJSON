@@ -103,6 +103,22 @@ public:
 
     void deallocate(T* ptr, size_t n) { return m_arena->template deallocate<T>(ptr, n); }
 
+    Arena<BlockSize>* get_arena() const noexcept { return m_arena; }
+
+    bool operator==(const ArenaAllocator& other) const noexcept
+    {
+        return get_arena() == other.get_arena();
+    }
+    bool operator!=(const ArenaAllocator& other) const noexcept
+    {
+        return get_arena() != other.get_arena();
+    }
+
+    template <class U>
+    ArenaAllocator(const ArenaAllocator<U, BlockSize>& other) : m_arena(other.get_arena())
+    {
+    }
+
     typedef std::true_type propagate_on_container_copy_assignment;
     typedef std::true_type propagate_on_container_move_assignment;
     typedef std::true_type propagate_on_container_swap;
@@ -110,6 +126,12 @@ public:
     typedef T value_type;
 
     ArenaAllocator select_on_container_copy_construction() const { return ArenaAllocator(m_arena); }
+
+    template <typename U>
+    struct rebind
+    {
+        typedef ArenaAllocator<U> other;
+    };
 };
 
 typedef std::basic_string<char, std::char_traits<char>, ArenaAllocator<char>> astring;
@@ -157,6 +179,10 @@ public:
     }
 
     void swap(ArenaPtr& other) noexcept { std::swap(m_ptr, other.m_ptr); }
+    void swap(ArenaPtr&& other) noexcept { std::swap(m_ptr, other.m_ptr); }
+
+    explicit operator bool() const noexcept { return m_ptr != nullptr; }
+    bool operator!() const noexcept { return m_ptr == nullptr; }
 };
 
 template <class T, size_t BlockSize = DEFAULT_BLOCK_SIZE>

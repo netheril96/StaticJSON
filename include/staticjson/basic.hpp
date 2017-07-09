@@ -1,7 +1,9 @@
 #pragma once
 
-#include <rapidjson/document.h>
+#include <staticjson/arena.hpp>
 #include <staticjson/error.hpp>
+
+#include <rapidjson/document.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -154,14 +156,19 @@ class ObjectHandler : public BaseHandler
 protected:
     struct FlaggedHandler
     {
-        std::unique_ptr<BaseHandler> handler;
+        ArenaPtr<BaseHandler> handler;
         unsigned flags;
     };
 
 protected:
-    std::map<std::string, FlaggedHandler> internals;
+    Arena<>* arena;
+    astring current_name;
+    std::map<astring,
+             FlaggedHandler,
+             std::less<astring>,
+             ArenaAllocator<std::pair<const astring, FlaggedHandler>>>
+        internals;
     FlaggedHandler* current = nullptr;
-    std::string current_name;
     int depth = 0;
     unsigned flags = Flags::Default;
 
@@ -169,11 +176,11 @@ protected:
     bool precheck(const char* type);
     bool postcheck(bool success);
     void set_missing_required(const std::string& name);
-    void add_handler(std::string&&, FlaggedHandler&&);
+    void add_handler(astring&&, FlaggedHandler&&);
     void reset() override;
 
 public:
-    ObjectHandler();
+    ObjectHandler(Arena<>* arena);
 
     ~ObjectHandler();
 
@@ -216,12 +223,12 @@ public:
     void set_flags(unsigned f) { flags = f; }
 
     template <class T>
-    void add_property(std::string name, T* pointer, unsigned flags_ = Flags::Default)
+    void add_property(const char* name, T* pointer, unsigned flags_ = Flags::Default)
     {
         FlaggedHandler fh;
-        fh.handler.reset(new Handler<T>(pointer));
+        fh.handler.swap(ArenaPtr<Handler<T>>(arena, pointer, arena));
         fh.flags = flags_;
-        add_handler(std::move(name), std::move(fh));
+        add_handler(astring(name, ArenaAllocator<char>(arena)), std::move(fh));
     }
 };
 
@@ -229,6 +236,6 @@ template <class T>
 class Handler : public ObjectHandler
 {
 public:
-    explicit Handler(T* t) { t->staticjson_init(this); }
+    explicit Handler(T* t, Arena<>* arena) : ObjectHandler(arena) { t->staticjson_init(this); }
 };
 }
