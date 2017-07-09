@@ -81,7 +81,7 @@ public:
     }
 
     template <class T>
-    void deallocate(T* ptr, size_t n)
+    static void deallocate(T* ptr, size_t n)
     {
         size_t bytes = n * sizeof(T);
         if (bytes + alignof(T) > BlockSize)
@@ -113,4 +113,55 @@ public:
 };
 
 typedef std::basic_string<char, std::char_traits<char>, ArenaAllocator<char>> astring;
+
+template <class T, size_t BlockSize = DEFAULT_BLOCK_SIZE>
+class ArenaPtr
+{
+private:
+    T* m_ptr;
+
+public:
+    explicit ArenaPtr() : m_ptr(nullptr) {}
+
+    template <class... Args>
+    explicit ArenaPtr(Arena<BlockSize>* arena, Args&&... args)
+    {
+        m_ptr = arena->template allocate<T>(1);
+        try
+        {
+            new (m_ptr) T(std::forward<Args>(args)...);
+        }
+        catch (...)
+        {
+            arena->template deallocate<T>(m_ptr, 1);
+        }
+    }
+
+    ~ArenaPtr() { reset(); }
+
+    T* get() noexcept { return m_ptr; }
+    const T* get() const noexcept { return m_ptr; }
+    T& operator*() noexcept { return *m_ptr; }
+    const T& operator*() const noexcept { return *m_ptr; }
+    T* operator->() noexcept { return get(); }
+    const T* operator->() const noexcept { return get(); }
+
+    void reset()
+    {
+        if (m_ptr)
+        {
+            m_ptr->~T();
+            Arena<BlockSize>::template deallocate<T>(m_ptr, 1);
+        }
+        m_ptr = nullptr;
+    }
+
+    void swap(ArenaPtr& other) noexcept { std::swap(m_ptr, other.m_ptr); }
+};
+
+template <class T, size_t BlockSize = DEFAULT_BLOCK_SIZE>
+void swap(ArenaPtr<T, BlockSize>& a, ArenaPtr<T, BlockSize>& b)
+{
+    a.swap(b);
+}
 }
