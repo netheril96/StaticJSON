@@ -1,3 +1,4 @@
+#include <staticjson/arena.hpp>
 #include <staticjson/document.hpp>
 #include <staticjson/staticjson.hpp>
 
