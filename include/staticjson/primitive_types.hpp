@@ -101,7 +101,7 @@ template <>
 class Handler<std::nullptr_t> : public BaseHandler
 {
 public:
-    explicit Handler(std::nullptr_t*) {}
+    explicit Handler(std::nullptr_t*, Arena<>*) {}
 
     bool Null() override
     {
@@ -127,7 +127,7 @@ private:
     bool* m_value;
 
 public:
-    explicit Handler(bool* value) : m_value(value) {}
+    explicit Handler(bool* value, Arena<>*) : m_value(value) {}
 
     bool Bool(bool v) override
     {
@@ -151,7 +151,7 @@ template <>
 class Handler<int> : public IntegerHandler<int>
 {
 public:
-    explicit Handler(int* i) : IntegerHandler<int>(i) {}
+    explicit Handler(int* i, Arena<>*) : IntegerHandler<int>(i) {}
 
     std::string type_name() const override { return "int"; }
 
@@ -162,7 +162,7 @@ template <>
 class Handler<unsigned int> : public IntegerHandler<unsigned int>
 {
 public:
-    explicit Handler(unsigned* i) : IntegerHandler<unsigned int>(i) {}
+    explicit Handler(unsigned* i, Arena<>*) : IntegerHandler<unsigned int>(i) {}
 
     std::string type_name() const override { return "unsigned int"; }
 
@@ -173,7 +173,7 @@ template <>
 class Handler<long> : public IntegerHandler<long>
 {
 public:
-    explicit Handler(long* i) : IntegerHandler<long>(i) {}
+    explicit Handler(long* i, Arena<>*) : IntegerHandler<long>(i) {}
 
     std::string type_name() const override { return "long"; }
 };
@@ -182,7 +182,7 @@ template <>
 class Handler<unsigned long> : public IntegerHandler<unsigned long>
 {
 public:
-    explicit Handler(unsigned long* i) : IntegerHandler<unsigned long>(i) {}
+    explicit Handler(unsigned long* i, Arena<>*) : IntegerHandler<unsigned long>(i) {}
 
     std::string type_name() const override { return "unsigned long"; }
 };
@@ -191,7 +191,7 @@ template <>
 class Handler<long long> : public IntegerHandler<long long>
 {
 public:
-    explicit Handler(long long* i) : IntegerHandler<long long>(i) {}
+    explicit Handler(long long* i, Arena<>*) : IntegerHandler<long long>(i) {}
 
     std::string type_name() const override { return "long long"; }
 };
@@ -200,7 +200,7 @@ template <>
 class Handler<unsigned long long> : public IntegerHandler<unsigned long long>
 {
 public:
-    explicit Handler(unsigned long long* i) : IntegerHandler<unsigned long long>(i) {}
+    explicit Handler(unsigned long long* i, Arena<>*) : IntegerHandler<unsigned long long>(i) {}
 
     std::string type_name() const override { return "unsigned long long"; }
 };
@@ -213,7 +213,7 @@ private:
     char* m_value;
 
 public:
-    explicit Handler(char* i) : m_value(i) {}
+    explicit Handler(char* i, Arena<>*) : m_value(i) {}
 
     std::string type_name() const override { return "bool"; }
 
@@ -240,7 +240,7 @@ private:
     double* m_value;
 
 public:
-    explicit Handler(double* v) : m_value(v) {}
+    explicit Handler(double* v, Arena<>*) : m_value(v) {}
 
     bool Int(int i) override
     {
@@ -299,7 +299,7 @@ private:
     float* m_value;
 
 public:
-    explicit Handler(float* v) : m_value(v) {}
+    explicit Handler(float* v, Arena<>*) : m_value(v) {}
 
     bool Int(int i) override
     {
@@ -362,7 +362,7 @@ private:
     std::string* m_value;
 
 public:
-    explicit Handler(std::string* v) : m_value(v) {}
+    explicit Handler(std::string* v, Arena<>*) : m_value(v) {}
 
     bool String(const char* str, SizeType length, bool) override
     {

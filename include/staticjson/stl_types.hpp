@@ -19,7 +19,8 @@ public:
     typedef typename ArrayType::value_type ElementType;
 
 protected:
-    ElementType element;
+    Arena<>* arena;
+    ArenaPtr<ElementType> element;
     Handler<ElementType> internal;
     ArrayType* m_value;
     int depth = 0;
@@ -46,8 +47,8 @@ protected:
         }
         if (internal.is_parsed())
         {
-            m_value->emplace_back(std::move(element));
-            element = ElementType();
+            m_value->emplace_back(std::move(*element));
+            element = ArenaPtr<ElementType>(arena);
             internal.prepare_for_reuse();
         }
         return true;
@@ -55,13 +56,13 @@ protected:
 
     void reset() override
     {
-        element = ElementType();
+        element = ArenaPtr<ElementType>(arena);
         internal.prepare_for_reuse();
         depth = 0;
     }
 
 public:
-    explicit ArrayHandler(ArrayType* value) : element(), internal(&element), m_value(value) {}
+    explicit ArrayHandler(ArrayType* value, Arena<>* arena_) : arena(arena_), element(arena_), internal(element.get()), m_value(value) {}
 
     bool Null() override { return precheck("null") && postcheck(internal.Null()); }
 
@@ -156,7 +157,7 @@ template <class T>
 class Handler<std::vector<T>> : public ArrayHandler<std::vector<T>>
 {
 public:
-    explicit Handler(std::vector<T>* value) : ArrayHandler<std::vector<T>>(value) {}
+    explicit Handler(std::vector<T>* value, Arena<>* arena) : ArrayHandler<std::vector<T>>(value, arena) {}
 
     std::string type_name() const override
     {
@@ -168,7 +169,7 @@ template <class T>
 class Handler<std::deque<T>> : public ArrayHandler<std::deque<T>>
 {
 public:
-    explicit Handler(std::deque<T>* value) : ArrayHandler<std::deque<T>>(value) {}
+    explicit Handler(std::deque<T>* value, Arena<>* arena) : ArrayHandler<std::deque<T>>(value, arena) {}
 
     std::string type_name() const override
     {
@@ -180,7 +181,7 @@ template <class T>
 class Handler<std::list<T>> : public ArrayHandler<std::list<T>>
 {
 public:
-    explicit Handler(std::list<T>* value) : ArrayHandler<std::list<T>>(value) {}
+    explicit Handler(std::list<T>* value, Arena<>* arena) : ArrayHandler<std::list<T>>(value, arena) {}
 
     std::string type_name() const override
     {

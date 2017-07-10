@@ -3,7 +3,7 @@
 
 #define INSTANTIATE(type)                                                                          \
     {                                                                                              \
-        staticjson::Handler<type> h(nullptr);                                                      \
+        staticjson::Handler<type> h(nullptr, nullptr);                                                      \
     }
 
 // Ensure that the template classes can be instantiated without compile time error
