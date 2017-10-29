@@ -16,6 +16,8 @@ void instantiate_all_types()
     INSTANTIATE(std::int64_t)
     INSTANTIATE(std::uint64_t)
     INSTANTIATE(std::string)
+    typedef std::array<long long, 10> my_array;
+    INSTANTIATE(my_array)
     INSTANTIATE(std::vector<float>)
     INSTANTIATE(std::vector<double>)
     INSTANTIATE(std::deque<std::shared_ptr<std::unique_ptr<std::vector<std::list<std::string>>>>>);

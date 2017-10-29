@@ -405,8 +405,9 @@ TEST_CASE("Test for DOM support (old)", "[DOM]")
     {
         std::string output;
         to_json_string(output, doc);
-        REQUIRE(output == read_all(AUTOJSONCXX_ROOT_DIRECTORY
-                                   "/examples/success/user_array_compact.json"));
+        REQUIRE(
+            output
+            == read_all(AUTOJSONCXX_ROOT_DIRECTORY "/examples/success/user_array_compact.json"));
     }
 
     SECTION("Test for to/from DOM", "[DOM], [conversion]")

@@ -20,8 +20,8 @@ namespace error
     {
         class error_stack_const_iterator;
     }
-    using staticjson::ErrorStack;
     using staticjson::ErrorBase;
+    using staticjson::ErrorStack;
 }
 
 class ErrorBase

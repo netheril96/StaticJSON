@@ -112,7 +112,7 @@ public:
     {
         --depth;
 
-        // When depth > 1, this event should be forwarded to the element
+        // When depth >= 1, this event should be forwarded to the element
         if (depth > 0)
             return postcheck(internal.EndArray(length));
 
@@ -185,6 +185,164 @@ public:
     std::string type_name() const override
     {
         return "std::list<" + this->internal.type_name() + ">";
+    }
+};
+
+template <class T, size_t N>
+class Handler<std::array<T, N>> : public BaseHandler
+{
+protected:
+    T element;
+    Handler<T> internal;
+    std::array<T, N>* m_value;
+    size_t count = 0;
+    int depth = 0;
+
+protected:
+    void set_element_error() { the_error.reset(new error::ArrayElementError(count)); }
+
+    void set_length_error() { the_error.reset(new error::ArrayLengthMismatchError()); }
+
+    bool precheck(const char* type)
+    {
+        if (depth <= 0)
+        {
+            the_error.reset(new error::TypeMismatchError(type_name(), type));
+            return false;
+        }
+        return true;
+    }
+
+    bool postcheck(bool success)
+    {
+        if (!success)
+        {
+            set_element_error();
+            return false;
+        }
+        if (internal.is_parsed())
+        {
+            if (count >= N)
+            {
+                set_length_error();
+                return false;
+            }
+            (*m_value)[count] = std::move(element);
+            ++count;
+            element = T();
+            internal.prepare_for_reuse();
+        }
+        return true;
+    }
+
+    void reset() override
+    {
+        element = T();
+        internal.prepare_for_reuse();
+        depth = 0;
+        count = 0;
+    }
+
+public:
+    explicit Handler(std::array<T, N>* value) : element(), internal(&element), m_value(value) {}
+
+    bool Null() override { return precheck("null") && postcheck(internal.Null()); }
+
+    bool Bool(bool b) override { return precheck("bool") && postcheck(internal.Bool(b)); }
+
+    bool Int(int i) override { return precheck("int") && postcheck(internal.Int(i)); }
+
+    bool Uint(unsigned i) override { return precheck("unsigned") && postcheck(internal.Uint(i)); }
+
+    bool Int64(std::int64_t i) override
+    {
+        return precheck("int64_t") && postcheck(internal.Int64(i));
+    }
+
+    bool Uint64(std::uint64_t i) override
+    {
+        return precheck("uint64_t") && postcheck(internal.Uint64(i));
+    }
+
+    bool Double(double d) override { return precheck("double") && postcheck(internal.Double(d)); }
+
+    bool String(const char* str, SizeType length, bool copy) override
+    {
+        return precheck("string") && postcheck(internal.String(str, length, copy));
+    }
+
+    bool Key(const char* str, SizeType length, bool copy) override
+    {
+        return precheck("object") && postcheck(internal.Key(str, length, copy));
+    }
+
+    bool StartObject() override { return precheck("object") && postcheck(internal.StartObject()); }
+
+    bool EndObject(SizeType length) override
+    {
+        return precheck("object") && postcheck(internal.EndObject(length));
+    }
+
+    bool StartArray() override
+    {
+        ++depth;
+        if (depth > 1)
+            return postcheck(internal.StartArray());
+        return true;
+    }
+
+    bool EndArray(SizeType length) override
+    {
+        --depth;
+
+        // When depth >= 1, this event should be forwarded to the element
+        if (depth > 0)
+            return postcheck(internal.EndArray(length));
+        if (count != N)
+        {
+            set_length_error();
+            return false;
+        }
+        this->parsed = true;
+        return true;
+    }
+
+    bool reap_error(ErrorStack& stk) override
+    {
+        if (!the_error)
+            return false;
+        stk.push(the_error.release());
+        internal.reap_error(stk);
+        return true;
+    }
+
+    bool write(IHandler* output) const override
+    {
+        if (!output->StartArray())
+            return false;
+        for (auto&& e : *m_value)
+        {
+            Handler<T> h(&e);
+            if (!h.write(output))
+                return false;
+        }
+        return output->EndArray(static_cast<staticjson::SizeType>(m_value->size()));
+    }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        output.SetObject();
+        output.AddMember(rapidjson::StringRef("type"), rapidjson::StringRef("array"), alloc);
+        Value items;
+        internal.generate_schema(items, alloc);
+        output.AddMember(rapidjson::StringRef("items"), items, alloc);
+        output.AddMember(rapidjson::StringRef("minItems"), static_cast<uint64_t>(N), alloc);
+        output.AddMember(rapidjson::StringRef("maxItems"), static_cast<uint64_t>(N), alloc);
+    }
+
+    std::string type_name() const override
+    {
+        return "std::array<" + internal.type_name() + ", " + std::to_string(N) + ">";
     }
 };
 
