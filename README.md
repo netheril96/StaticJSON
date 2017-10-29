@@ -163,7 +163,7 @@ Traceback (last call first)
 * **Integer types**: `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`
 * **Floating point types**: `float`, `double`
 * **String types**: `std::string`
-* **Array types**: `std::vector<•>`, `std::deque<•>`, `std::list<•>`
+* **Array types**: `std::vector<•>`, `std::deque<•>`, `std::list<•>`, `std::array<•>`
 * **Nullable types**: `std::nullptr_t`, `std::unique_ptr<•>`, `std::shared_ptr<•>`
 * **Map types**: `std::{map, multimap, unordered_map, unordered_multimap}<std::string, •>`
 * **Tuple types**: `std::tuple<...>`

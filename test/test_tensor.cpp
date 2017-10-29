@@ -13,7 +13,7 @@ const std::string& get_base_dir();
 
 TEST_CASE("Success tensor")
 {
-    std::list<std::vector<std::deque<double>>> tensor;
+    std::list<std::array<std::deque<double>, 3>> tensor;
     ParseStatus err;
 
     bool success = from_json_file(get_base_dir() + "/examples/success/tensor.json", &tensor, &err);
@@ -23,7 +23,8 @@ TEST_CASE("Success tensor")
     }
 
     REQUIRE(tensor.size() == 4);
-    REQUIRE(tensor.back().empty());
+    REQUIRE(!tensor.back().empty());
+    REQUIRE(tensor.back().back().empty());
     auto&& first = tensor.front();
 
     REQUIRE(first.size() == 3);
@@ -33,8 +34,17 @@ TEST_CASE("Success tensor")
 
 TEST_CASE("Error tensor")
 {
-    std::list<std::vector<std::deque<double>>> tensor;
-    errno = 0;
-    REQUIRE(!from_json_file(get_base_dir() + "/examples/failure/tensor.json", &tensor, nullptr));
-    REQUIRE(errno == 0);    // require that the error comes from parsing, not filesystem I/O
+    std::list<std::array<std::deque<double>, 2>> tensor;
+    {
+        ParseStatus err;
+        REQUIRE(!from_json_file(
+            get_base_dir() + "/examples/failure/tensor_type_mismatch.json", &tensor, &err));
+        REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
+    }
+    {
+        ParseStatus err;
+        REQUIRE(!from_json_file(
+            get_base_dir() + "/examples/failure/tensor_length_error.json", &tensor, &err));
+        REQUIRE(err.begin()->type() == error::ARRAY_LENGTH_MISMATCH);
+    }
 }
