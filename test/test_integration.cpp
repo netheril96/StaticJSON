@@ -80,23 +80,14 @@ struct Date
 
 namespace staticjson
 {
-template <>
-class Handler<Date> : public ObjectHandler
+void init(Date* d, ObjectHandler* h)
 {
-public:
-    explicit Handler(Date* d)
-    {
-        add_property("year", &d->year);
-        add_property("month", &d->month);
-        add_property("day", &d->day);
-        add_property("type", &d->type, Flags::Optional);
-        set_flags(Flags::DisallowUnknownKey);
-    }
-
-    // This override is not necessary.
-    // When provided, you will have better error messages.
-    std::string type_name() const override { return "Date"; }
-};
+    h->add_property("year", &d->year);
+    h->add_property("month", &d->month);
+    h->add_property("day", &d->day);
+    h->add_property("type", &d->type, Flags::Optional);
+    h->set_flags(Flags::DisallowUnknownKey);
+}
 }
 
 struct BlockEvent

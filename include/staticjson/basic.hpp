@@ -226,9 +226,15 @@ public:
 };
 
 template <class T>
+void init(T* t, ObjectHandler* h)
+{
+    t->staticjson_init(h);
+}
+
+template <class T>
 class Handler : public ObjectHandler
 {
 public:
-    explicit Handler(T* t) { t->staticjson_init(this); }
+    explicit Handler(T* t) { init(t, this); }
 };
 }

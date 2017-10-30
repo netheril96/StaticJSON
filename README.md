@@ -91,29 +91,17 @@ This requires you to specialize a template for your custom class. For example, t
 ```c++
 namespace staticjson
 {
-template <>
-class Handler<Date> : public ObjectHandler
+void init(Date* d, ObjectHandler* h)
 {
-public:
-    explicit Handler(Date* d)
-    {
-        add_property("year", &d->year);
-        add_property("month", &d->month);
-        add_property("day", &d->day);
-        set_flags(Flags::DisallowUnknownKey);
-    }
-
-    // This override is not necessary.
-    // When provided, you will have better error messages.
-    std::string type_name() const override
-    {
-        return "Date";
-    }
-};
+    h->add_property("year", &d->year);
+    h->add_property("month", &d->month);
+    h->add_property("day", &d->day);
+    h->set_flags(Flags::DisallowUnknownKey);
+}
 }
 ```
 
-You may need to declare `Handler` as a friend in order to access private and protected members.
+You may need to declare `staticjson::init` as a friend function in order to access private and protected members.
 
 ### Register enumeration types
 
