@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <map>
 #include <memory>
+#include <type_traits>
 
 namespace staticjson
 {
@@ -226,15 +227,134 @@ public:
 };
 
 template <class T>
+struct Converter
+{
+    typedef T shadow_type;
+
+    static std::unique_ptr<ErrorBase> from_shadow(const shadow_type& shadow, T& value)
+    {
+        (void)shadow;
+        (void)value;
+        return nullptr;
+    }
+
+    static std::unique_ptr<ErrorBase> to_shadow(const T& value, const shadow_type& shadow)
+    {
+        (void)shadow;
+        (void)value;
+        return nullptr;
+    }
+};
+
+template <class T>
 void init(T* t, ObjectHandler* h)
 {
     t->staticjson_init(h);
 }
 
 template <class T>
-class Handler : public ObjectHandler
+class ObjectTypeHandler : public ObjectHandler
 {
 public:
-    explicit Handler(T* t) { init(t, this); }
+    explicit ObjectTypeHandler(T* t) { init(t, this); }
+};
+
+template <class T>
+class ConversionHandler : public BaseHandler
+{
+private:
+    typedef typename Converter<T>::shadow_type shadow_type;
+    typedef Handler<shadow_type> internal_type;
+
+private:
+    shadow_type shadow;
+    internal_type internal;
+    T* m_value;
+
+public:
+    explicit ConversionHandler(T* t) : shadow(), internal(&shadow), m_value(t) {}
+
+    virtual std::string type_name() const = 0;
+
+    virtual bool Null() override { return set_type_mismatch("null"); }
+
+    virtual bool Bool(bool) override { return set_type_mismatch("bool"); }
+
+    virtual bool Int(int) override { return set_type_mismatch("int"); }
+
+    virtual bool Uint(unsigned) override { return set_type_mismatch("unsigned"); }
+
+    virtual bool Int64(std::int64_t) override { return set_type_mismatch("int64_t"); }
+
+    virtual bool Uint64(std::uint64_t) override { return set_type_mismatch("uint64_t"); }
+
+    virtual bool Double(double) override { return set_type_mismatch("double"); }
+
+    virtual bool String(const char*, SizeType, bool) override
+    {
+        return set_type_mismatch("string");
+    }
+
+    virtual bool StartObject() override { return set_type_mismatch("object"); }
+
+    virtual bool Key(const char*, SizeType, bool) override { return set_type_mismatch("object"); }
+
+    virtual bool EndObject(SizeType) override { return set_type_mismatch("object"); }
+
+    virtual bool StartArray() override { return set_type_mismatch("array"); }
+
+    virtual bool EndArray(SizeType) override { return set_type_mismatch("array"); }
+
+    virtual bool has_error() const { return bool(the_error); }
+
+    virtual bool reap_error(ErrorStack& errs)
+    {
+        if (!the_error)
+            return false;
+        errs.push(the_error.release());
+        return true;
+    }
+
+    bool is_parsed() const { return parsed; }
+
+    void prepare_for_reuse() override
+    {
+        the_error.reset();
+        parsed = false;
+        reset();
+    }
+
+    virtual bool write(IHandler* output) const = 0;
+
+    virtual void generate_schema(Value& output, MemoryPoolAllocator& alloc) const = 0;
+};
+
+namespace helper
+{
+    template <class T, bool no_conversion>
+    class DispatchHandler;
+    template <class T>
+    class DispatchHandler<T, true> : public ::staticjson::ObjectTypeHandler<T>
+    {
+    public:
+        explicit DispatchHandler(T* t) : ::staticjson::ObjectTypeHandler<T>(t) {}
+    };
+
+    template <class T>
+    class DispatchHandler<T, false> : public ::staticjson::ConversionHandler<T>
+    {
+    public:
+        explicit DispatchHandler(T* t) : ::staticjson::ConversionHandler<T>(t) {}
+    };
+}
+
+template <class T>
+class Handler
+    : public helper::DispatchHandler<T, std::is_same<typename Converter<T>::shadow_type, T>::value>
+{
+public:
+    typedef helper::DispatchHandler<T, std::is_same<typename Converter<T>::shadow_type, T>::value>
+        base_type;
+    explicit Handler(T* t) : base_type(t) {}
 };
 }
