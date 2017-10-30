@@ -238,12 +238,16 @@ struct Converter
         return nullptr;
     }
 
-    static std::unique_ptr<ErrorBase> to_shadow(const T& value, const shadow_type& shadow)
+    static void to_shadow(const T& value, const shadow_type& shadow)
     {
         (void)shadow;
         (void)value;
         return nullptr;
     }
+
+    static std::string type_name() { return "T"; }
+
+    static constexpr bool has_specialized_type_name = false;
 };
 
 template <class T>
@@ -271,62 +275,89 @@ private:
     internal_type internal;
     T* m_value;
 
-public:
-    explicit ConversionHandler(T* t) : shadow(), internal(&shadow), m_value(t) {}
-
-    virtual std::string type_name() const = 0;
-
-    virtual bool Null() override { return set_type_mismatch("null"); }
-
-    virtual bool Bool(bool) override { return set_type_mismatch("bool"); }
-
-    virtual bool Int(int) override { return set_type_mismatch("int"); }
-
-    virtual bool Uint(unsigned) override { return set_type_mismatch("unsigned"); }
-
-    virtual bool Int64(std::int64_t) override { return set_type_mismatch("int64_t"); }
-
-    virtual bool Uint64(std::uint64_t) override { return set_type_mismatch("uint64_t"); }
-
-    virtual bool Double(double) override { return set_type_mismatch("double"); }
-
-    virtual bool String(const char*, SizeType, bool) override
+protected:
+    bool postprocess(bool success)
     {
-        return set_type_mismatch("string");
-    }
-
-    virtual bool StartObject() override { return set_type_mismatch("object"); }
-
-    virtual bool Key(const char*, SizeType, bool) override { return set_type_mismatch("object"); }
-
-    virtual bool EndObject(SizeType) override { return set_type_mismatch("object"); }
-
-    virtual bool StartArray() override { return set_type_mismatch("array"); }
-
-    virtual bool EndArray(SizeType) override { return set_type_mismatch("array"); }
-
-    virtual bool has_error() const { return bool(the_error); }
-
-    virtual bool reap_error(ErrorStack& errs)
-    {
-        if (!the_error)
+        if (!success)
+        {
             return false;
-        errs.push(the_error.release());
+        }
+        if (!this->parsed)
+            return true;
+        auto err = Converter<T>::from_shadow(shadow, *m_value);
+        if (err)
+        {
+            this->the_error.swap(err);
+            return false;
+        }
         return true;
     }
 
-    bool is_parsed() const { return parsed; }
-
-    void prepare_for_reuse() override
+    void reset() override
     {
-        the_error.reset();
-        parsed = false;
-        reset();
+        internal.prepare_for_reuse();
+        shadow = shadow_type();
     }
 
-    virtual bool write(IHandler* output) const = 0;
+public:
+    explicit ConversionHandler(T* t) : shadow(), internal(&shadow), m_value(t) {}
 
-    virtual void generate_schema(Value& output, MemoryPoolAllocator& alloc) const = 0;
+    std::string type_name() const override
+    {
+        if (Converter<T>::has_specialized_type_name)
+            return Converter<T>::type_name();
+        return internal.type_name();
+    }
+
+    virtual bool Null() override { return postprocess(internal.Null()); }
+
+    virtual bool Bool(bool b) override { return postprocess(internal.Bool(b)); }
+
+    virtual bool Int(int i) override { return postprocess(internal.Int(i)); }
+
+    virtual bool Uint(unsigned u) override { return postprocess(internal.Uint(u)); }
+
+    virtual bool Int64(std::int64_t i) override { return postprocess(internal.Int64(i)); }
+
+    virtual bool Uint64(std::uint64_t u) override { return postprocess(internal.Uint64(u)); }
+
+    virtual bool Double(double d) override { return postprocess(internal.Double(d)); }
+
+    virtual bool String(const char* str, SizeType size, bool copy) override
+    {
+        return postprocess(internal.String(str, size, copy));
+    }
+
+    virtual bool StartObject() override { return postprocess(internal.StartObject()); }
+
+    virtual bool Key(const char* str, SizeType size, bool copy) override
+    {
+        return postprocess(internal.Key(str, size, copy));
+    }
+
+    virtual bool EndObject(SizeType sz) override { return postprocess(internal.EndObject(sz)); }
+
+    virtual bool StartArray() override { return postprocess(internal.StartArray()); }
+
+    virtual bool EndArray(SizeType sz) override { return postprocess(internal.EndArray(sz)); }
+
+    virtual bool has_error() const { return BaseHandler::has_error() || internal.has_error(); }
+
+    bool reap_error(ErrorStack& errs) override
+    {
+        return BaseHandler::reap_error(errs) || internal.reap_error(errs);
+    }
+
+    virtual bool write(IHandler* output) const
+    {
+        Converter<T>::to_shadow(*m_value, shadow);
+        return internal.write(output);
+    }
+
+    void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
+    {
+        return internal.generate_schema(output, alloc);
+    }
 };
 
 namespace helper
