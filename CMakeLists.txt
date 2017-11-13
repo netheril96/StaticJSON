@@ -34,7 +34,7 @@ set(SOURCE_FILES src/staticjson.cpp)
 add_library(staticjson ${SOURCE_FILES})
 
 set(TARGET test_staticjson)
-file(GLOB SOURCES test/*.cpp include/staticjson/*.hpp)
+file(GLOB SOURCES test/*.hpp test/*.cpp include/staticjson/*.hpp)
 add_executable(${TARGET} ${SOURCES})
 target_link_libraries(${TARGET} staticjson)
 

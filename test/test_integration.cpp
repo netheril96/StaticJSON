@@ -1,4 +1,5 @@
 #include "catch.hpp"
+#include "myarray.hpp"
 
 #include <staticjson/document.hpp>
 #include <staticjson/staticjson.hpp>
@@ -263,7 +264,8 @@ void check_second_user(const User& u)
     REQUIRE(u.optional_attributes.find("Self description") != u.optional_attributes.end());
 }
 
-void check_array_of_user(const std::vector<User>& users)
+template <class ArrayOfUsers>
+void check_array_of_user(const ArrayOfUsers& users)
 {
     REQUIRE(users.size() == 3);
 
@@ -333,7 +335,7 @@ TEST_CASE("Test for correct parsing", "[parsing],[c]")
 
     SECTION("Test for an array of user", "[parsing]")
     {
-        std::vector<User> users;
+        Array<User> users;
         ParseStatus err;
 
         bool success

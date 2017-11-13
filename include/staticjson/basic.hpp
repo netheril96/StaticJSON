@@ -238,11 +238,10 @@ struct Converter
         return nullptr;
     }
 
-    static void to_shadow(const T& value, const shadow_type& shadow)
+    static void to_shadow(const T& value, shadow_type& shadow)
     {
         (void)shadow;
         (void)value;
-        return nullptr;
     }
 
     static std::string type_name() { return "T"; }
@@ -282,8 +281,9 @@ protected:
         {
             return false;
         }
-        if (!this->parsed)
+        if (!internal.is_parsed())
             return true;
+        this->parsed = true;
         auto err = Converter<T>::from_shadow(shadow, *m_value);
         if (err)
         {
@@ -304,8 +304,8 @@ public:
 
     std::string type_name() const override
     {
-        if (Converter<T>::has_specialized_type_name)
-            return Converter<T>::type_name();
+        // if (Converter<T>::has_specialized_type_name)
+        //  return Converter<T>::type_name();
         return internal.type_name();
     }
 
@@ -341,16 +341,19 @@ public:
 
     virtual bool EndArray(SizeType sz) override { return postprocess(internal.EndArray(sz)); }
 
-    virtual bool has_error() const { return BaseHandler::has_error() || internal.has_error(); }
+    virtual bool has_error() const override
+    {
+        return BaseHandler::has_error() || internal.has_error();
+    }
 
     bool reap_error(ErrorStack& errs) override
     {
         return BaseHandler::reap_error(errs) || internal.reap_error(errs);
     }
 
-    virtual bool write(IHandler* output) const
+    virtual bool write(IHandler* output) const override
     {
-        Converter<T>::to_shadow(*m_value, shadow);
+        Converter<T>::to_shadow(*m_value, const_cast<shadow_type&>(shadow));
         return internal.write(output);
     }
 

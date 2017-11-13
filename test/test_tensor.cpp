@@ -1,6 +1,7 @@
 #include <staticjson/staticjson.hpp>
 
 #include "catch.hpp"
+#include "myarray.hpp"
 
 #include <cerrno>
 #include <deque>
@@ -13,7 +14,7 @@ const std::string& get_base_dir();
 
 TEST_CASE("Success tensor")
 {
-    std::list<std::array<std::deque<double>, 3>> tensor;
+    std::list<std::array<Array<double>, 3>> tensor;
     ParseStatus err;
 
     bool success = from_json_file(get_base_dir() + "/examples/success/tensor.json", &tensor, &err);
@@ -34,7 +35,7 @@ TEST_CASE("Success tensor")
 
 TEST_CASE("Error tensor")
 {
-    std::list<std::array<std::deque<double>, 2>> tensor;
+    std::list<std::array<Array<double>, 2>> tensor;
     {
         ParseStatus err;
         REQUIRE(!from_json_file(
