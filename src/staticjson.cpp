@@ -243,6 +243,8 @@ std::string error::InvalidEnumError::description() const
     return quote(m_name) + " is an invalid enum name";
 }
 
+std::string error::CustomError::description() const { return m_message; }
+
 std::string ParseStatus::description() const
 {
     std::string res;

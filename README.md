@@ -127,6 +127,37 @@ This will convert the enum type to/from strings, and signal error if the string 
 
 Note that this macro must not be instantiated inside a namespace.
 
+## Custom conversion
+
+If you want a type to be serialized in a different way, such as a custom `Date` object as an ISO8601 string or an arbitrary precision integer as a list of 32-bit integers, you can enable the custom conversion for the type. To do so, specialize the template class in namespace `staticjson`
+
+```c++
+namespace staticjson
+{
+template
+struct Converter<Date>
+{
+    typedef std::string shadow_type; 
+    // This typedef is a must. The shadow type is a C++ type 
+    // that can be directly converted to and from JSON values.
+
+    static std::unique_ptr<ErrorBase> from_shadow(const shadow_type& shadow, Date& value)
+    {
+        bool success = value.parseISO8601(shadow);
+        if (success)
+            return nullptr;
+        return std::make_unique<CustomError>("Invalid ISO 8601 string");
+    }
+
+    static void to_shadow(const Date& value, shadow_type& shadow)
+    {
+        shadow = value.toISO8601();
+    }
+};
+}
+
+```
+
 ## Error handling
 
 `StaticJSON` strives not to let any mismatch between the C++ type specifications and the JSON object slip. It detects and reports all kinds of errors, including type mismatch, integer out of range, floating number precision loss, required fields missing, duplicate keys etc. Many of them can be tuned on or off. It also reports an stack trace in case of error (not actual C++ exception).

@@ -49,7 +49,7 @@ namespace error
     static const error_type SUCCESS = 0, OBJECT_MEMBER = 1, ARRAY_ELEMENT = 2, MISSING_REQUIRED = 3,
                             TYPE_MISMATCH = 4, NUMBER_OUT_OF_RANGE = 5, ARRAY_LENGTH_MISMATCH = 6,
                             UNKNOWN_FIELD = 7, DUPLICATE_KEYS = 8, CORRUPTED_DOM = 9,
-                            TOO_DEEP_RECURSION = 10, INVALID_ENUM = 11;
+                            TOO_DEEP_RECURSION = 10, INVALID_ENUM = 11, CUSTOM = -1;
 
     class Success : public ErrorBase
     {
@@ -216,6 +216,17 @@ namespace error
         explicit InvalidEnumError(std::string name) { m_name.swap(name); }
         std::string description() const;
         error_type type() const { return INVALID_ENUM; }
+    };
+
+    class CustomError : public ErrorBase
+    {
+    private:
+        std::string m_message;
+
+    public:
+        explicit CustomError(std::string message) { m_message.swap(message); }
+        std::string description() const;
+        error_type type() const { return CUSTOM; }
     };
 
     namespace internal
