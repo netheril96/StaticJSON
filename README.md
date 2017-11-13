@@ -134,7 +134,7 @@ If you want a type to be serialized in a different way, such as a custom `Date` 
 ```c++
 namespace staticjson
 {
-template
+template <>
 struct Converter<Date>
 {
     typedef std::string shadow_type; 
