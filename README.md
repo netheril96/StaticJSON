@@ -36,6 +36,8 @@ int builtin_test() {
     std::vector<std::unordered_map<std::string, std::int64_t>> data;
     const char* json_string = "[{\" hello \": 535353, \" world \": 849},"
         " {\" k \": -548343}]";
+    // Note: objects storing the parsed result should be reset to default state before the
+    // `from_json` family of functions are called.
     assert(from_json_string(json_string, &data, nullptr));
     assert(data.size() == 2);
     assert(data[1][" k "] == -548343);
