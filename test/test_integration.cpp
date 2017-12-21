@@ -338,14 +338,18 @@ TEST_CASE("Test for correct parsing", "[parsing],[c]")
         Array<User> users;
         ParseStatus err;
 
-        bool success
-            = from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err);
+        // Do it twice to test if vectors are reset properly at parsing.
+        for (int i = 0; i < 2; ++i)
         {
-            CAPTURE(err.description());
-            REQUIRE(success);
+            bool success = from_json_file(
+                get_base_dir() + "/examples/success/user_array.json", &users, &err);
+            {
+                CAPTURE(err.description());
+                REQUIRE(success);
+            }
+            check_array_of_user(users);
+            REQUIRE(users[0].birthday.type == CalendarType::Jewish);
         }
-        check_array_of_user(users);
-        REQUIRE(users[0].birthday.type == CalendarType::Jewish);
 
         Document d;
         REQUIRE(to_json_document(&d, users, nullptr));
@@ -374,15 +378,19 @@ TEST_CASE("Test for correct parsing", "[parsing],[c]")
         std::unordered_map<std::string, User> users;
         ParseStatus err;
 
-        bool success
-            = from_json_file(get_base_dir() + "/examples/success/user_map.json", &users, &err);
+        // Do it twice to test if map is reset properly at parsing.
+        for (int i = 0; i < 2; ++i)
         {
-            CAPTURE(err.description());
-            REQUIRE(success);
+            bool success
+                = from_json_file(get_base_dir() + "/examples/success/user_map.json", &users, &err);
+            {
+                CAPTURE(err.description());
+                REQUIRE(success);
+            }
+            REQUIRE(users.size() == 2);
+            check_first_user(users["First"]);
+            check_second_user(users["Second"]);
         }
-        REQUIRE(users.size() == 2);
-        check_first_user(users["First"]);
-        check_second_user(users["Second"]);
     }
 }
 
