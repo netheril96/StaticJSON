@@ -13,6 +13,7 @@ private:
 public:
     explicit Array() : m_data(nullptr), m_size(0) {}
     explicit Array(size_t size) : m_size(size) { m_data = new T[size]; }
+    ~Array() { clear(); }
     Array(Array&& that) noexcept
     {
         m_data = that.m_data;
@@ -34,6 +35,12 @@ public:
     const T& front() const { return m_data[0]; }
     T& front() { return m_data[0]; }
     bool empty() const { return m_size == 0; }
+    void clear()
+    {
+        delete[] m_data;
+        m_data = nullptr;
+        m_size = 0;
+    }
 };
 
 namespace staticjson

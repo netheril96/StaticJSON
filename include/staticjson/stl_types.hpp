@@ -105,6 +105,8 @@ public:
         ++depth;
         if (depth > 1)
             return postcheck(internal.StartArray());
+        else
+            m_value->clear();
         return true;
     }
 
@@ -653,6 +655,8 @@ public:
         ++depth;
         if (depth > 1)
             return postcheck(internal_handler.StartObject());
+        else
+            m_value->clear();
         return true;
     }
 
