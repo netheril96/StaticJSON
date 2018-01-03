@@ -36,8 +36,6 @@ int builtin_test() {
     std::vector<std::unordered_map<std::string, std::int64_t>> data;
     const char* json_string = "[{\" hello \": 535353, \" world \": 849},"
         " {\" k \": -548343}]";
-    // Note: objects storing the parsed result should be reset to default state before the
-    // `from_json` family of functions are called.
     assert(from_json_string(json_string, &data, nullptr));
     assert(data.size() == 2);
     assert(data[1][" k "] == -548343);
@@ -88,7 +86,7 @@ struct BlockEvent
 
 ### Non-intrusive definition
 
-This requires you to specialize a template for your custom class. For example, the `Date` specialization is written as
+This requires you to overload a special function for your custom class. For example, the `Date` overload is written as
 
 ```c++
 namespace staticjson
