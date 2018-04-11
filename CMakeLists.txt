@@ -16,27 +16,27 @@ endif ()
 if (NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif ()
-
-
-set (POSSIBLE_RAPIDJSON_DIR "${PROJECT_SOURCE_DIR}/rapidjson-1.1.0/include")
-find_path(RAPIDJSON_INCLUDE_DIR rapidjson/rapidjson.h PATHS ${POSSIBLE_RAPIDJSON_DIR})
-if (NOT RAPIDJSON_INCLUDE_DIR)
-    set (RAPIDJSON_FILENAME ${PROJECT_SOURCE_DIR}/rapidjson.tgz)
-    file(DOWNLOAD "https://github.com/miloyip/rapidjson/archive/v1.1.0.tar.gz" ${RAPIDJSON_FILENAME}
-        SHOW_PROGRESS EXPECTED_HASH SHA256=bf7ced29704a1e696fbccf2a2b4ea068e7774fa37f6d7dd4039d0787f8bed98e)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ${RAPIDJSON_FILENAME} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-    find_path(RAPIDJSON_INCLUDE_DIR rapidjson/rapidjson.h PATHS ${POSSIBLE_RAPIDJSON_DIR})
+if ("${BUILD_RAPIDJSON}" STREQUAL "true")
+    include(ExternalProject)
+    set(EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+    ExternalProject_Add(rapidjson
+        GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+        )
+    include_directories(${EXTERNAL_INSTALL_LOCATION}/include include autojsoncxx)
 endif()
-include_directories(SYSTEM ${RAPIDJSON_INCLUDE_DIR})
-
 include_directories(include autojsoncxx)
 set(SOURCE_FILES src/staticjson.cpp)
-add_library(staticjson ${SOURCE_FILES})
+add_library(staticjson_static STATIC ${SOURCE_FILES})
+add_library(staticjson SHARED ${SOURCE_FILES})
+install(TARGETS staticjson LIBRARY DESTINATION lib)
+install(TARGETS staticjson_static ARCHIVE DESTINATION lib)
+install(DIRECTORY "include/staticjson" DESTINATION include)
 
 set(TARGET test_staticjson)
 file(GLOB SOURCES test/*.hpp test/*.cpp include/staticjson/*.hpp)
 add_executable(${TARGET} ${SOURCES})
-target_link_libraries(${TARGET} staticjson)
+target_link_libraries(${TARGET} staticjson_static)
 
 enable_testing()
 add_test(NAME ${TARGET} COMMAND ${TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
