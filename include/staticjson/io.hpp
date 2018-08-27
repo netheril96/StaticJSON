@@ -112,8 +112,7 @@ inline bool to_pretty_json_file(const std::string& filename, const T& value)
 }
 
 template <class T>
-inline Document export_json_schema(T* value,
-                                   Document::AllocatorType* allocator = nullptr)
+inline Document export_json_schema(T* value, Document::AllocatorType* allocator = nullptr)
 {
     Handler<T> h(value);
     Document d;
