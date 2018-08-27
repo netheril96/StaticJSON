@@ -295,8 +295,8 @@ protected:
 
     void reset() override
     {
-        internal.prepare_for_reuse();
         shadow = shadow_type();
+        internal.prepare_for_reuse();
     }
 
 public:

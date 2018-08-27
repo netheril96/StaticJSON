@@ -9,7 +9,7 @@ namespace staticjson
 {
 class JSONHandler : public BaseHandler
 {
-private:
+protected:
     static const int MAX_DEPTH = 32;
 
     std::vector<Value> m_stack;
@@ -58,6 +58,8 @@ public:
 
     virtual void reset() override;
 
+    void reset(MemoryPoolAllocator* a);
+
     void generate_schema(Value& output, MemoryPoolAllocator&) const override { output.SetObject(); }
 };
 
@@ -66,6 +68,10 @@ class Handler<Document> : public JSONHandler
 {
 public:
     explicit Handler(Document* h) : JSONHandler(h, &h->GetAllocator()) {}
+    virtual void reset() override
+    {
+        JSONHandler::reset(&(static_cast<Document*>(this->m_value)->GetAllocator()));
+    }
 };
 
 namespace nonpublic

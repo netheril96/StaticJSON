@@ -882,7 +882,7 @@ bool JSONHandler::EndObject(SizeType)
     return postprocess();
 }
 
-void JSONHandler::reset()
+void JSONHandler::reset(MemoryPoolAllocator* a)
 {
     for (Value& v : m_stack)
     {
@@ -890,6 +890,13 @@ void JSONHandler::reset()
     }
 
     m_stack.clear();
+    m_alloc = a;
+}
+
+void JSONHandler::reset()
+{
+    // Not implemented. See https://github.com/netheril96/StaticJSON/issues/41.
+    std::terminate();
 }
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
