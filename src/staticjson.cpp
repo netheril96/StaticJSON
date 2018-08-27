@@ -245,26 +245,31 @@ std::string error::InvalidEnumError::description() const
 
 std::string error::CustomError::description() const { return m_message; }
 
+std::string ParseStatus::short_description() const
+{
+    if (!has_error())
+    {
+        return std::string();
+    }
+    return stringprintf(
+        "Parsing failed at offset %lld with error code %d:\n%s\n",
+        static_cast<long long>(m_offset),
+        m_code,
+        rapidjson::GetParseError_En(static_cast<rapidjson::ParseErrorCode>(m_code)));
+}
+
 std::string ParseStatus::description() const
 {
-    std::string res;
-    if (has_error())
+    std::string res = short_description();
+    if (m_stack)
     {
-        res = stringprintf(
-            "Parsing failed at offset %lld with error code %d:\n%s\n",
-            static_cast<long long>(m_offset),
-            m_code,
-            rapidjson::GetParseError_En(static_cast<rapidjson::ParseErrorCode>(m_code)));
-        if (m_stack)
-        {
-            res += "\nTraceback (last call first)\n";
+        res += "\nTraceback (last call first)\n";
 
-            for (auto&& err : m_stack)
-            {
-                res += "* ";
-                res += err.description();
-                res += '\n';
-            }
+        for (auto&& err : m_stack)
+        {
+            res += "* ";
+            res += err.description();
+            res += '\n';
         }
     }
     return res;
