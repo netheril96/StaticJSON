@@ -14,8 +14,7 @@
 #include <sys/types.h>
 #include <system_error>
 
-#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
-#include <experimental/optional>
+#ifdef STATICJSON_OPTIONAL
 #include <staticjson/optional_support.hpp>
 #endif
 
@@ -96,8 +95,8 @@ struct BlockEvent
     std::uint64_t serial_number, admin_ID = 255;
     Date date;
     std::string description, details;
-#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
-    std::experimental::optional<std::string> flags;
+#ifdef STATICJSON_OPTIONAL
+    staticjson::optional<std::string> flags;
 #endif
 
     void staticjson_init(ObjectHandler* h)
@@ -107,7 +106,7 @@ struct BlockEvent
         h->add_property("date", &date, Flags::Optional);
         h->add_property("description", &description, Flags::Optional);
         h->add_property("details", &details, Flags::Optional);
-#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+#ifdef STATICJSON_OPTIONAL
         h->add_property("flags", &flags, Flags::Optional);
 #endif
     }
@@ -126,10 +125,9 @@ struct User
 
     std::tuple<int, std::vector<std::tuple<double, double>>, bool> auxiliary;
 
-#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
-    std::experimental::optional<BlockEvent> dark_event;
-    std::experimental::optional<std::vector<std::experimental::optional<BlockEvent>>>
-        alternate_history;
+#ifdef STATICJSON_OPTIONAL
+    staticjson::optional<BlockEvent> dark_event;
+    staticjson::optional<std::vector<staticjson::optional<BlockEvent>>> alternate_history;
 #endif
 };
 
@@ -149,7 +147,7 @@ public:
         h->add_property("optional_attributes", &user->optional_attributes, Flags::Optional);
         h->add_property("dark_history", &user->dark_history, Flags::Optional);
         h->add_property("auxiliary", &user->auxiliary, Flags::Optional);
-#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+#ifdef STATICJSON_OPTIONAL
         h->add_property("dark_event", &user->dark_event, Flags::Optional);
         h->add_property("alternate_history", &user->alternate_history, Flags::Optional);
 #endif
@@ -226,7 +224,7 @@ void check_first_user(const User& u)
     REQUIRE(u.dark_history.empty());
     REQUIRE(u.optional_attributes.empty());
 
-#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+#ifdef STATICJSON_OPTIONAL
     REQUIRE(!!u.dark_event);
     REQUIRE(u.dark_event->serial_number == 9876543210123456789ULL);
     REQUIRE(u.dark_event->admin_ID == 11223344556677889900ULL);
@@ -299,7 +297,7 @@ void check_array_of_user(const Document& users)
     REQUIRE(desc.IsString());
     REQUIRE(std::strcmp(desc.GetString(), "advertisement") == 0);
 
-#ifdef STATICJSON_EXPERIMENTAL_OPTIONAL
+#ifdef STATICJSON_OPTIONAL
     REQUIRE(u.HasMember("dark_event"));
     {
         const Value& e = u["dark_event"];

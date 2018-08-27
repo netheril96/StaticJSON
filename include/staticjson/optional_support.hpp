@@ -8,13 +8,10 @@
 
 namespace staticjson
 {
-namespace nonpublic
-{
     template <typename T>
     using optional = std::optional<T>;
 
     using std::nullopt;
-}
 }
 
 #elif __has_include(<experimental/optional>)
@@ -22,13 +19,10 @@ namespace nonpublic
 
 namespace staticjson
 {
-namespace nonpublic
-{
     template <typename T>
     using optional = std::experimental::optional<T>;
 
     using std::experimental::nullopt;
-}
 }
 
 #else
@@ -42,18 +36,18 @@ namespace staticjson
 {
 
 template <class T>
-class Handler<nonpublic::optional<T>> : public BaseHandler
+class Handler<optional<T>> : public BaseHandler
 {
 public:
     using ElementType = T;
 
 protected:
-    mutable nonpublic::optional<T>* m_value;
-    mutable nonpublic::optional<Handler<ElementType>> internal_handler;
+    mutable optional<T>* m_value;
+    mutable optional<Handler<ElementType>> internal_handler;
     int depth = 0;
 
 public:
-    explicit Handler(nonpublic::optional<T>* value) : m_value(value) {}
+    explicit Handler(optional<T>* value) : m_value(value) {}
 
 protected:
     void initialize()
@@ -68,8 +62,8 @@ protected:
     void reset() override
     {
         depth = 0;
-        internal_handler = nonpublic::nullopt;
-        *m_value = nonpublic::nullopt;
+        internal_handler = nullopt;
+        *m_value = nullopt;
     }
 
     bool postcheck(bool success)
@@ -84,7 +78,7 @@ public:
     {
         if (depth == 0)
         {
-            *m_value = nonpublic::nullopt;
+            *m_value = nullopt;
             this->parsed = true;
             return true;
         }
@@ -110,7 +104,7 @@ public:
 
     void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override
     {
-        const_cast<Handler<nonpublic::optional<T>>*>(this)->initialize();
+        const_cast<Handler<optional<T>>*>(this)->initialize();
         output.SetObject();
         Value anyOf(rapidjson::kArrayType);
         Value nullDescriptor(rapidjson::kObjectType);
