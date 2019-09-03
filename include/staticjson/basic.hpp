@@ -143,7 +143,7 @@ public:
 struct Flags
 {
     static const unsigned Default = 0x0, AllowDuplicateKey = 0x1, Optional = 0x2, IgnoreRead = 0x4,
-                          IgnoreWrite = 0x8, DisallowUnknownKey = 0x16;
+                          IgnoreWrite = 0x8, DisallowUnknownKey = 0x10;
 };
 
 // Forward declaration
