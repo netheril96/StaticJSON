@@ -90,13 +90,13 @@ class UnsupportedTypeError(InvalidDefinitionError):
         return "Unsupported C++ type: " + repr(self.type_name)
 
 
-NOESCAPE_CHARACTERS = bytes(string.digits + string.ascii_letters + ' ')
+NOESCAPE_CHARACTERS = bytes(string.digits + string.ascii_letters + ' ', encoding='utf8')
 
 
 def cstring_literal(byte_string):
     """convert arbitrary byte sequence into a C++ string literal by escaping every character"""
     if all(c in NOESCAPE_CHARACTERS for c in byte_string):
-        return '"' + byte_string + '"'
+        return '"' + byte_string.decode() + '"'
     return '"' + ''.join('\\x{:02x}'.format(ord(char)) for char in byte_string) + '"'
 
 
