@@ -49,7 +49,7 @@ namespace error
     static const error_type SUCCESS = 0, OBJECT_MEMBER = 1, ARRAY_ELEMENT = 2, MISSING_REQUIRED = 3,
                             TYPE_MISMATCH = 4, NUMBER_OUT_OF_RANGE = 5, ARRAY_LENGTH_MISMATCH = 6,
                             UNKNOWN_FIELD = 7, DUPLICATE_KEYS = 8, CORRUPTED_DOM = 9,
-                            TOO_DEEP_RECURSION = 10, INVALID_ENUM = 11, CUSTOM = -1;
+                            TOO_DEEP_RECURSION = 10, INVALID_ENUM = 11, TOO_MANY_LEAVES = 12, CUSTOM = -1;
 
     class Success : public ErrorBase
     {
@@ -139,7 +139,11 @@ namespace error
         std::string description() const override;
         error_type type() const override { return TOO_DEEP_RECURSION; }
     };
-
+    class TooManyLeavesError : public ErrorBase
+    {
+        std::string description() const override;
+        error_type type() const override { return TOO_MANY_LEAVES; }
+    };
     class NumberOutOfRangeError : public ErrorBase
     {
         std::string m_expected_type;
