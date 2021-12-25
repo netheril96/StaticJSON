@@ -8,6 +8,8 @@
 #include <map>
 #include <memory>
 #include <type_traits>
+#include <climits>
+#include <stack>
 
 namespace staticjson
 {
