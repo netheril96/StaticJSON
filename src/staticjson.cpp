@@ -400,13 +400,13 @@ bool ObjectHandler::Null()
 }
 bool ObjectHandler::StartCheckMaxDepthMaxLeaves(bool isArray)
 {
-    if (GlobConfig::getInstance()->isMaxDepthSet())
+    if (GlobalConfig::getInstance()->isMaxDepthSet())
     {
         ++jsonDepth;
         // If a leaf IE is an array of a simple data type, then the whole array shall be considered
         // as the first level of nesting. If a leaf IE is a data structure or an array of data
         // structures, then it shall be considered a branch and the first level of nesting.
-        if (jsonDepth > GlobConfig::getInstance()->getMaxDepth())
+        if (jsonDepth > GlobalConfig::getInstance()->getMaxDepth())
         {
             if (!the_error || the_error->type() != error::TOO_DEEP_RECURSION)
                 the_error.reset(new error::RecursionTooDeepError());
@@ -414,7 +414,7 @@ bool ObjectHandler::StartCheckMaxDepthMaxLeaves(bool isArray)
             return false;
         }
     }
-    if (GlobConfig::getInstance()->isMaxLeavesSet())
+    if (GlobalConfig::getInstance()->isMaxLeavesSet())
     {
         if (isArray)
         {
@@ -431,11 +431,11 @@ bool ObjectHandler::StartCheckMaxDepthMaxLeaves(bool isArray)
 
 bool ObjectHandler::EndCheckMaxDepthMaxLeaves(SizeType sz, bool isArray)
 {
-    if (GlobConfig::getInstance()->isMaxDepthSet())
+    if (GlobalConfig::getInstance()->isMaxDepthSet())
     {
         --jsonDepth;
     }
-    if (GlobConfig::getInstance()->isMaxLeavesSet())
+    if (GlobalConfig::getInstance()->isMaxLeavesSet())
     {
         if (isArray)
         {
@@ -457,7 +457,7 @@ bool ObjectHandler::EndCheckMaxDepthMaxLeaves(SizeType sz, bool isArray)
             totalLeaves -= leavesStack.top();
         }
 
-        if (totalLeaves > GlobConfig::getInstance()->getMaxLeaves())
+        if (totalLeaves > GlobalConfig::getInstance()->getMaxLeaves())
         {
             if (!the_error || the_error->type() != error::TOO_MANY_LEAVES)
                 the_error.reset(new error::TooManyLeavesError());

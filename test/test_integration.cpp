@@ -564,9 +564,9 @@ TEST_CASE("Test for max leaf number check", "[serialization]")
 
     std::string json_output = to_pretty_json_string(users);
     CAPTURE(json_output);
-    staticjson::GlobConfig::getInstance()->setMaxLeaves(20);
+    staticjson::GlobalConfig::getInstance()->setMaxLeaves(20);
     success = from_json_string(json_output.c_str(), &reparsed_users, &err);
-    staticjson::GlobConfig::getInstance()->unsetMaxLeavesFlag();
+    staticjson::GlobalConfig::getInstance()->unsetMaxLeavesFlag();
     {
         CAPTURE(err.description());
         REQUIRE(!success);
@@ -579,10 +579,10 @@ TEST_CASE("Test for max depth check", "[serialization]")
 {
     std::vector<User> users, reparsed_users;
     ParseStatus err;
-    staticjson::GlobConfig::getInstance()->setMaxDepth(3);
+    staticjson::GlobalConfig::getInstance()->setMaxDepth(3);
     bool success
         = from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err);
-    staticjson::GlobConfig::getInstance()->unsetMaxDepthFlag();
+    staticjson::GlobalConfig::getInstance()->unsetMaxDepthFlag();
 
     {
         CAPTURE(err.description());

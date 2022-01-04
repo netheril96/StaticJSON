@@ -25,12 +25,12 @@ struct NonMobile
 
 typedef unsigned int SizeType;
 
-class GlobConfig : private NonMobile
+class GlobalConfig : private NonMobile
 {
 public:
-    static GlobConfig* getInstance()
+    static GlobalConfig* getInstance()
     {
-        static GlobConfig* ret = new GlobConfig();
+        static GlobalConfig* ret = new GlobalConfig();
         return ret;
     }
     void setMaxLeaves(SizeType maxNum)
@@ -58,7 +58,7 @@ public:
         maxDepth = UINT_MAX;
     }
 private:
-    GlobConfig() {}
+    GlobalConfig() {}
     bool _isMaxLeavesSet = false;
     bool _isMaxDepthSet = false;
     SizeType maxLeaves = UINT_MAX;
