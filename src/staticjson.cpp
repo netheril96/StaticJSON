@@ -230,7 +230,10 @@ std::string error::RecursionTooDeepError::description() const
 {
     return "Too many levels of recursion";
 }
-
+std::string error::TooManyLeavesError::description() const
+{
+    return "Too many leaves";
+}
 std::string error::CorruptedDOMError::description() const { return "JSON has invalid structure"; }
 
 std::string error::ArrayLengthMismatchError::description() const
@@ -395,9 +398,86 @@ bool ObjectHandler::Null()
         return false;
     return POSTCHECK(current->handler->Null());
 }
+bool ObjectHandler::StartCheckMaxDepthMaxLeaves(bool isArray)
+{
+    if (GlobalConfig::getInstance()->isMaxDepthSet())
+    {
+        ++jsonDepth;
+        // If a leaf IE is an array of a simple data type, then the whole array shall be considered
+        // as the first level of nesting. If a leaf IE is a data structure or an array of data
+        // structures, then it shall be considered a branch and the first level of nesting.
+        if (jsonDepth > GlobalConfig::getInstance()->getMaxDepth())
+        {
+            if (!the_error || the_error->type() != error::TOO_DEEP_RECURSION)
+                the_error.reset(new error::RecursionTooDeepError());
+            jsonDepth = 0;
+            return false;
+        }
+    }
+    if (GlobalConfig::getInstance()->isMaxLeavesSet())
+    {
+        if (isArray)
+        {
+            lastLeafStat = true;
+        }
+        else
+        {
+            lastLeafStat = false;
+        }
+        leavesStack.push(0);
+    }
+    return true;
+}
+
+bool ObjectHandler::EndCheckMaxDepthMaxLeaves(SizeType sz, bool isArray)
+{
+    if (GlobalConfig::getInstance()->isMaxDepthSet())
+    {
+        --jsonDepth;
+    }
+    if (GlobalConfig::getInstance()->isMaxLeavesSet())
+    {
+        if (isArray)
+        {
+            if (lastLeafStat && sz > 0)
+            {
+                // simple array type
+                // sz > 0 check if it is an empty array, and should not increase total leaf number
+                // for empty array
+                // TS29501 chapter 6.2
+                // If a leaf IE is an array of a simple data type, then the whole array shall count
+                // as one leaf.
+                totalLeaves += 1;
+            }
+        }
+        else
+        {
+            // object type
+            totalLeaves += sz;
+            totalLeaves -= leavesStack.top();
+        }
+
+        if (totalLeaves > GlobalConfig::getInstance()->getMaxLeaves())
+        {
+            if (!the_error || the_error->type() != error::TOO_MANY_LEAVES)
+                the_error.reset(new error::TooManyLeavesError());
+            totalLeaves = 0;
+            return false;
+        }
+        leavesStack.pop();
+        if (!leavesStack.empty())
+        {
+            leavesStack.top()++;
+        }
+        lastLeafStat = false;
+    }
+    return true;
+}
 
 bool ObjectHandler::StartArray()
 {
+    if (!StartCheckMaxDepthMaxLeaves(true))
+        return false;
     if (!precheck("array"))
         return false;
     return POSTCHECK(current->handler->StartArray());
@@ -405,6 +485,8 @@ bool ObjectHandler::StartArray()
 
 bool ObjectHandler::EndArray(SizeType sz)
 {
+    if (!EndCheckMaxDepthMaxLeaves(sz, true))
+        return false;
     if (!precheck("array"))
         return false;
     return POSTCHECK(current->handler->EndArray(sz));
@@ -456,6 +538,11 @@ bool ObjectHandler::Key(const char* str, SizeType sz, bool copy)
 bool ObjectHandler::StartObject()
 {
     ++depth;
+    if (!StartCheckMaxDepthMaxLeaves(false))
+    {
+        return false;
+    }
+
     if (depth > 1)
     {
         return POSTCHECK(current->handler->StartObject());
@@ -466,6 +553,10 @@ bool ObjectHandler::StartObject()
 bool ObjectHandler::EndObject(SizeType sz)
 {
     --depth;
+    if (!EndCheckMaxDepthMaxLeaves(sz, false))
+    {
+        return false;
+    }
     if (depth > 0)
     {
         return POSTCHECK(current->handler->EndObject(sz));

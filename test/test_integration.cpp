@@ -549,6 +549,48 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
     }
 }
 
+TEST_CASE("Test for max leaf number check", "[serialization]")
+{
+    std::vector<User> users, reparsed_users;
+    ParseStatus err;
+
+    bool success
+        = from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err);
+    {
+        CAPTURE(err.description());
+        REQUIRE(success);
+    }
+    REQUIRE(users.size() == 3);
+
+    std::string json_output = to_pretty_json_string(users);
+    CAPTURE(json_output);
+    staticjson::GlobalConfig::getInstance()->setMaxLeaves(20);
+    success = from_json_string(json_output.c_str(), &reparsed_users, &err);
+    staticjson::GlobalConfig::getInstance()->unsetMaxLeavesFlag();
+    {
+        CAPTURE(err.description());
+        REQUIRE(!success);
+    }
+
+    REQUIRE(err.description().find("Too many leaves") != std::string::npos);
+}
+
+TEST_CASE("Test for max depth check", "[serialization]")
+{
+    std::vector<User> users, reparsed_users;
+    ParseStatus err;
+    staticjson::GlobalConfig::getInstance()->setMaxDepth(3);
+    bool success
+        = from_json_file(get_base_dir() + "/examples/success/user_array.json", &users, &err);
+    staticjson::GlobalConfig::getInstance()->unsetMaxDepthFlag();
+
+    {
+        CAPTURE(err.description());
+        REQUIRE(!success);
+    }
+    REQUIRE(err.description().find("Too many levels of recursion") != std::string::npos);
+}
+
 TEST_CASE("Test for writing JSON", "[serialization]")
 {
     std::vector<User> users, reparsed_users;

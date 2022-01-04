@@ -8,6 +8,8 @@
 #include <map>
 #include <memory>
 #include <type_traits>
+#include <climits>
+#include <stack>
 
 namespace staticjson
 {
@@ -22,6 +24,46 @@ struct NonMobile
 };
 
 typedef unsigned int SizeType;
+
+class GlobalConfig : private NonMobile
+{
+public:
+    static GlobalConfig* getInstance()
+    {
+        static GlobalConfig* ret = new GlobalConfig();
+        return ret;
+    }
+    void setMaxLeaves(SizeType maxNum)
+    {
+        maxLeaves = maxNum;
+        _isMaxLeavesSet = true;
+    }
+    void setMaxDepth(SizeType maxDep)
+    {
+        maxDepth = maxDep;
+        _isMaxDepthSet = true;
+    }
+    SizeType getMaxDepth() { return maxDepth; }
+    SizeType getMaxLeaves() { return maxLeaves; }
+    bool isMaxLeavesSet() { return _isMaxLeavesSet; }
+    bool isMaxDepthSet() { return _isMaxDepthSet; }
+    void unsetMaxLeavesFlag()
+    {
+        _isMaxLeavesSet = false;
+        maxLeaves = UINT_MAX;
+    }
+    void unsetMaxDepthFlag()
+    {
+        _isMaxDepthSet = false;
+        maxDepth = UINT_MAX;
+    }
+private:
+    GlobalConfig() {}
+    bool _isMaxLeavesSet = false;
+    bool _isMaxDepthSet = false;
+    SizeType maxLeaves = UINT_MAX;
+    SizeType maxDepth = UINT_MAX;
+};
 
 class IHandler
 {
@@ -165,6 +207,12 @@ protected:
     std::string current_name;
     int depth = 0;
     unsigned flags = Flags::Default;
+    unsigned int jsonDepth = 0;
+    // true if last symbol is '[', otherwise false
+    bool lastLeafStat = false;
+    SizeType totalLeaves = 0;
+    // save the number of object or array
+    std::stack<SizeType> leavesStack;
 
 protected:
     bool precheck(const char* type);
@@ -172,6 +220,9 @@ protected:
     void set_missing_required(const std::string& name);
     void add_handler(std::string&&, FlaggedHandler&&);
     void reset() override;
+private:
+    bool StartCheckMaxDepthMaxLeaves(bool isArray);
+    bool EndCheckMaxDepthMaxLeaves(SizeType sz, bool isArray);
 
 public:
     ObjectHandler();
