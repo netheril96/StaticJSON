@@ -49,7 +49,8 @@ namespace error
     static const error_type SUCCESS = 0, OBJECT_MEMBER = 1, ARRAY_ELEMENT = 2, MISSING_REQUIRED = 3,
                             TYPE_MISMATCH = 4, NUMBER_OUT_OF_RANGE = 5, ARRAY_LENGTH_MISMATCH = 6,
                             UNKNOWN_FIELD = 7, DUPLICATE_KEYS = 8, CORRUPTED_DOM = 9,
-                            TOO_DEEP_RECURSION = 10, INVALID_ENUM = 11, TOO_MANY_LEAVES = 12, CUSTOM = -1;
+                            TOO_DEEP_RECURSION = 10, INVALID_ENUM = 11, TOO_MANY_LEAVES = 12,
+                            CUSTOM = -1;
 
     class Success : public ErrorBase
     {
@@ -237,12 +238,16 @@ namespace error
     {
 
         class error_stack_const_iterator
-            : public std::iterator<std::forward_iterator_tag, const ErrorBase>
         {
         private:
             const ErrorBase* e;
 
-            typedef std::iterator<std::forward_iterator_tag, const ErrorBase> base_type;
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type = const ErrorBase;
+            using difference_type = ptrdiff_t;
+            using pointer = const ErrorBase*;
+            using reference = const ErrorBase&;
 
         public:
             explicit error_stack_const_iterator(const ErrorBase* p) : e(p) {}
