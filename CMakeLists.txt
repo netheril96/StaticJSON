@@ -7,6 +7,10 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo)
 endif()
 
+if(MSVC)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS=1)
+endif()
+
 find_path(RAPIDJSON_INCLUDE_DIR rapidjson/rapidjson.h)
 include_directories(SYSTEM ${RAPIDJSON_INCLUDE_DIR})
 
