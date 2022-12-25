@@ -1,0 +1,25 @@
+name: C/C++ CI
+
+on: [push, pull_request]
+
+
+jobs:
+  build_matrix:
+    strategy:
+      matrix:
+        config: [[windows-latest, x64-windows], [macos-latest, x64-osx], [ubuntu-20.04, x64-linux]]
+    runs-on: ${{ matrix.config[0] }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: vcpkg build
+        uses: johnwason/vcpkg-action@v4
+        with:
+          pkgs: rapidjson
+          triplet: ${{ matrix.config[1] }}
+          token: ${{ github.token }}
+      - name: configure
+        run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.config[1] }} ..
+      - name: build
+        run: cmake --build build --config Debug
+      - name: test
+        run: cd build && ctest -V -C Debug
