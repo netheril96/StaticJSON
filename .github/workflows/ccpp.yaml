@@ -14,7 +14,7 @@ jobs:
       - name: vcpkg build
         uses: johnwason/vcpkg-action@v4
         with:
-          pkgs: rapidjson
+          pkgs: rapidjson catch2
           triplet: ${{ matrix.config[1] }}
           token: ${{ github.token }}
       - name: configure
