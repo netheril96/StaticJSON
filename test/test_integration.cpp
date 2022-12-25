@@ -14,8 +14,11 @@
 #include <sys/types.h>
 #include <system_error>
 
-#ifdef STATICJSON_OPTIONAL
+#ifdef __has_include
+#if __has_include(<optional>)
+#pragma message("INFO: <optional> available for testing")
 #include <staticjson/optional_support.hpp>
+#endif
 #endif
 
 #ifdef _MSC_VER
