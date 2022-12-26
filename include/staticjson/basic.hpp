@@ -148,6 +148,62 @@ namespace mempool
 
     template <class T>
     using Stack = std::stack<T, std::deque<T, PooledAllocator<T>>>;
+
+    template <class T>
+    class UniquePtr
+    {
+    private:
+        T* ptr;
+
+        template <typename>
+        friend class UniquePtr;
+
+    public:
+        UniquePtr() : ptr(nullptr) {}
+        UniquePtr(UniquePtr&& other) noexcept : ptr(other.ptr) { other.ptr = nullptr; }
+        template <class U>
+        UniquePtr(UniquePtr<U>&& other) noexcept : ptr(static_cast<T*>(other.ptr))
+        {
+            other.ptr = nullptr;
+        }
+        UniquePtr& operator=(UniquePtr&& other) noexcept
+        {
+            std::swap(ptr, other.ptr);
+            return *this;
+        }
+
+        void clear()
+        {
+            if (!ptr)
+            {
+                return;
+            }
+            ptr->~T();
+            pooled_deallocate(ptr);
+            ptr = nullptr;
+        }
+
+        ~UniquePtr() { clear(); }
+
+        T* get() const noexcept { return ptr; }
+        T* operator->() const noexcept { return ptr; }
+        T& operator*() const noexcept { return *ptr; }
+
+        explicit operator bool() const noexcept { return ptr; }
+
+        template <class... Args>
+        static UniquePtr<T> make(Args&&... args)
+        {
+            UniquePtr<char> buffer;
+            buffer.ptr = reinterpret_cast<char*>(pooled_allocate(sizeof(T)));
+            // This may throw, hence the need for `buffer` to ensure deallocation.
+            new (buffer.ptr) T(std::forward<Args>(args)...);
+            UniquePtr<T> result;
+            result.ptr = reinterpret_cast<T*>(buffer.ptr);
+            buffer.ptr = nullptr;
+            return result;
+        }
+    };
 }
 
 class BaseHandler : public IHandler, private NonMobile
@@ -239,7 +295,7 @@ class ObjectHandler : public BaseHandler
 protected:
     struct FlaggedHandler
     {
-        std::unique_ptr<BaseHandler> handler;
+        mempool::UniquePtr<BaseHandler> handler;
         unsigned flags;
     };
 
@@ -314,7 +370,7 @@ public:
     void add_property(std::string name, T* pointer, unsigned flags_ = Flags::Default)
     {
         FlaggedHandler fh;
-        fh.handler.reset(new Handler<T>(pointer));
+        fh.handler = mempool::UniquePtr<Handler<T>>::make(pointer);
         fh.flags = flags_;
         add_handler(std::move(name), std::move(fh));
     }
