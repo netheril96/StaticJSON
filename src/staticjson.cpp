@@ -230,10 +230,7 @@ std::string error::RecursionTooDeepError::description() const
 {
     return "Too many levels of recursion";
 }
-std::string error::TooManyLeavesError::description() const
-{
-    return "Too many leaves";
-}
+std::string error::TooManyLeavesError::description() const { return "Too many leaves"; }
 std::string error::CorruptedDOMError::description() const { return "JSON has invalid structure"; }
 
 std::string error::ArrayLengthMismatchError::description() const
@@ -991,4 +988,44 @@ void JSONHandler::reset()
 }
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
+
+namespace mempool
+{
+    static thread_local MemoryPoolAllocator* ts_pool = nullptr;
+    void* pooled_allocate(size_t size)
+    {
+        if (!size)
+        {
+            size = 1;
+        }
+        auto pool = ts_pool;
+        if (!pool)
+        {
+            return ::operator new(size);
+        }
+        auto result = pool->Malloc(size);
+        if (!result)
+        {
+            throw std::bad_alloc();
+        }
+        return result;
+    }
+    void pooled_deallocate(void* ptr) noexcept
+    {
+        if (!ptr)
+        {
+            return;
+        }
+        auto pool = ts_pool;
+        if (!pool)
+        {
+            return ::operator delete(ptr);
+        }
+        return pool->Free(ptr);
+    }
+    void set_thread_local_memory_pool(MemoryPoolAllocator* pool /* Nullable */) noexcept
+    {
+        ts_pool = pool;
+    }
+}
 }

@@ -3,13 +3,13 @@
 #include <rapidjson/document.h>
 #include <staticjson/error.hpp>
 
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <type_traits>
-#include <climits>
 #include <stack>
+#include <type_traits>
 
 namespace staticjson
 {
@@ -57,6 +57,7 @@ public:
         _isMaxDepthSet = false;
         maxDepth = UINT_MAX;
     }
+
 private:
     GlobalConfig() {}
     bool _isMaxLeavesSet = false;
@@ -107,6 +108,13 @@ using rapidjson::Document;
 using rapidjson::Value;
 
 typedef rapidjson::MemoryPoolAllocator<> MemoryPoolAllocator;
+
+namespace mempool
+{
+    void* pooled_allocate(size_t size);
+    void pooled_deallocate(void* ptr) noexcept;
+    void set_thread_local_memory_pool(MemoryPoolAllocator* pool /* Nullable */) noexcept;
+}
 
 class BaseHandler : public IHandler, private NonMobile
 {
@@ -220,6 +228,7 @@ protected:
     void set_missing_required(const std::string& name);
     void add_handler(std::string&&, FlaggedHandler&&);
     void reset() override;
+
 private:
     bool StartCheckMaxDepthMaxLeaves(bool isArray);
     bool EndCheckMaxDepthMaxLeaves(SizeType sz, bool isArray);
