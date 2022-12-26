@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(StaticJSON)
 
 option(STATICJSON_ENABLE_TEST "Enable building test for StaticJSON" ON)
+option(STATICJSON_ASAN "Enable address sanitizer on non-MSVC" OFF)
 
 set(CMAKE_CXX_STANDARD_REQUIRED 0)
 
@@ -11,6 +12,11 @@ endif()
 
 if(MSVC)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS=1)
+else()
+  if(STATICJSON_ASAN)
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+  endif()
 endif()
 
 find_path(RAPIDJSON_INCLUDE_DIR rapidjson/rapidjson.h)
