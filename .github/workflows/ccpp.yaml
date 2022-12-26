@@ -2,6 +2,9 @@ name: C/C++ CI
 
 on: [push, pull_request]
 
+env:
+  VERBOSE: 1
+
 jobs:
   build_matrix:
     strategy:
