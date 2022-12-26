@@ -18,6 +18,7 @@
 #if __has_include(<optional>)
 #pragma message("INFO: <optional> available for testing")
 #include <staticjson/optional_support.hpp>
+#define STATICJSON_OPTIONAL 1
 #endif
 #endif
 
