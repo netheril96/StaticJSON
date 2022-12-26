@@ -3,13 +3,13 @@
 #include <rapidjson/document.h>
 #include <staticjson/error.hpp>
 
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <map>
 #include <memory>
-#include <type_traits>
-#include <climits>
 #include <stack>
+#include <type_traits>
 
 namespace staticjson
 {
@@ -25,44 +25,45 @@ struct NonMobile
 
 typedef unsigned int SizeType;
 
+// This class is not thread safe, so please set all values at startup or when single threaded.
 class GlobalConfig : private NonMobile
 {
 public:
-    static GlobalConfig* getInstance()
-    {
-        static GlobalConfig* ret = new GlobalConfig();
-        return ret;
-    }
-    void setMaxLeaves(SizeType maxNum)
+    static GlobalConfig* getInstance() noexcept;
+    SizeType getMemoryChunkSize() const noexcept { return memoryChunkSize; }
+    void setMemoryChunkSize(SizeType value) noexcept { memoryChunkSize = value; }
+    void setMaxLeaves(SizeType maxNum) noexcept
     {
         maxLeaves = maxNum;
         _isMaxLeavesSet = true;
     }
-    void setMaxDepth(SizeType maxDep)
+    void setMaxDepth(SizeType maxDep) noexcept
     {
         maxDepth = maxDep;
         _isMaxDepthSet = true;
     }
-    SizeType getMaxDepth() { return maxDepth; }
-    SizeType getMaxLeaves() { return maxLeaves; }
-    bool isMaxLeavesSet() { return _isMaxLeavesSet; }
-    bool isMaxDepthSet() { return _isMaxDepthSet; }
-    void unsetMaxLeavesFlag()
+    SizeType getMaxDepth() const noexcept { return maxDepth; }
+    SizeType getMaxLeaves() const noexcept { return maxLeaves; }
+    bool isMaxLeavesSet() const noexcept { return _isMaxLeavesSet; }
+    bool isMaxDepthSet() const noexcept { return _isMaxDepthSet; }
+    void unsetMaxLeavesFlag() noexcept
     {
         _isMaxLeavesSet = false;
         maxLeaves = UINT_MAX;
     }
-    void unsetMaxDepthFlag()
+    void unsetMaxDepthFlag() noexcept
     {
         _isMaxDepthSet = false;
         maxDepth = UINT_MAX;
     }
+
 private:
     GlobalConfig() {}
     bool _isMaxLeavesSet = false;
     bool _isMaxDepthSet = false;
     SizeType maxLeaves = UINT_MAX;
     SizeType maxDepth = UINT_MAX;
+    SizeType memoryChunkSize = 16384;
 };
 
 class IHandler
@@ -220,6 +221,7 @@ protected:
     void set_missing_required(const std::string& name);
     void add_handler(std::string&&, FlaggedHandler&&);
     void reset() override;
+
 private:
     bool StartCheckMaxDepthMaxLeaves(bool isArray);
     bool EndCheckMaxDepthMaxLeaves(SizeType sz, bool isArray);

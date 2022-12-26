@@ -230,10 +230,7 @@ std::string error::RecursionTooDeepError::description() const
 {
     return "Too many levels of recursion";
 }
-std::string error::TooManyLeavesError::description() const
-{
-    return "Too many leaves";
-}
+std::string error::TooManyLeavesError::description() const { return "Too many leaves"; }
 std::string error::CorruptedDOMError::description() const { return "JSON has invalid structure"; }
 
 std::string error::ArrayLengthMismatchError::description() const
@@ -991,4 +988,10 @@ void JSONHandler::reset()
 }
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
+
+GlobalConfig* GlobalConfig::getInstance() noexcept
+{
+    static GlobalConfig config;
+    return &config;
+}
 }
