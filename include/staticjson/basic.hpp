@@ -149,6 +149,10 @@ namespace mempool
     template <class T>
     using Stack = std::stack<T, std::deque<T, PooledAllocator<T>>>;
 
+    using String = std::basic_string<char, std::char_traits<char>, PooledAllocator<char>>;
+
+    std::string to_std_string(const String& str);
+
     template <class T>
     class UniquePtr
     {
@@ -317,9 +321,9 @@ protected:
     };
 
 protected:
-    mempool::Map<std::string, FlaggedHandler> internals;
+    mempool::Map<mempool::String, FlaggedHandler> internals;
     FlaggedHandler* current = nullptr;
-    std::string current_name;
+    mempool::String current_name;
     int depth = 0;
     unsigned flags = Flags::Default;
     unsigned int jsonDepth = 0;
@@ -333,7 +337,7 @@ protected:
     bool precheck(const char* type);
     bool postcheck(bool success);
     void set_missing_required(const std::string& name);
-    void add_handler(std::string&&, FlaggedHandler&&);
+    void add_handler(mempool::String&&, FlaggedHandler&&);
     void reset() override;
 
 private:
@@ -384,7 +388,7 @@ public:
     void set_flags(unsigned f) { flags = f; }
 
     template <class T>
-    void add_property(std::string name, T* pointer, unsigned flags_ = Flags::Default)
+    void add_property(mempool::String name, T* pointer, unsigned flags_ = Flags::Default)
     {
         FlaggedHandler fh;
         fh.handler = mempool::UniquePtr<Handler<T>>::make(pointer);

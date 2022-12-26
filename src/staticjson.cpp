@@ -318,7 +318,7 @@ bool ObjectHandler::precheck(const char* actual_type)
         }
         else
         {
-            the_error.reset(new error::DuplicateKeyError(current_name));
+            the_error.reset(new error::DuplicateKeyError(mempool::to_std_string(current_name)));
             return false;
         }
     }
@@ -329,7 +329,7 @@ bool ObjectHandler::postcheck(bool success)
 {
     if (!success)
     {
-        the_error.reset(new error::ObjectMemberError(current_name));
+        the_error.reset(new error::ObjectMemberError(mempool::to_std_string(current_name)));
     }
     return success;
 }
@@ -563,7 +563,7 @@ bool ObjectHandler::EndObject(SizeType sz)
         if (pair.second.handler && !(pair.second.flags & Flags::Optional)
             && !pair.second.handler->is_parsed())
         {
-            set_missing_required(pair.first);
+            set_missing_required(mempool::to_std_string(pair.first));
         }
     }
     if (!the_error)
@@ -586,7 +586,7 @@ void ObjectHandler::reset()
     }
 }
 
-void ObjectHandler::add_handler(std::string&& name, ObjectHandler::FlaggedHandler&& fh)
+void ObjectHandler::add_handler(mempool::String&& name, ObjectHandler::FlaggedHandler&& fh)
 {
     internals.emplace(std::move(name), std::move(fh));
 }
@@ -1033,5 +1033,6 @@ namespace mempool
     {
         ts_pool = pool;
     }
+    std::string to_std_string(const String& str) { return {str.data(), str.size()}; }
 }
 }
