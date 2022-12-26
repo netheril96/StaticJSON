@@ -25,34 +25,33 @@ struct NonMobile
 
 typedef unsigned int SizeType;
 
+// This class is not thread safe, so please set all values at startup or when single threaded.
 class GlobalConfig : private NonMobile
 {
 public:
-    static GlobalConfig* getInstance()
-    {
-        static GlobalConfig* ret = new GlobalConfig();
-        return ret;
-    }
-    void setMaxLeaves(SizeType maxNum)
+    static GlobalConfig* getInstance();
+    SizeType getMemoryChunkSize() const noexcept { return memoryChunkSize; }
+    void setMemoryChunkSize(SizeType value) noexcept { memoryChunkSize = value; }
+    void setMaxLeaves(SizeType maxNum) noexcept
     {
         maxLeaves = maxNum;
         _isMaxLeavesSet = true;
     }
-    void setMaxDepth(SizeType maxDep)
+    void setMaxDepth(SizeType maxDep) noexcept
     {
         maxDepth = maxDep;
         _isMaxDepthSet = true;
     }
-    SizeType getMaxDepth() { return maxDepth; }
-    SizeType getMaxLeaves() { return maxLeaves; }
-    bool isMaxLeavesSet() { return _isMaxLeavesSet; }
-    bool isMaxDepthSet() { return _isMaxDepthSet; }
-    void unsetMaxLeavesFlag()
+    SizeType getMaxDepth() const noexcept { return maxDepth; }
+    SizeType getMaxLeaves() const noexcept { return maxLeaves; }
+    bool isMaxLeavesSet() const noexcept { return _isMaxLeavesSet; }
+    bool isMaxDepthSet() const noexcept { return _isMaxDepthSet; }
+    void unsetMaxLeavesFlag() noexcept
     {
         _isMaxLeavesSet = false;
         maxLeaves = UINT_MAX;
     }
-    void unsetMaxDepthFlag()
+    void unsetMaxDepthFlag() noexcept
     {
         _isMaxDepthSet = false;
         maxDepth = UINT_MAX;
@@ -64,6 +63,7 @@ private:
     bool _isMaxDepthSet = false;
     SizeType maxLeaves = UINT_MAX;
     SizeType maxDepth = UINT_MAX;
+    SizeType memoryChunkSize = 16384;
 };
 
 class IHandler
@@ -203,6 +203,23 @@ namespace mempool
             buffer.ptr = nullptr;
             return result;
         }
+    };
+
+    class PoolGuard
+    {
+    private:
+        rapidjson::CrtAllocator crt_alloc;
+        rapidjson::MemoryPoolAllocator<> pool;
+
+    public:
+        explicit PoolGuard(SizeType chunkSize) : crt_alloc(), pool(chunkSize, &crt_alloc)
+        {
+            set_thread_local_memory_pool(&pool);
+        }
+        PoolGuard() : PoolGuard(GlobalConfig::getInstance()->getMemoryChunkSize()) {}
+        ~PoolGuard() { set_thread_local_memory_pool(nullptr); }
+        PoolGuard(PoolGuard&&) = delete;
+        PoolGuard& operator=(PoolGuard&&) = delete;
     };
 }
 

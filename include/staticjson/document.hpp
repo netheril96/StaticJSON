@@ -84,6 +84,7 @@ namespace nonpublic
 template <class T>
 bool from_json_value(const Value& v, T* t, ParseStatus* status)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(t);
     return nonpublic::write_value(v, &h, status);
 }
@@ -99,6 +100,7 @@ bool from_json_document(const Document& d,
 template <class T>
 bool to_json_value(Value* v, MemoryPoolAllocator* alloc, const T& t, ParseStatus* status)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(const_cast<T*>(&t));
     return nonpublic::read_value(v, alloc, &h, status);
 }

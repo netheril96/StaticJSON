@@ -989,6 +989,12 @@ void JSONHandler::reset()
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
 
+GlobalConfig* GlobalConfig::getInstance()
+{
+    static GlobalConfig config;
+    return &config;
+}
+
 namespace mempool
 {
     static thread_local MemoryPoolAllocator* ts_pool = nullptr;

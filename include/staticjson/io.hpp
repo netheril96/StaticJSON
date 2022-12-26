@@ -33,6 +33,7 @@ namespace nonpublic
 template <class T>
 inline bool from_json_string(const char* str, T* value, ParseStatus* status)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(value);
     return nonpublic::parse_json_string(str, &h, status);
 }
@@ -40,6 +41,7 @@ inline bool from_json_string(const char* str, T* value, ParseStatus* status)
 template <class T>
 inline bool from_json_file(std::FILE* fp, T* value, ParseStatus* status)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(value);
     return nonpublic::parse_json_file(fp, &h, status);
 }
@@ -60,6 +62,7 @@ inline bool from_json_file(const std::string& filename, T* value, ParseStatus* s
 template <class T>
 inline std::string to_json_string(const T& value)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(const_cast<T*>(&value));
     return nonpublic::serialize_json_string(&h);
 }
@@ -67,6 +70,7 @@ inline std::string to_json_string(const T& value)
 template <class T>
 inline bool to_json_file(std::FILE* fp, const T& value)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(const_cast<T*>(&value));
     return nonpublic::serialize_json_file(fp, &h);
 }
@@ -87,6 +91,7 @@ inline bool to_json_file(const std::string& filename, const T& value)
 template <class T>
 inline std::string to_pretty_json_string(const T& value)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(const_cast<T*>(&value));
     return nonpublic::serialize_pretty_json_string(&h);
 }
@@ -94,6 +99,7 @@ inline std::string to_pretty_json_string(const T& value)
 template <class T>
 inline bool to_pretty_json_file(std::FILE* fp, const T& value)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(const_cast<T*>(&value));
     return nonpublic::serialize_pretty_json_file(fp, &h);
 }
@@ -114,6 +120,7 @@ inline bool to_pretty_json_file(const std::string& filename, const T& value)
 template <class T>
 inline Document export_json_schema(T* value, Document::AllocatorType* allocator = nullptr)
 {
+    mempool::PoolGuard pool_guard;
     Handler<T> h(value);
     Document d;
     h.generate_schema(d, allocator ? *allocator : d.GetAllocator());
