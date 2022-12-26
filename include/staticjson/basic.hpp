@@ -212,11 +212,14 @@ namespace mempool
     class PoolGuard
     {
     private:
+        static constexpr size_t STACK_BUFFER_SIZE = 4000;
+        char stack_buffer[STACK_BUFFER_SIZE];
         rapidjson::CrtAllocator crt_alloc;
         rapidjson::MemoryPoolAllocator<> pool;
 
     public:
-        explicit PoolGuard(SizeType chunkSize) : crt_alloc(), pool(chunkSize, &crt_alloc)
+        explicit PoolGuard(SizeType chunkSize)
+            : crt_alloc(), pool(stack_buffer, sizeof(stack_buffer), chunkSize, &crt_alloc)
         {
             set_thread_local_memory_pool(&pool);
         }
