@@ -114,6 +114,40 @@ namespace mempool
     void* pooled_allocate(size_t size);
     void pooled_deallocate(void* ptr) noexcept;
     void set_thread_local_memory_pool(MemoryPoolAllocator* pool /* Nullable */) noexcept;
+
+    template <class T>
+    struct PooledAllocator
+    {
+        typedef T value_type;
+        PooledAllocator() noexcept {}    // default ctor not required by C++ Standard Library
+
+        // A converting copy constructor:
+        template <class U>
+        PooledAllocator(const PooledAllocator<U>&) noexcept
+        {
+        }
+        template <class U>
+        bool operator==(const PooledAllocator<U>&) const noexcept
+        {
+            return true;
+        }
+        template <class U>
+        bool operator!=(const PooledAllocator<U>&) const noexcept
+        {
+            return false;
+        }
+        T* allocate(const size_t n) const
+        {
+            return static_cast<T*>(pooled_allocate(n * sizeof(T)));
+        }
+        void deallocate(T* const p, size_t) const noexcept { return pooled_deallocate(p); }
+    };
+
+    template <class K, class V>
+    using Map = std::map<K, V, std::less<K>, PooledAllocator<std::pair<const K, V>>>;
+
+    template <class T>
+    using Stack = std::stack<T, std::deque<T, PooledAllocator<T>>>;
 }
 
 class BaseHandler : public IHandler, private NonMobile
@@ -210,7 +244,7 @@ protected:
     };
 
 protected:
-    std::map<std::string, FlaggedHandler> internals;
+    mempool::Map<std::string, FlaggedHandler> internals;
     FlaggedHandler* current = nullptr;
     std::string current_name;
     int depth = 0;
@@ -220,7 +254,7 @@ protected:
     bool lastLeafStat = false;
     SizeType totalLeaves = 0;
     // save the number of object or array
-    std::stack<SizeType> leavesStack;
+    mempool::Stack<SizeType> leavesStack;
 
 protected:
     bool precheck(const char* type);
