@@ -775,7 +775,7 @@ template <std::size_t N>
 class TupleHander : public BaseHandler
 {
 protected:
-    std::array<std::unique_ptr<BaseHandler>, N> handlers;
+    std::array<mempool::UniquePtr<BaseHandler>, N> handlers;
     std::size_t index = 0;
     int depth = 0;
 
@@ -946,10 +946,11 @@ namespace nonpublic
     template <std::size_t index, std::size_t N, typename Tuple>
     struct TupleIniter
     {
-        void operator()(std::unique_ptr<BaseHandler>* handlers, Tuple& t) const
+        void operator()(mempool::UniquePtr<BaseHandler>* handlers, Tuple& t) const
         {
-            handlers[index].reset(
-                new Handler<typename std::tuple_element<index, Tuple>::type>(&std::get<index>(t)));
+            handlers[index]
+                = mempool::UniquePtr<Handler<typename std::tuple_element<index, Tuple>::type>>::
+                    make(&std::get<index>(t));
             TupleIniter<index + 1, N, Tuple>{}(handlers, t);
         }
     };
@@ -957,7 +958,7 @@ namespace nonpublic
     template <std::size_t N, typename Tuple>
     struct TupleIniter<N, N, Tuple>
     {
-        void operator()(std::unique_ptr<BaseHandler>* handlers, Tuple& t) const
+        void operator()(mempool::UniquePtr<BaseHandler>* handlers, Tuple& t) const
         {
             (void)handlers;
             (void)t;
