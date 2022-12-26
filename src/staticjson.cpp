@@ -11,6 +11,7 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 #include <exception>
 
 namespace staticjson
@@ -1012,7 +1013,11 @@ namespace mempool
         auto result = pool->Malloc(size);
         if (!result)
         {
+#ifdef __cpp_exceptions
             throw std::bad_alloc();
+#else
+            abort();
+#endif
         }
         return result;
     }
