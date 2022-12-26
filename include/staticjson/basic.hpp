@@ -29,7 +29,7 @@ typedef unsigned int SizeType;
 class GlobalConfig : private NonMobile
 {
 public:
-    static GlobalConfig* getInstance();
+    static GlobalConfig* getInstance() noexcept;
     SizeType getMemoryChunkSize() const noexcept { return memoryChunkSize; }
     void setMemoryChunkSize(SizeType value) noexcept { memoryChunkSize = value; }
     void setMaxLeaves(SizeType maxNum) noexcept
@@ -383,9 +383,9 @@ public:
 
     virtual void generate_schema(Value& output, MemoryPoolAllocator& alloc) const override;
 
-    unsigned get_flags() const { return flags; }
+    unsigned get_flags() const noexcept { return flags; }
 
-    void set_flags(unsigned f) { flags = f; }
+    void set_flags(unsigned f) noexcept { flags = f; }
 
     template <class T>
     void add_property(mempool::String name, T* pointer, unsigned flags_ = Flags::Default)

@@ -989,7 +989,7 @@ void JSONHandler::reset()
 
 bool JSONHandler::write(IHandler* output) const { return m_value->Accept(*output); }
 
-GlobalConfig* GlobalConfig::getInstance()
+GlobalConfig* GlobalConfig::getInstance() noexcept
 {
     static GlobalConfig config;
     return &config;
