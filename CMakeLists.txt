@@ -14,12 +14,18 @@ if(MSVC)
 endif()
 
 find_path(RAPIDJSON_INCLUDE_DIR rapidjson/rapidjson.h)
-include_directories(SYSTEM ${RAPIDJSON_INCLUDE_DIR})
 
-include_directories(include autojsoncxx)
 set(SOURCE_FILES src/staticjson.cpp)
 add_library(staticjson ${SOURCE_FILES})
 set_property(TARGET staticjson PROPERTY CXX_STANDARD 11)
+add_library(staticjson::staticjson ALIAS staticjson)
+target_include_directories(
+  staticjson
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+         $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/autojsoncxx>
+         $<BUILD_INTERFACE:${RAPIDJSON_INCLUDE_DIR}>
+         $<INSTALL_INTERFACE:include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(STATICJSON_ENABLE_TEST)
   set(TARGET test_staticjson)
@@ -39,3 +45,29 @@ if(STATICJSON_ENABLE_TEST)
     COMMAND ${TARGET}
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
 endif()
+
+include(GNUInstallDirs)
+
+install(
+  TARGETS staticjson
+  EXPORT staticjson-targets
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/staticjson
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(
+  EXPORT staticjson-targets
+  FILE staticjson-targets.cmake
+  NAMESPACE staticjson::
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/staticjson)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+  ${CMAKE_SOURCE_DIR}/cmake/staticjson-config.cmake.in
+  ${CMAKE_BINARY_DIR}/cmake/staticjson-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/staticjson)
+
+install(FILES ${CMAKE_BINARY_DIR}/cmake/staticjson-config.cmake
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake/staticjson)
