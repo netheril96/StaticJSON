@@ -530,6 +530,7 @@ TEST_CASE("Test for mismatch between JSON and C++ class std::map<std::string, co
             REQUIRE(err.begin()->type() == error::TYPE_MISMATCH);
 
             auto&& e = static_cast<const error::TypeMismatchError&>(*err.begin());
+            (void)e;
         }
         {
             auto it = ++err.begin();
