@@ -356,7 +356,7 @@ public:
 
 protected:
     mutable PointerType* m_value;
-    mutable std::unique_ptr<Handler<ElementType>> internal_handler;
+    mutable mempool::UniquePtr<Handler<ElementType>> internal_handler;
     int depth = 0;
 
 protected:
@@ -367,14 +367,14 @@ protected:
         if (!internal_handler)
         {
             m_value->reset(new ElementType());
-            internal_handler.reset(new Handler<ElementType>(m_value->get()));
+            internal_handler = decltype(internal_handler)::make(m_value->get());
         }
     }
 
     void reset() override
     {
         depth = 0;
-        internal_handler.reset();
+        internal_handler = {};
         m_value->reset();
     }
 
@@ -409,7 +409,7 @@ public:
         }
         if (!internal_handler)
         {
-            internal_handler.reset(new Handler<ElementType>(m_value->get()));
+            internal_handler = decltype(internal_handler)::make(m_value->get());
         }
         return internal_handler->write(out);
     }
