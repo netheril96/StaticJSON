@@ -24,7 +24,12 @@ void instantiate_all_types()
     INSTANTIATE(staticjson::Document);
     INSTANTIATE(decltype(nullptr));
 
-    typedef std::tuple<int, double, std::vector<std::string>> complex_tuple_type;
+    typedef std::tuple<int,
+                       double,
+                       std::array<rapidjson::Document, 5>,
+                       std::vector<std::string>,
+                       std::unique_ptr<std::deque<rapidjson::Document>>>
+        complex_tuple_type;
     INSTANTIATE(complex_tuple_type);
 }
 
