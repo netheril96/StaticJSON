@@ -376,6 +376,8 @@ public:
 
     void set_flags(unsigned f) { flags = f; }
 
+    const MemoryPoolAllocator& get_memory_pool() const noexcept { return memory_pool_allocator; }
+
     template <class T>
     void add_property(const std::string& name, T* pointer, unsigned flags_ = Flags::Default)
     {

@@ -152,6 +152,8 @@ public:
         internal.generate_schema(items, alloc);
         output.AddMember(rapidjson::StringRef("items"), items, alloc);
     }
+
+    const Handler<ElementType>& get_internal_handler() const noexcept { return internal; }
 };
 
 template <class T>
