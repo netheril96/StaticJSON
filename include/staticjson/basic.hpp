@@ -63,7 +63,7 @@ private:
     bool _isMaxDepthSet = false;
     SizeType maxLeaves = UINT_MAX;
     SizeType maxDepth = UINT_MAX;
-    SizeType memoryChunkSize = 16384;
+    SizeType memoryChunkSize = 480;
 };
 
 class IHandler
