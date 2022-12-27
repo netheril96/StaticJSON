@@ -312,6 +312,19 @@ ObjectHandler::~ObjectHandler() {}
 
 std::string ObjectHandler::type_name() const { return "object"; }
 
+void ObjectHandler::postinit()
+{
+    size_t max_string_size = 0;
+    for (const auto& pair : internals)
+    {
+        max_string_size = std::max<size_t>(max_string_size, pair.first.size());
+    }
+    if (max_string_size)
+    {
+        current_name.reserve(max_string_size);
+    }
+}
+
 bool ObjectHandler::precheck(const char* actual_type)
 {
     if (depth <= 0)

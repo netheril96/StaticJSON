@@ -315,6 +315,7 @@ protected:
     mempool::Stack<SizeType> leavesStack;
 
 protected:
+    void postinit();
     bool precheck(const char* type);
     bool postcheck(bool success);
     void set_missing_required(const std::string& name);
@@ -431,7 +432,11 @@ template <class T>
 class ObjectTypeHandler : public ObjectHandler
 {
 public:
-    explicit ObjectTypeHandler(T* t) { init(t, this); }
+    explicit ObjectTypeHandler(T* t)
+    {
+        init(t, this);
+        postinit();
+    }
 };
 
 template <class T>
