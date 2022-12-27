@@ -257,6 +257,10 @@ namespace mempool
     template <class T>
     using Stack = std::stack<T, std::deque<T, PooledAllocator<T>>>;
 
+    using String = std::basic_string<char, std::char_traits<char>, PooledAllocator<char>>;
+
+    inline std::string to_std_string(const String& str) { return {str.data(), str.size()}; }
+
     template <class T>
     struct PooledDeleter
     {
@@ -297,9 +301,9 @@ protected:
 protected:
     char raw_buffer[400];
     MemoryPoolAllocator memory_pool_allocator;
-    mempool::Map<std::string, FlaggedHandler> internals;
+    mempool::Map<mempool::String, FlaggedHandler> internals;
     FlaggedHandler* current = nullptr;
-    std::string current_name;
+    mempool::String current_name;
     int depth = 0;
     unsigned flags = Flags::Default;
     unsigned int jsonDepth = 0;
@@ -313,12 +317,21 @@ protected:
     bool precheck(const char* type);
     bool postcheck(bool success);
     void set_missing_required(const std::string& name);
-    void add_handler(std::string&&, FlaggedHandler&&);
+    void add_handler(mempool::String&&, FlaggedHandler&&);
     void reset() override;
 
 private:
     bool StartCheckMaxDepthMaxLeaves(bool isArray);
     bool EndCheckMaxDepthMaxLeaves(SizeType sz, bool isArray);
+
+    template <class T>
+    void add_property(mempool::String name, T* pointer, unsigned flags_ = Flags::Default)
+    {
+        FlaggedHandler fh;
+        fh.handler.reset(mempool::pooled_new<Handler<T>>(memory_pool_allocator, pointer));
+        fh.flags = flags_;
+        add_handler(std::move(name), std::move(fh));
+    }
 
 public:
     ObjectHandler();
@@ -364,12 +377,21 @@ public:
     void set_flags(unsigned f) { flags = f; }
 
     template <class T>
-    void add_property(std::string name, T* pointer, unsigned flags_ = Flags::Default)
+    void add_property(const std::string& name, T* pointer, unsigned flags_ = Flags::Default)
     {
-        FlaggedHandler fh;
-        fh.handler.reset(mempool::pooled_new<Handler<T>>(memory_pool_allocator, pointer));
-        fh.flags = flags_;
-        add_handler(std::move(name), std::move(fh));
+        add_property(mempool::String(name.data(),
+                                     name.size(),
+                                     mempool::String::allocator_type(&memory_pool_allocator)),
+                     pointer,
+                     flags_);
+    }
+
+    template <class T>
+    void add_property(const char* name, T* pointer, unsigned flags_ = Flags::Default)
+    {
+        add_property(mempool::String(name, mempool::String::allocator_type(&memory_pool_allocator)),
+                     pointer,
+                     flags_);
     }
 };
 
