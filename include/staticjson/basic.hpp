@@ -299,7 +299,6 @@ protected:
     };
 
 protected:
-    char raw_buffer[400];
     MemoryPoolAllocator memory_pool_allocator;
     mempool::Map<mempool::String, FlaggedHandler> internals;
     FlaggedHandler* current = nullptr;
