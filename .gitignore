@@ -44,3 +44,5 @@ CTestTestfile.cmake
 rapidjson.tgz
 rapidjson*/
 
+build/
+.vscode/
