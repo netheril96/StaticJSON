@@ -256,6 +256,33 @@ namespace mempool
 
     template <class T>
     using Stack = std::stack<T, std::deque<T, PooledAllocator<T>>>;
+
+    template <class T>
+    struct PooledDeleter
+    {
+        void operator()(T* ptr) const noexcept
+        {
+            if (!ptr)
+            {
+                return;
+            }
+            ptr->~T();
+            MemoryPoolAllocator::Free(ptr);
+        }
+    };
+
+    template <class T>
+    using UniquePtr = std::unique_ptr<T, PooledDeleter<T>>;
+
+    template <typename T, typename... Args>
+    T* pooled_new(MemoryPoolAllocator& pool, Args&&... args)
+    {
+        auto storage = pool.Malloc(sizeof(T));
+        // Note: we do not need to free the storage if exceptions happen in the construction of T,
+        // because `MemoryPoolAllocator::Free` is a no-op.
+        new (storage) T(std::forward<Args>(args)...);
+        return static_cast<T*>(storage);
+    }
 }
 
 class ObjectHandler : public BaseHandler
@@ -263,7 +290,7 @@ class ObjectHandler : public BaseHandler
 protected:
     struct FlaggedHandler
     {
-        std::unique_ptr<BaseHandler> handler;
+        mempool::UniquePtr<BaseHandler> handler;
         unsigned flags;
     };
 
@@ -340,7 +367,7 @@ public:
     void add_property(std::string name, T* pointer, unsigned flags_ = Flags::Default)
     {
         FlaggedHandler fh;
-        fh.handler.reset(new Handler<T>(pointer));
+        fh.handler.reset(mempool::pooled_new<Handler<T>>(memory_pool_allocator, pointer));
         fh.flags = flags_;
         add_handler(std::move(name), std::move(fh));
     }
