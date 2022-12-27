@@ -193,6 +193,65 @@ struct Flags
 template <class T>
 class Handler;
 
+namespace mempool
+{
+    [[noreturn]] void throw_bad_alloc();
+    rapidjson::CrtAllocator& get_crt_allocator() noexcept;
+
+    template <class T>
+    class PooledAllocator
+    {
+    private:
+        MemoryPoolAllocator* pool;
+
+    public:
+        using value_type = T;
+        using propagate_on_container_copy_assignment = std::true_type;
+        using propagate_on_container_move_assignment = std::true_type;
+        using propagate_on_container_swap = std::true_type;
+
+        explicit PooledAllocator(MemoryPoolAllocator* pool) noexcept : pool(pool) {}
+
+        template <class U>
+        PooledAllocator(const PooledAllocator<U>& other) noexcept : pool(other.pool)
+        {
+        }
+        template <class U>
+        bool operator==(const PooledAllocator<U>& other) const noexcept
+        {
+            return pool == other.pool;
+        }
+        template <class U>
+        bool operator!=(const PooledAllocator<U>& other) const noexcept
+        {
+            return pool != other.pool;
+        }
+        T* allocate(const size_t n) const
+        {
+            if (!n)
+            {
+                return nullptr;
+            }
+            auto ptr = static_cast<T*>(pool->Malloc(n * sizeof(T)));
+            if (!ptr)
+            {
+                throw_bad_alloc();
+            }
+            return ptr;
+        }
+        void deallocate(T* const p, size_t) const noexcept
+        {
+            if (p)
+            {
+                pool->Free(p);
+            }
+        }
+    };
+
+    template <class K, class V>
+    using Map = std::map<K, V, std::less<K>, PooledAllocator<std::pair<const K, V>>>;
+}
+
 class ObjectHandler : public BaseHandler
 {
 protected:
@@ -203,6 +262,8 @@ protected:
     };
 
 protected:
+    char raw_buffer[400];
+    MemoryPoolAllocator memory_pool_allocator;
     std::map<std::string, FlaggedHandler> internals;
     FlaggedHandler* current = nullptr;
     std::string current_name;

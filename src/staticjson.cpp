@@ -11,7 +11,9 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 #include <exception>
+#include <new>
 
 namespace staticjson
 {
@@ -993,5 +995,23 @@ GlobalConfig* GlobalConfig::getInstance() noexcept
 {
     static GlobalConfig config;
     return &config;
+}
+
+namespace mempool
+{
+    [[noreturn]] void throw_bad_alloc()
+    {
+#ifdef __cpp_exceptions
+        throw std::bad_alloc();
+#else
+        abort();
+#endif
+    }
+
+    rapidjson::CrtAllocator& get_crt_allocator() noexcept
+    {
+        static rapidjson::CrtAllocator a;
+        return a;
+    }
 }
 }
