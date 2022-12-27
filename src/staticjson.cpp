@@ -299,7 +299,16 @@ bool IHandler::RawNumber(const char*, SizeType, bool)
     std::terminate();
 }
 
-ObjectHandler::ObjectHandler() {}
+ObjectHandler::ObjectHandler()
+    : memory_pool_allocator(raw_buffer,
+                            sizeof(raw_buffer),
+                            GlobalConfig::getInstance()->getMemoryChunkSize(),
+                            &mempool::get_crt_allocator())
+    , internals(decltype(internals)::allocator_type(&memory_pool_allocator))
+    , leavesStack(decltype(leavesStack)::container_type::allocator_type(&memory_pool_allocator))
+
+{
+}
 
 ObjectHandler::~ObjectHandler() {}
 

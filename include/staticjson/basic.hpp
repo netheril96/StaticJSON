@@ -204,6 +204,9 @@ namespace mempool
     private:
         MemoryPoolAllocator* pool;
 
+        template <class U>
+        friend class PooledAllocator;
+
     public:
         using value_type = T;
         using propagate_on_container_copy_assignment = std::true_type;
@@ -250,6 +253,9 @@ namespace mempool
 
     template <class K, class V>
     using Map = std::map<K, V, std::less<K>, PooledAllocator<std::pair<const K, V>>>;
+
+    template <class T>
+    using Stack = std::stack<T, std::deque<T, PooledAllocator<T>>>;
 }
 
 class ObjectHandler : public BaseHandler
@@ -264,7 +270,7 @@ protected:
 protected:
     char raw_buffer[400];
     MemoryPoolAllocator memory_pool_allocator;
-    std::map<std::string, FlaggedHandler> internals;
+    mempool::Map<std::string, FlaggedHandler> internals;
     FlaggedHandler* current = nullptr;
     std::string current_name;
     int depth = 0;
@@ -274,7 +280,7 @@ protected:
     bool lastLeafStat = false;
     SizeType totalLeaves = 0;
     // save the number of object or array
-    std::stack<SizeType> leavesStack;
+    mempool::Stack<SizeType> leavesStack;
 
 protected:
     bool precheck(const char* type);
