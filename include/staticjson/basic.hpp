@@ -271,7 +271,8 @@ namespace mempool
                 return;
             }
             ptr->~T();
-            MemoryPoolAllocator::Free(ptr);
+            static_assert(!MemoryPoolAllocator::kNeedFree,
+                          "MemoryPoolAllocator must not need freeing");
         }
     };
 
@@ -282,8 +283,9 @@ namespace mempool
     T* pooled_new(MemoryPoolAllocator& pool, Args&&... args)
     {
         auto storage = pool.Malloc(sizeof(T));
-        // Note: we do not need to free the storage if exceptions happen in the construction of T,
-        // because `MemoryPoolAllocator::Free` is a no-op.
+        static_assert(!MemoryPoolAllocator::kNeedFree,
+                      "MemoryPoolAllocator must not need freeing or we will need to handle "
+                      "potential exceptions in the construction of T");
         new (storage) T(std::forward<Args>(args)...);
         return static_cast<T*>(storage);
     }
