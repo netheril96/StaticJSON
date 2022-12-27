@@ -1,8 +1,5 @@
 # StaticJSON
 
-![](https://travis-ci.org/netheril96/StaticJSON.svg?branch=master)
-![](https://ci.appveyor.com/api/projects/status/github/netheril96/StaticJSON?branch=master&svg=true)
-
 Fast, direct and static typed parsing of JSON with C++.
 
 ## Overview
