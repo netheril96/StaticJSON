@@ -25,7 +25,7 @@ Run command `vcpkg install staticjson`, then in your `CMakeLists.txt`, add
 
 ## Method 2: just build everything together
 
-Just drop the `include` and `src` directory into your own project and build along with other sources. It requires you to separately install [`rapidjson`](rapidjson.org).
+Just drop the `include` and `src` directory into your own project and build along with other sources. It requires you to separately install [`rapidjson`](https://rapidjson.org).
 
 ## Quick start
 
