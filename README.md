@@ -12,11 +12,20 @@ More importantly, manually writing such code is a violation of **DRY** principle
 
 ## Usage
 
-`StaticJSON` requires a C++11 compiler. Tested with clang++ 3.5, g++ 4.8 and MSVC 2015.
+`StaticJSON` requires a C++11 compiler.
 
-Just drop the `include` and `src` directory into your own project and build along with other sources. It requires you to separately install [`rapidjson`](rapidjson.org). Currently tested against version 1.1 (2016-8-25).
+## Method 1: use [vcpkg](https://vcpkg.io)
 
-The cmake files are provided for building and running the integration test.
+Run command `vcpkg install staticjson`, then in your `CMakeLists.txt`, add
+
+```cmake
+ find_package(staticjson CONFIG REQUIRED)
+ target_link_libraries(${YOUR_TARGET} PRIVATE staticjson::staticjson)
+```
+
+## Method 2: just build everything together
+
+Just drop the `include` and `src` directory into your own project and build along with other sources. It requires you to separately install [`rapidjson`](rapidjson.org).
 
 ## Quick start
 
