@@ -249,6 +249,33 @@ namespace mempool
                 pool->Free(p);
             }
         }
+#ifdef STATICJSON_ALLOCATOR_TRAITS_BROKEN
+        using pointer = value_type*;
+        using const_pointer = const value_type*;
+        using reference = value_type&;
+        using const_reference = const value_type&;
+        using difference_type = std::ptrdiff_t;
+        using size_type = std::size_t;
+        template <typename U>
+        struct rebind
+        {
+            using other = PooledAllocator<U>;
+        };
+        //! Largest value for which method allocate might succeed.
+        size_type max_size() const noexcept
+        {
+            size_type max = ~(std::size_t(0)) / sizeof(value_type);
+            return (max > 0 ? max : 1);
+        }
+        template <typename U, typename... Args>
+        void construct(U* p, Args&&... args)
+        {
+            ::new (p) U(std::forward<Args>(args)...);
+        }
+        void destroy(pointer p) { p->~value_type(); }
+        pointer address(reference x) const { return &x; }
+        const_pointer address(const_reference x) const { return &x; }
+#endif
     };
 
     template <class K, class V>
